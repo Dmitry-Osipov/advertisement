@@ -56,3 +56,5 @@ CREATE TABLE advertisement.messages (
     FOREIGN KEY (conversation_id) REFERENCES advertisement.conversations(id),
     FOREIGN KEY (sender_id) REFERENCES advertisement.users(id)
 );
+
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA advertisement TO advertisement_user;
