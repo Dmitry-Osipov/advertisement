@@ -15,7 +15,8 @@ CREATE TABLE advertisement.users (
     phone_number VARCHAR(32),
     rating INTEGER,
     email VARCHAR(255) UNIQUE NOT NULL,
-    boosted BOOLEAN DEFAULT FALSE
+    boosted BOOLEAN DEFAULT FALSE,
+    role VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE advertisement.advertisements (
