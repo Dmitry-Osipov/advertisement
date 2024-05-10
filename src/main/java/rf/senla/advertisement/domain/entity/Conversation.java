@@ -18,6 +18,9 @@ import rf.senla.advertisement.security.entity.User;
 
 import java.time.LocalDateTime;
 
+/**
+ * Сущность, представляющая переписку.
+ */
 @Entity
 @Builder
 @Getter

@@ -29,14 +29,6 @@ public class UserService implements IService<User> {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserRepository repository;
 
-    /**
-     * Сохранение пользователя или обновление пользователя
-     * @return сохраненный пользователь
-     * @throws IllegalArgumentException - в случае, если данная сущность является null.
-     * @throws OptimisticLockingFailureException - если сущность использует оптимистическую блокировку и имеет атрибут
-     * version со значением, отличным от того, что находится в хранилище персистентности. Также выбрасывается, если
-     * предполагается, что сущность присутствует, но не существует в базе данных.
-     */
     public User save(User user) {
         return repository.save(user);
     }
@@ -70,24 +62,12 @@ public class UserService implements IService<User> {
                 .orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage()));
     }
 
-    /**
-     * Получение всех пользователей
-     * @return список пользователей
-     */
     public List<User> getAll() {
         return repository.findAll();
     }
 
-    /** Обновление пользователя
-     * @param user пользователь
-     * @return обновлённый пользователь
-     * @throws UserMismatchException если текущий и переданный пользователи не совпадают
-     * @throws OptimisticLockingFailureException - если сущность использует оптимистическую блокировку и имеет атрибут
-     * version со значением, отличным от того, что находится в хранилище персистентности. Также выбрасывается, если
-     * предполагается, что сущность присутствует, но не существует в базе данных
-     */
     public User update(User user) {
-        if (!CurrentUserValidator.isCurrentUser(user.getUsername())) {
+        if (!CurrentUserValidator.isCurrentUser(user)) {
             throw new UserMismatchException(ErrorMessage.USERS_DO_NOT_MATCH.getMessage());
         }
 
@@ -95,15 +75,8 @@ public class UserService implements IService<User> {
         return save(user);
     }
 
-    /** Удаление пользователя
-     * @param user пользователь
-     * @throws UserMismatchException если текущий и переданный пользователи не совпадают
-     * @throws OptimisticLockingFailureException - если сущность использует оптимистическую блокировку и имеет атрибут
-     * version со значением, отличным от того, что находится в хранилище персистентности. Также выбрасывается, если
-     * предполагается, что сущность присутствует, но не существует в базе данных
-     */
     public void delete(User user) {
-        if (!CurrentUserValidator.isCurrentUser(user.getUsername())) {
+        if (!CurrentUserValidator.isCurrentUser(user)) {
             throw new UserMismatchException(ErrorMessage.USERS_DO_NOT_MATCH.getMessage());
         }
 
@@ -122,11 +95,12 @@ public class UserService implements IService<User> {
      * предполагается, что сущность присутствует, но не существует в базе данных
      */
     public User updatePassword(String username, String oldPassword, String newPassword) {
-        if (!CurrentUserValidator.isCurrentUser(username)) {
+        User user = getByUsername(username);
+
+        if (!CurrentUserValidator.isCurrentUser(user)) {
             throw new UserMismatchException(ErrorMessage.USERS_DO_NOT_MATCH.getMessage());
         }
 
-        User user = getByUsername(username);
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new IllegalArgumentException(ErrorMessage.PASSWORDS_DO_NOT_MATCH.getMessage());
         }

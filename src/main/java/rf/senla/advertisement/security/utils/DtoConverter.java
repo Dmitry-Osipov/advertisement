@@ -6,15 +6,15 @@ import rf.senla.advertisement.security.entity.User;
 import java.util.List;
 
 /**
- * Утилитарный класс для конвертации между объектами User и UserDto.
+ * Утилитарный класс для конвертации между объектами {@link User} и {@link UserDto}.
  */
 public final class DtoConverter {
     private DtoConverter() {}
 
     /**
-     * Преобразует объект типа User в объект типа UserDto.
-     * @param user Объект типа User, который нужно преобразовать.
-     * @return Объект типа UserDto, содержащий данные из переданного объекта User.
+     * Преобразует объект типа {@link User} в объект типа {@link UserDto}.
+     * @param user Объект типа {@link User}, который нужно преобразовать.
+     * @return Объект типа {@link UserDto}, содержащий данные из переданного объекта {@link User}.
      */
     public static UserDto getDtoFromUser(User user) {
         return UserDto.builder()
@@ -30,9 +30,9 @@ public final class DtoConverter {
     }
 
     /**
-     * Преобразует объект типа UserDto в объект типа User.
-     * @param dto Объект типа UserDto, который нужно преобразовать.
-     * @return Объект типа User, содержащий данные из переданного объекта UserDto.
+     * Преобразует объект типа {@link UserDto} в объект типа {@link User}.
+     * @param dto Объект типа {@link UserDto}, который нужно преобразовать.
+     * @return Объект типа {@link User}, содержащий данные из переданного объекта {@link UserDto}.
      */
     public static User getUserFromDto(UserDto dto) {
         return User.builder()

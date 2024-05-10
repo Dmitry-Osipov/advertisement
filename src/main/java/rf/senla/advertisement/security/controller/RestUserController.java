@@ -30,27 +30,46 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Работа с пользователями")
 public class RestUserController {
-    private final UserService userService;
+    private final UserService service;
 
+    /**
+     * Получить пользователя по его имени пользователя (логину).
+     * @param username имя пользователя
+     * @return ответ с пользователем
+     */
     @GetMapping("/{username}")
     public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
-        return ResponseEntity.ok(DtoConverter.getDtoFromUser(userService.getByUsername(username)));
+        return ResponseEntity.ok(DtoConverter.getDtoFromUser(service.getByUsername(username)));
     }
 
+    /**
+     * Получить всех пользователей.
+     * @return ответ со списком пользователей
+     */
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        return ResponseEntity.ok(DtoConverter.getListDto(userService.getAll()));
+        return ResponseEntity.ok(DtoConverter.getListDto(service.getAll()));
     }
 
+    /**
+     * Обновить информацию о пользователе.
+     * @param dto данные пользователя
+     * @return ответ с обновленным пользователем
+     */
     @PutMapping
     public ResponseEntity<UserDto> updateUser(@RequestBody @Valid UserDto dto) {
         User user = DtoConverter.getUserFromDto(dto);
-        return ResponseEntity.ok(DtoConverter.getDtoFromUser(userService.update(user)));
+        return ResponseEntity.ok(DtoConverter.getDtoFromUser(service.update(user)));
     }
 
+    /**
+     * Удалить пользователя.
+     * @param dto данные пользователя
+     * @return ответ об успешном удалении
+     */
     @DeleteMapping
     public ResponseEntity<String> deleteUser(@RequestBody @Valid UserDto dto) {
-        userService.delete(DtoConverter.getUserFromDto(dto));
+        service.delete(DtoConverter.getUserFromDto(dto));
         return ResponseEntity.ok("Deleted user with username: " + dto.getUsername());
     }
 
@@ -61,7 +80,7 @@ public class RestUserController {
      */
     @PutMapping("/password")
     public ResponseEntity<UserDto> updatePassword(@RequestBody @Valid ChangePasswordRequest request) {
-        return ResponseEntity.ok(DtoConverter.getDtoFromUser(userService.updatePassword(
+        return ResponseEntity.ok(DtoConverter.getDtoFromUser(service.updatePassword(
                 request.getUsername(), request.getOldPassword(), request.getNewPassword())));
     }
 
@@ -73,7 +92,7 @@ public class RestUserController {
     @GetMapping("/admin/{username}")
     @PreAuthorize("hasRole('ADMIN')")
     public String setRoleAdmin(@PathVariable String username) {
-        userService.setAdminRole(username);
+        service.setAdminRole(username);
         return "The admin role is set to " + username;
     }
 }

@@ -16,6 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rf.senla.advertisement.security.entity.User;
 
+/**
+ * Сущность, представляющая объявление.
+ */
 @Entity
 @Builder
 @Getter

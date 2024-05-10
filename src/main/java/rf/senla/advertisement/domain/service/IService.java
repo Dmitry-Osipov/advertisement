@@ -11,13 +11,13 @@ public interface IService<T extends Identifiable> {
     /**
      * Сохранение пользователя сущности
      * @param entity сущность
-     * @return сохраненная сущность
+     * @return сохранённая сущность
      */
     T save(T entity);
 
-    /** Обновление пользователя
+    /** Обновление сущности
      * @param entity сущность
-     * @return обновлённый пользователь
+     * @return обновлённая сущность
      */
     T update(T entity);
 
