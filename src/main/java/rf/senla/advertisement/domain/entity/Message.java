@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(schema = "advertisement", name = "messages")
-public class Message {
+public class Message implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

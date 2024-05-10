@@ -23,7 +23,7 @@ import rf.senla.advertisement.security.entity.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(schema = "advertisement", name = "advertisements")
-public class Advertisement {
+public class Advertisement implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
