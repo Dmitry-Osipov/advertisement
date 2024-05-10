@@ -1,7 +1,9 @@
 package rf.senla.advertisement.security.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,7 @@ import rf.senla.advertisement.security.service.AuthenticationService;
  */
 @RestController
 @RequestMapping("${spring.data.rest.base-path}/auth")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Аутентификация")
 public class RestAuthController {
@@ -27,7 +30,7 @@ public class RestAuthController {
      * @return объект с JWT-токеном для успешной регистрации
      */
     @PostMapping("/sign-up")
-    public JwtAuthenticationResponse signUp(@RequestBody SignUpRequest request) {
+    public JwtAuthenticationResponse signUp(@Valid @RequestBody SignUpRequest request) {
         return authenticationService.signUp(request);
     }
 
@@ -37,7 +40,7 @@ public class RestAuthController {
      * @return объект с JWT-токеном для успешного входа
      */
     @PostMapping("/sign-in")
-    public JwtAuthenticationResponse signIn(@RequestBody SignInRequest request) {
+    public JwtAuthenticationResponse signIn(@Valid @RequestBody SignInRequest request) {
         return authenticationService.signIn(request);
     }
 }

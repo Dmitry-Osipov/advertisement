@@ -3,6 +3,7 @@ package rf.senla.advertisement.security.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -27,4 +28,8 @@ public class SignUpRequest {
     @Size(min = 8, max = 255, message = "Длина пароля должна быть от 8 до 255 символов")
     @NotBlank(message = "Пароль не может быть пустыми")
     private String password;
+
+    @Schema(description = "Номер телефона", example = "+7(777)777-77-77")
+    @Pattern(regexp = "\\+7\\(\\d{3}\\)\\d{3}-\\d{2}-\\d{2}", message = "Please use pattern +7(XXX)XXX-XX-XX")
+    private String phoneNumber;
 }

@@ -1,6 +1,8 @@
 package rf.senla.advertisement.security.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import rf.senla.advertisement.security.entity.User;
 
@@ -31,4 +33,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return {@code true}, если пользователь существует, иначе {@code false}
      */
     boolean existsByEmail(String email);
+
+    /**
+     * Удалить пользователя по его имени пользователя.
+     * @param username имя пользователя
+     */
+    @Modifying
+    @Query("DELETE FROM User u WHERE u.username = :username")
+    void deleteByUsername(String username);
 }
