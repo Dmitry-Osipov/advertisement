@@ -22,17 +22,18 @@ import java.util.List;
  * Сервис для управления пользователями.
  */
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserRepository repository;
 
+    @Transactional
     @Override
     public User save(User user) {
         return repository.save(user);
     }
 
+    @Transactional
     @Override
     public User update(User user) {
         if ((!CurrentUserValidator.isCurrentUser(user) && !user.getRole().equals(Role.ROLE_ADMIN))) {
@@ -43,6 +44,7 @@ public class UserService implements IUserService {
         return save(user);
     }
 
+    @Transactional
     @Override
     public void delete(User user) {
         if ((!CurrentUserValidator.isCurrentUser(user) && !user.getRole().equals(Role.ROLE_ADMIN))) {
@@ -63,6 +65,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage()));
     }
 
+    @Transactional
     @Override
     public User updatePassword(String username, String oldPassword, String newPassword) {
         User user = getByUsername(username);
@@ -80,6 +83,7 @@ public class UserService implements IUserService {
         return save(user);
     }
 
+    @Transactional
     @Override
     public void setAdminRole(String username) {
         User user = getByUsername(username);
@@ -95,6 +99,7 @@ public class UserService implements IUserService {
      * version со значением, отличным от того, что находится в хранилище персистентности. Также выбрасывается, если
      * предполагается, что сущность присутствует, но не существует в базе данных.
      */
+    @Transactional
     public User create(User user) {
         if (repository.existsByUsername(user.getUsername())) {
             throw new EntityContainedException(ErrorMessage.USERNAME_ALREADY_EXISTS.getMessage());

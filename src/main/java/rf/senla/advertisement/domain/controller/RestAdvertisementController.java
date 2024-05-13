@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.domain.dto.AdvertisementDto;
 import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.service.IAdvertisementService;
 import rf.senla.advertisement.domain.utils.DtoConverter;
+import rf.senla.advertisement.security.service.UserService;
 
 import java.util.List;
 
@@ -31,17 +32,7 @@ import java.util.List;
 @Tag(name = "Работа с объявлениями")
 public class RestAdvertisementController {
     private final IAdvertisementService service;
-
-    /**
-     * Получить объявление по его заголовку.
-     * @param headline заголовок объявления
-     * @return объект {@link ResponseEntity} с объявлением и кодом 200 OK в случае успеха
-     */
-    @GetMapping("/{headline}")
-    public ResponseEntity<List<AdvertisementDto>> getAdvertisementByHeadline(@PathVariable("headline")
-                                                                                 String headline) {
-        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(service.getAllByHeadline(headline)));
-    }
+    private final UserService userService;
 
     /**
      * Получить все объявления.
@@ -50,6 +41,50 @@ public class RestAdvertisementController {
     @GetMapping
     public ResponseEntity<List<AdvertisementDto>> getAllAdvertisements() {
         return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(service.getAll()));
+    }
+
+    /**
+     * Получить список объявлений по заголовку.
+     * @param headline заголовок объявления
+     * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
+     */
+    @GetMapping("/{headline}")
+    public ResponseEntity<List<AdvertisementDto>> getAdvertisementByHeadline(
+            @PathVariable("headline") String headline,
+            @RequestParam(value = "sort", required = false) String sortBy) {
+        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(service.getAll(headline, sortBy)));
+    }
+
+    /**
+     * Получить список объявлений по заголовку в промежутке цен с условием сортировки.
+     * @param minPrice минимальная цена
+     * @param maxPrice максимальная цена
+     * @param headline заголовок
+     * @param sortBy условие сортировки
+     * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<AdvertisementDto>> getAllByPriceAndHeadline(
+            @RequestParam(value = "min", required = false) Integer minPrice,
+            @RequestParam(value = "max", required = false) Integer maxPrice,
+            @RequestParam(value = "headline", required = false) String headline,
+            @RequestParam(value = "sort", required = false) String sortBy) {
+        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(
+                service.getAll(minPrice, maxPrice, headline, sortBy)));
+    }
+
+    /**
+     * Получить список объявлений по пользователю.
+     * @param username имя пользователя (логин)
+     * @param sortBy условие сортировки
+     * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
+     */
+    @GetMapping("/search/{username}")
+    public ResponseEntity<List<AdvertisementDto>> getAllByUser(
+            @PathVariable("username") String username,
+            @RequestParam(value = "sort", required = false) String sortBy) {
+        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(
+                service.getAll(userService.getByUsername(username), sortBy)));
     }
 
     /**
