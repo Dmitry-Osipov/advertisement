@@ -21,20 +21,9 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AdvertisementService implements IService<Advertisement> {
+public class AdvertisementService implements IAdvertisementService {
     private final AdvertisementRepository advertisementRepository;
     private final UserRepository userRepository;
-
-    /**
-     * Получить объявление по его заголовку.
-     * @param headline заголовок объявления
-     * @return найденное объявление
-     * @throws NoEntityException если объявление не найдено
-     */
-    public Advertisement getByHeadline(String headline) {
-        return advertisementRepository.findByHeadlineIgnoreCase(headline)
-                .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage()));
-    }
 
     @Override
     public Advertisement save(Advertisement advertisement) {
@@ -69,5 +58,10 @@ public class AdvertisementService implements IService<Advertisement> {
     @Override
     public List<Advertisement> getAll() {
         return advertisementRepository.findAll();
+    }
+
+    @Override
+    public List<Advertisement> getAllByHeadline(String headline) {
+        return advertisementRepository.findAllByHeadlineIgnoreCase(headline);
     }
 }

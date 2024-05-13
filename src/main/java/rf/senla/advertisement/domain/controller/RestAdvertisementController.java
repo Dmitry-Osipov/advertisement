@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.domain.dto.AdvertisementDto;
 import rf.senla.advertisement.domain.entity.Advertisement;
-import rf.senla.advertisement.domain.service.AdvertisementService;
+import rf.senla.advertisement.domain.service.IAdvertisementService;
 import rf.senla.advertisement.domain.utils.DtoConverter;
 
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Работа с объявлениями")
 public class RestAdvertisementController {
-    private final AdvertisementService service;
+    private final IAdvertisementService service;
 
     /**
      * Получить объявление по его заголовку.
@@ -37,8 +38,9 @@ public class RestAdvertisementController {
      * @return объект {@link ResponseEntity} с объявлением и кодом 200 OK в случае успеха
      */
     @GetMapping("/{headline}")
-    public ResponseEntity<AdvertisementDto> getAdvertisementByHeadline(@PathVariable("headline") String headline) {
-        return ResponseEntity.ok(DtoConverter.getDtoFromAdvertisement(service.getByHeadline(headline)));
+    public ResponseEntity<List<AdvertisementDto>> getAdvertisementByHeadline(@PathVariable("headline")
+                                                                                 String headline) {
+        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(service.getAllByHeadline(headline)));
     }
 
     /**

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.security.dto.ChangePasswordRequest;
 import rf.senla.advertisement.security.dto.UserDto;
 import rf.senla.advertisement.security.entity.User;
-import rf.senla.advertisement.security.service.UserService;
+import rf.senla.advertisement.security.service.IUserService;
 import rf.senla.advertisement.security.utils.DtoConverter;
 
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Работа с пользователями")
 public class RestUserController {
-    private final UserService service;
+    private final IUserService service;
 
     /**
      * Получить пользователя по его имени пользователя (логину).
