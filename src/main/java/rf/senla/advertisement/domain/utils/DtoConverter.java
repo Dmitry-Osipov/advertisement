@@ -1,8 +1,10 @@
 package rf.senla.advertisement.domain.utils;
 
 import rf.senla.advertisement.domain.dto.AdvertisementDto;
+import rf.senla.advertisement.domain.dto.CommentDto;
 import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.entity.AdvertisementStatus;
+import rf.senla.advertisement.domain.entity.Comment;
 
 import java.util.List;
 
@@ -63,6 +65,39 @@ public final class DtoConverter {
     public static List<Advertisement> getListAdvertisement(List<AdvertisementDto> dtos) {
         return dtos.stream()
                 .map(DtoConverter::getAdvertisementFromDto)
+                .toList();
+    }
+
+    // TODO: дока
+    public static CommentDto getDtoFromComment(Comment comment) {
+        return CommentDto.builder()
+                .id(comment.getId())
+                .advertisement(DtoConverter.getDtoFromAdvertisement(comment.getAdvertisement()))
+                .user(rf.senla.advertisement.security.utils.DtoConverter.getDtoFromUser(comment.getUser()))
+                .text(comment.getText())
+                .createdAt(comment.getCreatedAt())
+                .build();
+    }
+
+    public static Comment getCommentFromDto(CommentDto dto) {
+        return Comment.builder()
+                .id(dto.getId())
+                .advertisement(DtoConverter.getAdvertisementFromDto(dto.getAdvertisement()))
+                .user(rf.senla.advertisement.security.utils.DtoConverter.getUserFromDto(dto.getUser()))
+                .text(dto.getText())
+                .createdAt(dto.getCreatedAt())
+                .build();
+    }
+
+    public static List<CommentDto> getListCommentDto(List<Comment> comments) {
+        return comments.stream()
+                .map(DtoConverter::getDtoFromComment)
+                .toList();
+    }
+
+    public static List<Comment> getListComment(List<CommentDto> dtos) {
+        return dtos.stream()
+                .map(DtoConverter::getCommentFromDto)
                 .toList();
     }
 }

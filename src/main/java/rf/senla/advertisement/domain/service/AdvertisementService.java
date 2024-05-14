@@ -32,35 +32,35 @@ public class AdvertisementService implements IAdvertisementService {
 
     @Transactional
     @Override
-    public Advertisement save(Advertisement advertisement) {
-        User user = userRepository.findByUsername(advertisement.getUser().getUsername())
+    public Advertisement save(Advertisement entity) {
+        User user = userRepository.findByUsername(entity.getUser().getUsername())
                 .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_USER_FOUND.getMessage()));
-        advertisement.setUser(user);
-        return advertisementRepository.save(advertisement);
+        entity.setUser(user);
+        return advertisementRepository.save(entity);
     }
 
     @Transactional
     @Override
-    public Advertisement update(Advertisement advertisement) {
-        User user = advertisement.getUser();
+    public Advertisement update(Advertisement entity) {
+        User user = entity.getUser();
 
         if (!CurrentUserValidator.isCurrentUser(user) && !user.getRole().equals(Role.ROLE_ADMIN)) {
             throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
         }
 
-        return advertisementRepository.save(advertisement);
+        return advertisementRepository.save(entity);
     }
 
     @Transactional
     @Override
-    public void delete(Advertisement advertisement) {
-        User user = advertisement.getUser();
+    public void delete(Advertisement entity) {
+        User user = entity.getUser();
 
         if (!CurrentUserValidator.isCurrentUser(user) && !user.getRole().equals(Role.ROLE_ADMIN)) {
             throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
         }
 
-        advertisementRepository.delete(advertisement);
+        advertisementRepository.delete(entity);
     }
 
     @Override

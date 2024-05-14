@@ -23,7 +23,7 @@ public class AdvertisementDto {
     @Schema(description = "ID пользователя", example = "1")
     private Long id;
 
-    @Schema(description = "Автор статьи", example = "John Doe")
+    @Schema(description = "Автор объявления", example = "John Doe")
     @NotNull
     private UserDto user;
 
