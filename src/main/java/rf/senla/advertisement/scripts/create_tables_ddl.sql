@@ -25,6 +25,7 @@ CREATE TABLE advertisement.advertisements (
     price INTEGER,
     headline VARCHAR(50) NOT NULL,
     description TEXT NOT NULL,
+    status VARCHAR(50) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES advertisement.users(id)
 );
 

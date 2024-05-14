@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Advertisement;
+import rf.senla.advertisement.domain.entity.AdvertisementStatus;
 import rf.senla.advertisement.domain.exception.AccessDeniedException;
 import rf.senla.advertisement.domain.exception.ErrorMessage;
 import rf.senla.advertisement.domain.exception.NoEntityException;
@@ -64,12 +65,12 @@ public class AdvertisementService implements IAdvertisementService {
 
     @Override
     public List<Advertisement> getAll() {
-        return advertisementsSorted(advertisementRepository.findAll(), null);
+        return advertisementsFilteredAndSorted(advertisementRepository.findAll(), null);
     }
 
     @Override
     public List<Advertisement> getAll(String headline, String sortBy) {
-        return advertisementsSorted(advertisementRepository.findAllByHeadlineIgnoreCase(headline), sortBy);
+        return advertisementsFilteredAndSorted(advertisementRepository.findAllByHeadlineIgnoreCase(headline), sortBy);
     }
 
     @Override
@@ -85,20 +86,21 @@ public class AdvertisementService implements IAdvertisementService {
         checkPrices(min, max);
 
         if (headline == null) {
-            return advertisementsSorted(advertisementRepository.findByPriceBetween(min, max), sortBy);
+            return advertisementsFilteredAndSorted(advertisementRepository.findByPriceBetween(min, max), sortBy);
         }
 
-        return advertisementsSorted(
+        return advertisementsFilteredAndSorted(
                 advertisementRepository.findByPriceBetweenAndHeadlineIgnoreCase(min, max, headline), sortBy);
     }
 
     @Override
-    public List<Advertisement> getAll(User user, String sortBy) {
-        return advertisementsSorted(advertisementRepository.findByUser(user), sortBy);
-    }
+    public List<Advertisement> getAll(User user, String sortBy, Boolean active) {
+        if (Boolean.FALSE.equals(active) || active == null) {
+            return advertisementsSorted(advertisementRepository.findByUser(user), sortBy);
+        }
 
-    // TODO: следующий шаг - просмотр истории объявлений пользователя. Требуется решить, где располагать метод +
-    //  добавить сервис миграций, чтобы подправить БД
+        return advertisementsFilteredAndSorted(advertisementRepository.findByUser(user), sortBy);
+    }
 
     /**
      * Служебный метод проводит проверку цен.
@@ -114,6 +116,35 @@ public class AdvertisementService implements IAdvertisementService {
         if (min > max) {
             throw new TechnicalException(ErrorMessage.MIN_PRICE_IS_HIGHEST.getMessage());
         }
+    }
+
+    /**
+     * Служебный метод фильтрует и сортирует список объявлений.
+     * @param advertisements список объявлений, который требуется отсортировать
+     * @param sortBy условие сортировки
+     * @return отсортированный список объявлений
+     */
+    private static List<Advertisement> advertisementsFilteredAndSorted(List<Advertisement> advertisements,
+                                                                       String sortBy) {
+        List<Advertisement> sortedAdvertisements;
+        switch (sortBy) {
+            case "asc" ->  sortedAdvertisements =
+                    getAdvertisementStream(advertisements)
+                            .filter(advertisement -> advertisement.getStatus().equals(AdvertisementStatus.ACTIVE))
+                            .sorted(new AscendingPriceAdvertisementComparator())
+                            .toList();
+            case "desc" -> sortedAdvertisements =
+                    getAdvertisementStream(advertisements)
+                            .filter(advertisement -> advertisement.getStatus().equals(AdvertisementStatus.ACTIVE))
+                            .sorted(new DescendingPriceAdvertisementComparator())
+                            .toList();
+            case null, default -> sortedAdvertisements =
+                    getAdvertisementStream(advertisements)
+                            .filter(advertisement -> advertisement.getStatus().equals(AdvertisementStatus.ACTIVE))
+                            .sorted(new RatingAdvertisementComparator())
+                            .toList();
+        }
+        return sortedAdvertisements;
     }
 
     /**

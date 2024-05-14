@@ -82,9 +82,10 @@ public class RestAdvertisementController {
     @GetMapping("/search/{username}")
     public ResponseEntity<List<AdvertisementDto>> getAllByUser(
             @PathVariable("username") String username,
-            @RequestParam(value = "sort", required = false) String sortBy) {
+            @RequestParam(value = "sort", required = false) String sortBy,
+            @RequestParam(value = "active", required = false) Boolean active) {
         return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(
-                service.getAll(userService.getByUsername(username), sortBy)));
+                service.getAll(userService.getByUsername(username), sortBy, active)));
     }
 
     /**

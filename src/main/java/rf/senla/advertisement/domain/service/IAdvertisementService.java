@@ -33,7 +33,8 @@ public interface IAdvertisementService extends IService<Advertisement> {
      * Получить объявления по пользователю.
      * @param user пользователь
      * @param sortBy условие сортировки
+     * @param active выводить только активные заказы
      * @return список объявлений
      */
-    List<Advertisement> getAll(User user, String sortBy);
+    List<Advertisement> getAll(User user, String sortBy, Boolean active);
 }

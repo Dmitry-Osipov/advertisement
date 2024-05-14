@@ -2,6 +2,7 @@ package rf.senla.advertisement.domain.utils;
 
 import rf.senla.advertisement.domain.dto.AdvertisementDto;
 import rf.senla.advertisement.domain.entity.Advertisement;
+import rf.senla.advertisement.domain.entity.AdvertisementStatus;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public final class DtoConverter {
                 .price(advertisement.getPrice())
                 .headline(advertisement.getHeadline())
                 .description(advertisement.getDescription())
+                .status(String.valueOf(advertisement.getStatus()))
                 .build();
     }
 
@@ -38,6 +40,7 @@ public final class DtoConverter {
                 .price(dto.getPrice())
                 .headline(dto.getHeadline())
                 .description(dto.getDescription())
+                .status(AdvertisementStatus.valueOf(dto.getStatus()))
                 .build();
     }
 
