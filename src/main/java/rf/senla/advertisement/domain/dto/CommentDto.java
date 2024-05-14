@@ -3,11 +3,12 @@ package rf.senla.advertisement.domain.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import rf.senla.advertisement.security.dto.UserDto;
 
 import java.time.LocalDateTime;
 
@@ -23,13 +24,15 @@ public class CommentDto {
     @Schema(description = "ID пользователя", example = "1")
     private Long id;
 
-    @Schema(description = "Объявление", example = "Smartphone")
-    @NotNull(message = "Объявление не может быть пустым")
-    private AdvertisementDto advertisement;
+    @Schema(description = "ID объявления", example = "1")
+    @Positive(message = "ID объявления не может быть отрицательным или 0")
+    @NotNull(message = "ID объявления не может быть пустым")
+    private Long advertisementId;
 
-    @Schema(description = "Автор комментария", example = "John Doe")
-    @NotNull(message = "Пользователь не может быть пустым")
-    private UserDto user;
+    @Schema(description = "Имя пользователя", example = "John Doe")
+    @Size(min = 5, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")
+    @NotBlank(message = "Имя пользователя не может быть пустым")
+    private String userName;
 
     @Schema(description = "Текст сообщения", example = "Hello!")
     @NotBlank(message = "Сообщение не может быть пустым")

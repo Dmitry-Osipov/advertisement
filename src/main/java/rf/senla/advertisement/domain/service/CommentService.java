@@ -6,11 +6,9 @@ import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Comment;
 import rf.senla.advertisement.domain.exception.AccessDeniedException;
 import rf.senla.advertisement.domain.exception.ErrorMessage;
-import rf.senla.advertisement.domain.exception.NoEntityException;
 import rf.senla.advertisement.domain.repository.CommentRepository;
 import rf.senla.advertisement.security.entity.Role;
 import rf.senla.advertisement.security.entity.User;
-import rf.senla.advertisement.security.repository.UserRepository;
 import rf.senla.advertisement.security.utils.CurrentUserValidator;
 
 import java.util.List;
@@ -18,15 +16,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CommentService implements ICommentService {
-    private final UserRepository userRepository;
     private final CommentRepository commentRepository;
 
     @Transactional
     @Override
     public Comment save(Comment entity) {
-        User user = userRepository.findByUsername(entity.getUser().getUsername())
-                .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_USER_FOUND.getMessage()));
-        entity.setUser(user);
         return commentRepository.save(entity);
     }
 

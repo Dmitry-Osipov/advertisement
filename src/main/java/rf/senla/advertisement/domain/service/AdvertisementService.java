@@ -15,7 +15,6 @@ import rf.senla.advertisement.domain.utils.comparator.DescendingPriceAdvertiseme
 import rf.senla.advertisement.domain.utils.comparator.RatingAdvertisementComparator;
 import rf.senla.advertisement.security.entity.Role;
 import rf.senla.advertisement.security.entity.User;
-import rf.senla.advertisement.security.repository.UserRepository;
 import rf.senla.advertisement.security.utils.CurrentUserValidator;
 
 import java.util.List;
@@ -27,16 +26,12 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class AdvertisementService implements IAdvertisementService {
-    private final AdvertisementRepository advertisementRepository;
-    private final UserRepository userRepository;
+    private final AdvertisementRepository repository;
 
     @Transactional
     @Override
     public Advertisement save(Advertisement entity) {
-        User user = userRepository.findByUsername(entity.getUser().getUsername())
-                .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_USER_FOUND.getMessage()));
-        entity.setUser(user);
-        return advertisementRepository.save(entity);
+        return repository.save(entity);
     }
 
     @Transactional
@@ -48,7 +43,7 @@ public class AdvertisementService implements IAdvertisementService {
             throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
         }
 
-        return advertisementRepository.save(entity);
+        return repository.save(entity);
     }
 
     @Transactional
@@ -60,17 +55,17 @@ public class AdvertisementService implements IAdvertisementService {
             throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
         }
 
-        advertisementRepository.delete(entity);
+        repository.delete(entity);
     }
 
     @Override
     public List<Advertisement> getAll() {
-        return advertisementsFilteredAndSorted(advertisementRepository.findAll(), null);
+        return advertisementsFilteredAndSorted(repository.findAll(), null);
     }
 
     @Override
     public List<Advertisement> getAll(String headline, String sortBy) {
-        return advertisementsFilteredAndSorted(advertisementRepository.findAllByHeadlineIgnoreCase(headline), sortBy);
+        return advertisementsFilteredAndSorted(repository.findAllByHeadlineIgnoreCase(headline), sortBy);
     }
 
     @Override
@@ -86,20 +81,26 @@ public class AdvertisementService implements IAdvertisementService {
         checkPrices(min, max);
 
         if (headline == null) {
-            return advertisementsFilteredAndSorted(advertisementRepository.findByPriceBetween(min, max), sortBy);
+            return advertisementsFilteredAndSorted(repository.findByPriceBetween(min, max), sortBy);
         }
 
         return advertisementsFilteredAndSorted(
-                advertisementRepository.findByPriceBetweenAndHeadlineIgnoreCase(min, max, headline), sortBy);
+                repository.findByPriceBetweenAndHeadlineIgnoreCase(min, max, headline), sortBy);
     }
 
     @Override
     public List<Advertisement> getAll(User user, String sortBy, Boolean active) {
         if (Boolean.FALSE.equals(active) || active == null) {
-            return advertisementsSorted(advertisementRepository.findByUser(user), sortBy);
+            return advertisementsSorted(repository.findByUser(user), sortBy);
         }
 
-        return advertisementsFilteredAndSorted(advertisementRepository.findByUser(user), sortBy);
+        return advertisementsFilteredAndSorted(repository.findByUser(user), sortBy);
+    }
+
+    @Override
+    public Advertisement getById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage()));
     }
 
     /**

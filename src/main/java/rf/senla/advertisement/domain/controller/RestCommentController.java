@@ -25,16 +25,17 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Работа с комментариями")
 public class RestCommentController {
-    private final CommentService commentService;
+    private final CommentService service;
+    private final DtoConverter converter;
 
     @GetMapping
     public ResponseEntity<List<CommentDto>> getAllComments() {
-        return ResponseEntity.ok(DtoConverter.getListCommentDto(commentService.getAll()));
+        return ResponseEntity.ok(converter.getListCommentDto(service.getAll()));
     }
 
     @PostMapping
     public ResponseEntity<CommentDto> createComment(@Valid @RequestBody CommentDto commentDto) {
-        return ResponseEntity.ok(DtoConverter.getDtoFromComment(
-                commentService.save(DtoConverter.getCommentFromDto(commentDto))));
+        return ResponseEntity.ok(converter.getDtoFromComment(
+                service.save(converter.getCommentFromDto(commentDto))));
     }
 }

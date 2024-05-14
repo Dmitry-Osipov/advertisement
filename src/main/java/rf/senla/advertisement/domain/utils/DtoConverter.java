@@ -1,28 +1,35 @@
 package rf.senla.advertisement.domain.utils;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import rf.senla.advertisement.domain.dto.AdvertisementDto;
 import rf.senla.advertisement.domain.dto.CommentDto;
 import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.entity.AdvertisementStatus;
 import rf.senla.advertisement.domain.entity.Comment;
+import rf.senla.advertisement.domain.service.AdvertisementService;
+import rf.senla.advertisement.security.service.UserService;
 
 import java.util.List;
 
 /**
  * Утилитарный класс для конвертации между объектами пакета entity и их dto.
  */
+@Component
+@RequiredArgsConstructor
 public final class DtoConverter {
-    private DtoConverter() {}
+    private final UserService userService;
+    private final AdvertisementService advertisementService;
 
     /**
      * Преобразует объект типа {@link Advertisement} в объект типа UserDto.
      * @param advertisement Объект типа {@link Advertisement}, который нужно преобразовать.
      * @return Объект типа {@link AdvertisementDto}, содержащий данные из переданного объекта {@link Advertisement}.
      */
-    public static AdvertisementDto getDtoFromAdvertisement(Advertisement advertisement) {
+    public AdvertisementDto getDtoFromAdvertisement(Advertisement advertisement) {
         return AdvertisementDto.builder()
                 .id(advertisement.getId())
-                .user(rf.senla.advertisement.security.utils.DtoConverter.getDtoFromUser(advertisement.getUser()))
+                .userName(advertisement.getUser().getUsername())
                 .price(advertisement.getPrice())
                 .headline(advertisement.getHeadline())
                 .description(advertisement.getDescription())
@@ -35,10 +42,10 @@ public final class DtoConverter {
      * @param dto Объект типа {@link AdvertisementDto}, который нужно преобразовать.
      * @return Объект типа {@link Advertisement}, содержащий данные из переданного объекта {@link AdvertisementDto}.
      */
-    public static Advertisement getAdvertisementFromDto(AdvertisementDto dto) {
+    public Advertisement getAdvertisementFromDto(AdvertisementDto dto) {
         return Advertisement.builder()
                 .id(dto.getId())
-                .user(rf.senla.advertisement.security.utils.DtoConverter.getUserFromDto(dto.getUser()))
+                .user(userService.getByUsername(dto.getUserName()))
                 .price(dto.getPrice())
                 .headline(dto.getHeadline())
                 .description(dto.getDescription())
@@ -51,9 +58,9 @@ public final class DtoConverter {
      * @param users список объектов объявлений
      * @return список объектов DTO
      */
-    public static List<AdvertisementDto> getListAdvertisementDto(List<Advertisement> users) {
+    public List<AdvertisementDto> getListAdvertisementDto(List<Advertisement> users) {
         return users.stream()
-                .map(DtoConverter::getDtoFromAdvertisement)
+                .map(this::getDtoFromAdvertisement)
                 .toList();
     }
 
@@ -62,42 +69,61 @@ public final class DtoConverter {
      * @param dtos список объектов DTO
      * @return список объектов объявлений
      */
-    public static List<Advertisement> getListAdvertisement(List<AdvertisementDto> dtos) {
+    public List<Advertisement> getListAdvertisement(List<AdvertisementDto> dtos) {
         return dtos.stream()
-                .map(DtoConverter::getAdvertisementFromDto)
+                .map(this::getAdvertisementFromDto)
                 .toList();
     }
 
-    // TODO: дока
-    public static CommentDto getDtoFromComment(Comment comment) {
+    /**
+     * Преобразует объект {@link Comment} в соответствующий ему DTO.
+     * @param comment Комментарий, который требуется преобразовать.
+     * @return {@link CommentDto}, представляющий переданный комментарий.
+     */
+    public CommentDto getDtoFromComment(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
-                .advertisement(DtoConverter.getDtoFromAdvertisement(comment.getAdvertisement()))
-                .user(rf.senla.advertisement.security.utils.DtoConverter.getDtoFromUser(comment.getUser()))
+                .advertisementId(comment.getAdvertisement().getId())
+                .userName(comment.getUser().getUsername())
                 .text(comment.getText())
                 .createdAt(comment.getCreatedAt())
                 .build();
     }
 
-    public static Comment getCommentFromDto(CommentDto dto) {
+    /**
+     * Преобразует DTO {@link CommentDto} в объект {@link Comment}.
+     * @param dto DTO, который требуется преобразовать.
+     * @return Объект {@link Comment}, представляющий переданный DTO.
+     */
+    public Comment getCommentFromDto(CommentDto dto) {
         return Comment.builder()
                 .id(dto.getId())
-                .advertisement(DtoConverter.getAdvertisementFromDto(dto.getAdvertisement()))
-                .user(rf.senla.advertisement.security.utils.DtoConverter.getUserFromDto(dto.getUser()))
+                .advertisement(advertisementService.getById(dto.getAdvertisementId()))
+                .user(userService.getByUsername(dto.getUserName()))
                 .text(dto.getText())
                 .createdAt(dto.getCreatedAt())
                 .build();
     }
 
-    public static List<CommentDto> getListCommentDto(List<Comment> comments) {
+    /**
+     * Преобразует список объектов {@link Comment} в список соответствующих им DTO.
+     * @param comments Список комментариев, которые требуется преобразовать.
+     * @return Список {@link CommentDto}, представляющих переданные комментарии.
+     */
+    public List<CommentDto> getListCommentDto(List<Comment> comments) {
         return comments.stream()
-                .map(DtoConverter::getDtoFromComment)
+                .map(this::getDtoFromComment)
                 .toList();
     }
 
-    public static List<Comment> getListComment(List<CommentDto> dtos) {
+    /**
+     * Преобразует список {@link CommentDto} в список объектов {@link Comment}.
+     * @param dtos Список DTO, которые требуется преобразовать.
+     * @return Список объектов {@link Comment}, представляющих переданные DTO.
+     */
+    public List<Comment> getListComment(List<CommentDto> dtos) {
         return dtos.stream()
-                .map(DtoConverter::getCommentFromDto)
+                .map(this::getCommentFromDto)
                 .toList();
     }
 }

@@ -37,4 +37,11 @@ public interface IAdvertisementService extends IService<Advertisement> {
      * @return список объявлений
      */
     List<Advertisement> getAll(User user, String sortBy, Boolean active);
+
+    /**
+     * Получить объявление по его id.
+     * @param id уникальный идентификатор объявления
+     * @return объявление
+     */
+    Advertisement getById(Long id);
 }

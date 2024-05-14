@@ -33,6 +33,7 @@ import java.util.List;
 public class RestAdvertisementController {
     private final IAdvertisementService service;
     private final UserService userService;
+    private final DtoConverter converter;
 
     /**
      * Получить все объявления.
@@ -40,7 +41,7 @@ public class RestAdvertisementController {
      */
     @GetMapping
     public ResponseEntity<List<AdvertisementDto>> getAllAdvertisements() {
-        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(service.getAll()));
+        return ResponseEntity.ok(converter.getListAdvertisementDto(service.getAll()));
     }
 
     /**
@@ -52,7 +53,7 @@ public class RestAdvertisementController {
     public ResponseEntity<List<AdvertisementDto>> getAdvertisementByHeadline(
             @PathVariable("headline") String headline,
             @RequestParam(value = "sort", required = false) String sortBy) {
-        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(service.getAll(headline, sortBy)));
+        return ResponseEntity.ok(converter.getListAdvertisementDto(service.getAll(headline, sortBy)));
     }
 
     /**
@@ -69,7 +70,7 @@ public class RestAdvertisementController {
             @RequestParam(value = "max", required = false) Integer maxPrice,
             @RequestParam(value = "headline", required = false) String headline,
             @RequestParam(value = "sort", required = false) String sortBy) {
-        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(
+        return ResponseEntity.ok(converter.getListAdvertisementDto(
                 service.getAll(minPrice, maxPrice, headline, sortBy)));
     }
 
@@ -84,7 +85,7 @@ public class RestAdvertisementController {
             @PathVariable("username") String username,
             @RequestParam(value = "sort", required = false) String sortBy,
             @RequestParam(value = "active", required = false) Boolean active) {
-        return ResponseEntity.ok(DtoConverter.getListAdvertisementDto(
+        return ResponseEntity.ok(converter.getListAdvertisementDto(
                 service.getAll(userService.getByUsername(username), sortBy, active)));
     }
 
@@ -95,8 +96,8 @@ public class RestAdvertisementController {
      */
     @PostMapping
     public ResponseEntity<AdvertisementDto> createAdvertisement(@RequestBody @Valid AdvertisementDto dto) {
-        Advertisement advertisement = service.save(DtoConverter.getAdvertisementFromDto(dto));
-        return ResponseEntity.ok(DtoConverter.getDtoFromAdvertisement(advertisement));
+        Advertisement advertisement = service.save(converter.getAdvertisementFromDto(dto));
+        return ResponseEntity.ok(converter.getDtoFromAdvertisement(advertisement));
     }
 
     /**
@@ -106,8 +107,8 @@ public class RestAdvertisementController {
      */
     @PutMapping
     public ResponseEntity<AdvertisementDto> updateAdvertisement(@RequestBody @Valid AdvertisementDto dto) {
-        Advertisement advertisement = service.update(DtoConverter.getAdvertisementFromDto(dto));
-        return ResponseEntity.ok(DtoConverter.getDtoFromAdvertisement(advertisement));
+        Advertisement advertisement = service.update(converter.getAdvertisementFromDto(dto));
+        return ResponseEntity.ok(converter.getDtoFromAdvertisement(advertisement));
     }
 
     /**
@@ -117,7 +118,7 @@ public class RestAdvertisementController {
      */
     @DeleteMapping
     public ResponseEntity<String> deleteAdvertisement(@RequestBody @Valid AdvertisementDto dto) {
-        service.delete(DtoConverter.getAdvertisementFromDto(dto));
+        service.delete(converter.getAdvertisementFromDto(dto));
         return ResponseEntity.ok("Deleted advertisement with headline " + dto.getHeadline());
     }
 }
