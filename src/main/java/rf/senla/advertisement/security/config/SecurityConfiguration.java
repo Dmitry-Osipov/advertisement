@@ -18,7 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import rf.senla.advertisement.security.filter.JwtAuthenticationFilter;
-import rf.senla.advertisement.security.service.UserService;
+import rf.senla.advertisement.security.service.IUserService;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserService userService;
+    private final IUserService userService;
 
     /**
      * Настройка цепочки фильтров безопасности.

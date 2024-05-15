@@ -2,7 +2,6 @@ package rf.senla.advertisement.security.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,7 +13,8 @@ import rf.senla.advertisement.security.entity.User;
 import rf.senla.advertisement.security.exception.ErrorMessage;
 import rf.senla.advertisement.security.exception.UserMismatchException;
 import rf.senla.advertisement.security.repository.UserRepository;
-import rf.senla.advertisement.security.utils.CurrentUserValidator;
+import rf.senla.advertisement.security.utils.validator.CurrentUserValidator;
+import rf.senla.advertisement.security.utils.validator.UserPermissionsValidator;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public User update(User user) {
-        if ((!CurrentUserValidator.isCurrentUser(user) && !user.getRole().equals(Role.ROLE_ADMIN))) {
+        if (!CurrentUserValidator.isCurrentUser(user)) {
             throw new UserMismatchException(ErrorMessage.USERS_DO_NOT_MATCH.getMessage());
         }
 
@@ -47,7 +47,7 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void delete(User user) {
-        if ((!CurrentUserValidator.isCurrentUser(user) && !user.getRole().equals(Role.ROLE_ADMIN))) {
+        if (!UserPermissionsValidator.validate(user)) {
             throw new UserMismatchException(ErrorMessage.USERS_DO_NOT_MATCH.getMessage());
         }
 
@@ -91,15 +91,8 @@ public class UserService implements IUserService {
         save(user);
     }
 
-    /**
-     * Создание пользователя
-     * @return созданный пользователь
-     * @throws IllegalArgumentException - в случае, если данная сущность является null.
-     * @throws OptimisticLockingFailureException - если сущность использует оптимистическую блокировку и имеет атрибут
-     * version со значением, отличным от того, что находится в хранилище персистентности. Также выбрасывается, если
-     * предполагается, что сущность присутствует, но не существует в базе данных.
-     */
     @Transactional
+    @Override
     public User create(User user) {
         if (repository.existsByUsername(user.getUsername())) {
             throw new EntityContainedException(ErrorMessage.USERNAME_ALREADY_EXISTS.getMessage());
@@ -112,12 +105,7 @@ public class UserService implements IUserService {
         return save(user);
     }
 
-    /**
-     * Получение пользователя по имени пользователя
-     * <p>
-     * Нужен для Spring Security
-     * @return пользователь
-     */
+    @Override
     public UserDetailsService userDetailsService() {
         return this::getByUsername;
     }

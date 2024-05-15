@@ -13,9 +13,8 @@ import rf.senla.advertisement.domain.repository.AdvertisementRepository;
 import rf.senla.advertisement.domain.utils.comparator.AscendingPriceAdvertisementComparator;
 import rf.senla.advertisement.domain.utils.comparator.DescendingPriceAdvertisementComparator;
 import rf.senla.advertisement.domain.utils.comparator.RatingAdvertisementComparator;
-import rf.senla.advertisement.security.entity.Role;
 import rf.senla.advertisement.security.entity.User;
-import rf.senla.advertisement.security.utils.CurrentUserValidator;
+import rf.senla.advertisement.security.utils.validator.UserPermissionsValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -39,7 +38,7 @@ public class AdvertisementService implements IAdvertisementService {
     public Advertisement update(Advertisement entity) {
         User user = entity.getUser();
 
-        if (!CurrentUserValidator.isCurrentUser(user) && !user.getRole().equals(Role.ROLE_ADMIN)) {
+        if (!UserPermissionsValidator.validate(user)) {
             throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
         }
 
@@ -51,7 +50,7 @@ public class AdvertisementService implements IAdvertisementService {
     public void delete(Advertisement entity) {
         User user = entity.getUser();
 
-        if (!CurrentUserValidator.isCurrentUser(user) && !user.getRole().equals(Role.ROLE_ADMIN)) {
+        if (!UserPermissionsValidator.validate(user)) {
             throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
         }
 

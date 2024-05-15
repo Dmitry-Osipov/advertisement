@@ -14,8 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import rf.senla.advertisement.security.service.JwtService;
-import rf.senla.advertisement.security.service.UserService;
+import rf.senla.advertisement.security.service.IJwtService;
+import rf.senla.advertisement.security.service.IUserService;
 
 import java.io.IOException;
 
@@ -27,8 +27,8 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String HEADER_NAME = "Authorization";
-    private final JwtService jwtService;
-    private final UserService userService;
+    private final IJwtService jwtService;
+    private final IUserService userService;
 
     /**
      * Фильтрует запросы и аутентифицирует пользователей по JWT токену.

@@ -20,24 +20,16 @@ import java.util.function.Function;
  * Сервис для работы с JWT.
  */
 @Service
-public class JwtService {
+public class JwtService implements IJwtService {
     @Value("${token.signing.key}")
     private String jwtSigningKey;
 
-    /**
-     * Извлечение имени пользователя из токена
-     * @param token токен
-     * @return имя пользователя
-     */
+    @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    /**
-     * Генерация токена
-     * @param userDetails данные пользователя
-     * @return токен
-     */
+    @Override
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof User customUserDetails) {
@@ -49,12 +41,7 @@ public class JwtService {
         return generateToken(claims, userDetails);
     }
 
-    /**
-     * Проверка токена на валидность
-     * @param token токен
-     * @param userDetails данные пользователя
-     * @return true, если токен валиден
-     */
+    @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         return (extractUsername(token).equals(userDetails.getUsername())) && !isTokenExpired(token);
     }

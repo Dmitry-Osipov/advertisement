@@ -1,7 +1,6 @@
 package rf.senla.advertisement.security.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,21 +17,13 @@ import rf.senla.advertisement.security.entity.User;
  */
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
-    private final UserService userService;
-    private final JwtService jwtService;
+public class AuthenticationService implements IAuthenticationService {
+    private final IUserService userService;
+    private final IJwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    /**
-     * Регистрация пользователя
-     * @param request данные пользователя
-     * @return токен
-     * @throws IllegalArgumentException в случае, если данная сущность является null.
-     * @throws OptimisticLockingFailureException - если сущность использует оптимистическую блокировку и имеет атрибут
-     * version со значением, отличным от того, что находится в хранилище персистентности. Также выбрасывается, если
-     * предполагается, что сущность присутствует, но не существует в базе данных.
-     */
+    @Override
     public JwtAuthenticationResponse signUp(SignUpRequest request) {
         User user = User.builder()
                 .username(request.getUsername())
@@ -46,11 +37,7 @@ public class AuthenticationService {
         return new JwtAuthenticationResponse(jwtService.generateToken(user));
     }
 
-    /**
-     * Аутентификация пользователя
-     * @param request данные пользователя
-     * @return токен
-     */
+    @Override
     public JwtAuthenticationResponse signIn(SignInRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));

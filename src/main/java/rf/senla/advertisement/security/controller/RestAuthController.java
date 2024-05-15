@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.security.dto.JwtAuthenticationResponse;
 import rf.senla.advertisement.security.dto.SignInRequest;
 import rf.senla.advertisement.security.dto.SignUpRequest;
-import rf.senla.advertisement.security.service.AuthenticationService;
+import rf.senla.advertisement.security.service.IAuthenticationService;
 
 /**
  * Контроллер для обработки запросов аутентификации через REST API.
@@ -22,7 +22,7 @@ import rf.senla.advertisement.security.service.AuthenticationService;
 @RequiredArgsConstructor
 @Tag(name = "Аутентификация")
 public class RestAuthController {
-    private final AuthenticationService authenticationService;
+    private final IAuthenticationService authenticationService;
 
     /**
      * Метод для регистрации нового пользователя.

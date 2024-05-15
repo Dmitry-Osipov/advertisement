@@ -18,7 +18,7 @@ import rf.senla.advertisement.domain.dto.AdvertisementDto;
 import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.service.IAdvertisementService;
 import rf.senla.advertisement.domain.utils.DtoConverter;
-import rf.senla.advertisement.security.service.UserService;
+import rf.senla.advertisement.security.service.IUserService;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ import java.util.List;
 @Tag(name = "Работа с объявлениями")
 public class RestAdvertisementController {
     private final IAdvertisementService service;
-    private final UserService userService;
+    private final IUserService userService;
     private final DtoConverter converter;
 
     /**

@@ -1,4 +1,4 @@
-package rf.senla.advertisement.security.utils;
+package rf.senla.advertisement.security.utils.validator;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.security.core.context.SecurityContextHolder;

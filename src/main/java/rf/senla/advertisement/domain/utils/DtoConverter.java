@@ -8,7 +8,7 @@ import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.entity.AdvertisementStatus;
 import rf.senla.advertisement.domain.entity.Comment;
 import rf.senla.advertisement.domain.service.AdvertisementService;
-import rf.senla.advertisement.security.service.UserService;
+import rf.senla.advertisement.security.service.IUserService;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public final class DtoConverter {
-    private final UserService userService;
+    private final IUserService userService;
     private final AdvertisementService advertisementService;
 
     /**
