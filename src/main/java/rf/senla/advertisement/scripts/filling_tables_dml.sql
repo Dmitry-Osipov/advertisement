@@ -13,7 +13,7 @@
 -- 'art_enthusiast', 'art1234'
 -- 'nature_lover', 'natureL0v3r'
 -- 'foodie', 'deliciousFood'
--- 'root', 'abvgdU7523467'
+-- 'admin', 'abvgdU7523467'
 INSERT INTO advertisement.users (username, password, phone_number, rating, email, boosted, role) VALUES
 ('user123', '$2a$10$.PSEN9QPfyvpoXh9RQzdy.Wlok/5KO.iwcNYQOe.mmVgdTAeOO0AW', '+7(123)456-78-90', NULL, 'storm-yes@yandex.ru', TRUE, 'ROLE_USER'),
 ('cool_guy', '$2a$10$pT4a.wJbqJ9S8egWxAsQDuGoW2/JtO3/sFNqKRywS1my1HrVk.riq', '+7(456)789-01-23', 100, 'john.doe@gmail.com', FALSE, 'ROLE_USER'),
@@ -29,7 +29,7 @@ INSERT INTO advertisement.users (username, password, phone_number, rating, email
 ('art_enthusiast', '$2a$10$xWKGPXDUuxxnpTI8EkAZeeKubMAyjAxWQQKz.CtNlOrvph3FKoJoW', '+7(098)765-43-21', NULL, 'william.anderson@inbox.lv', FALSE, 'ROLE_USER'),
 ('nature_lover', '$2a$10$TRq3w57OEgUfuZLXSYCRS..9LmukEPmrRVHv9QIed.b850ky/cIJy', '+7(876)543-21-09', NULL, 'sophia.thomas@bk.ru', FALSE, 'ROLE_USER'),
 ('foodie', '$2a$10$TjJmASFFMmKK1iVgAwZaDel8TgWEurRYL.8jTs4ECE9FPaW13TbXG', '+7(953)180-00-61', NULL, 'jacob.moore@rambler.ru', FALSE, 'ROLE_USER'),
-('root', '$2a$10$/v7NnuEmQ8wvQg6oK.RFkeX1fPF25xzQIFYSz2M7BTVLkbi1RExYe', '+7(902)902-98-11', NULL, 'dimaosipov00@gmail.com', FALSE, 'ROLE_ADMIN');
+('admin', '$2a$10$/v7NnuEmQ8wvQg6oK.RFkeX1fPF25xzQIFYSz2M7BTVLkbi1RExYe', '+7(902)902-98-11', NULL, 'dimaosipov00@gmail.com', FALSE, 'ROLE_ADMIN');
 
 INSERT INTO advertisement.advertisements (user_id, price, headline, description) VALUES
 (1, 1000, 'Smartphone', 'A portable device combining the functions of a mobile phone and a computer, typically offering internet access, touchscreen interface, and various applications.'),
@@ -55,36 +55,25 @@ INSERT INTO advertisement.comments (advertisement_id, user_id, text) VALUES
 (6, 9, 'I recently purchased this watch, and I couldn''t be happier with it! The craftsmanship is excellent, and it looks even better in person than in the pictures. The automatic movement keeps accurate time, and the design is both elegant and versatile. It''s become my everyday timepiece, and I''ve received numerous compliments on it.'),
 (7, 10, 'These sneakers are a disappointment. While they initially looked stylish and felt comfortable, they started falling apart after just a few weeks of wear. The sole began to separate from the upper, and the stitching came undone. Additionally, they didn''t provide much support, and my feet would ache after wearing them for extended periods. Overall, I wouldn''t recommend these sneakers.');
 
-INSERT INTO advertisement.conversations (sender_id, receiver_id) VALUES
-(1, 2),
-(2, 3),
-(3, 4),
-(4, 5),
-(5, 6),
-(6, 7),
-(7, 8),
-(8, 9),
-(9, 10),
-(10, 1);
-
-INSERT INTO advertisement.messages (conversation_id, sender_id, text) VALUES
-(1, 1, 'Hi! What can you tell me about Laptop?'),
-(1, 2, 'Good Laptop, long battery life, nice screen'),
-(2, 2, 'Good afternoon. Is that a bargain?'),
-(2, 3, 'No'),
-(3, 3, 'Greetings, what color is the backpack?'),
-(3, 4, 'Hello! Blue'),
-(4, 4, 'Why are you selling sunglasses?'),
-(4, 5, 'Didn''t need it. Do you want it?'),
-(5, 5, 'What brand of watch?'),
-(5, 6, 'Hi, I have no idea, but something premium.'),
-(6, 6, 'Hi, why are you selling?'),
-(6, 7, 'Hi, I''ve decided to change my style'),
-(7, 7, 'Hi! How long have you been using the umbrella? Why didn''t you like it? Can you get a discount? Oh, and we recently took out a mortgage, give a discount for a young family))))))'),
-(7, 8, 'Hi, no bargaining.'),
-(8, 8, 'Hi, what are the features of the camera?'),
-(8, 9, 'Google it.'),
-(9, 9, 'Hi, what''s the smell of the perfume?'),
-(9, 10, 'Hi, it''s a nice smell with different notes'),
-(10, 10, 'Hi, what is the camera of the phone? Who used it? What is the reason for selling?'),
-(10, 1, 'Hi. The smartphone has a good camera. I''ve used it. Got bored');
+INSERT INTO advertisement.messages(advertisement_id, sender_id, recipient_id, text, read) VALUES
+(2, 1, 2, 'Hi! What can you tell me about Laptop?', TRUE),
+(2, 2, 1, 'Good Laptop, long battery life, nice screen', TRUE),
+(2, 5, 1, 'Hello, How many?', FALSE),
+(3, 2, 3, 'Good afternoon. Is that a bargain?', TRUE),
+(3, 3, 2, 'No', TRUE),
+(4, 3, 4, 'Greetings, what color is the backpack?', TRUE),
+(4, 4, 3, 'Hello! Blue', TRUE),
+(5, 4, 5, 'Why are you selling sunglasses?', TRUE),
+(5, 5, 4, 'Didn''t need it. Do you want it?', TRUE),
+(6, 5, 6, 'What brand of watch?', TRUE),
+(6, 6, 5, 'Hi, I have no idea, but something premium.', TRUE),
+(7, 6, 7, 'Hi, why are you selling?', TRUE),
+(7, 7, 6, 'Hi, I''ve decided to change my style', TRUE),
+(8, 7, 8, 'Hi! How long have you been using the umbrella? Why didn''t you like it? Can you get a discount? Oh, and we recently took out a mortgage, give a discount for a young family))))))', TRUE),
+(8, 8, 7, 'Hi, no bargaining.', FALSE),
+(9, 8, 9, 'Hi, what are the features of the camera?', TRUE),
+(9, 9, 8, 'Google it.', TRUE),
+(10, 9, 10, 'Hi, what''s the smell of the perfume?', TRUE),
+(10, 10, 9, 'Hi, it''s a nice smell with different notes', TRUE),
+(1, 10, 1, 'Hi, what is the camera of the phone? Who used it? What is the reason for selling?', TRUE),
+(1, 1, 10, 'Hi. The smartphone has a good camera. I''ve used it. Got bored', FALSE);

@@ -15,34 +15,81 @@ import java.util.List;
 @Repository
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {
     /**
-     * Найти список объявлений по его заголовку.
-     * @param headline заголовок
-     * @return список объявлений
+     * Получает список объявлений с ценой в указанном диапазоне и упорядоченных в соответствии с указанным порядком.
+     * @param min Минимальная цена.
+     * @param max Максимальная цена.
+     * @param ordering Порядок сортировки (asc - по возрастанию цены, desc - по убыванию цены, null - по убыванию
+     * рейтинга пользователя).
+     * @return Список объявлений с ценой в указанном диапазоне и упорядоченных в соответствии с указанным порядком.
      */
-    @Query("SELECT a FROM Advertisement a WHERE LOWER(a.headline) = LOWER(:headline)")
-    List<Advertisement> findAllByHeadlineIgnoreCase(@Param("headline") String headline);
+    @Query("SELECT a FROM Advertisement a " +
+            "WHERE a.price BETWEEN :min AND :max AND a.status = 'ACTIVE' " +
+            "ORDER BY " +
+            "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
+            "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
+            "CASE WHEN :ordering IS NULL THEN a.user.rating END DESC")
+    List<Advertisement> findByPriceBetweenInOrder(@Param("min") Integer min,
+                                                  @Param("max") Integer max,
+                                                  @Param("ordering") String ordering);
 
     /**
-     * Найти список объявлений по его заголовку в промежутке цен.
-     * @param min минимальная цена
-     * @param max максимальная цена
-     * @param headline заголовок
-     * @return список объявлений
+     * Получает список всех активных объявлений, упорядоченных по рейтингу пользователя в порядке убывания.
+     * @return Список всех активных объявлений, упорядоченных по рейтингу пользователя в порядке убывания.
      */
-    List<Advertisement> findByPriceBetweenAndHeadlineIgnoreCase(Integer min, Integer max, String headline);
+    @Query("SELECT a FROM Advertisement a " +
+            "WHERE a.status = 'ACTIVE' " +
+            "ORDER BY a.user.rating DESC")
+    List<Advertisement> findAllInOrderByUserRating();
 
     /**
-     * Найти список объявлений в промежутке цен.
-     * @param min минимальная цена
-     * @param max максимальная цена
-     * @return список объявлений
+     * Получает список объявлений с ценой в указанном диапазоне, содержащих указанный заголовок и упорядоченных в
+     * соответствии с указанным порядком.
+     * @param min Минимальная цена.
+     * @param max Максимальная цена.
+     * @param headline Заголовок объявления (игнорирует регистр).
+     * @param ordering Порядок сортировки (asc - по возрастанию цены, desc - по убыванию цены, null - по убыванию
+     * рейтинга пользователя).
+     * @return Список объявлений с ценой в указанном диапазоне, содержащих указанный заголовок и упорядоченных в
+     * соответствии с указанным порядком.
      */
-    List<Advertisement> findByPriceBetween(Integer min, Integer max);
+    @Query("SELECT a FROM Advertisement a " +
+            "WHERE a.price BETWEEN :min AND :max AND LOWER(a.headline) = LOWER(:headline) AND a.status = 'ACTIVE' " +
+            "ORDER BY " +
+            "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
+            "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
+            "CASE WHEN :ordering IS NULL THEN a.user.rating END DESC")
+    List<Advertisement> findByPriceBetweenAndHeadlineIgnoreCaseInOrder(@Param("min") Integer min,
+                                                                       @Param("max") Integer max,
+                                                                       @Param("headline") String headline,
+                                                                       @Param("ordering") String ordering);
 
     /**
-     * Найти список объявлений пользователя.
-     * @param user пользователь
-     * @return список объявлений
+     * Получает список объявлений пользователя, упорядоченных в соответствии с указанным порядком.
+     * @param user Пользователь, для которого нужно получить объявления.
+     * @param ordering Порядок сортировки (asc - по возрастанию цены, desc - по убыванию цены, null - по убыванию
+     * рейтинга пользователя).
+     * @return Список объявлений пользователя, упорядоченных в соответствии с указанным порядком.
      */
-    List<Advertisement> findByUser(User user);
+    @Query("SELECT a FROM Advertisement a " +
+            "WHERE a.user = :user AND a.status = 'ACTIVE' " +
+            "ORDER BY " +
+            "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
+            "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
+            "CASE WHEN :ordering IS NULL THEN a.id END DESC")
+    List<Advertisement> findByUserInOrder(@Param("user") User user, @Param("ordering") String ordering);
+
+    /**
+     * Получает список объявлений пользователя с любым статусом, упорядоченных в соответствии с указанным порядком.
+     * @param user Пользователь, для которого нужно получить объявления.
+     * @param ordering Порядок сортировки (asc - по возрастанию цены, desc - по убыванию цены, null - по убыванию
+     * рейтинга пользователя).
+     * @return Список объявлений пользователя с любым статусом, упорядоченных в соответствии с указанным порядком.
+     */
+    @Query("SELECT a FROM Advertisement a " +
+            "WHERE a.user = :user " +
+            "ORDER BY " +
+            "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
+            "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
+            "CASE WHEN :ordering IS NULL THEN a.id END DESC")
+    List<Advertisement> findByUserInOrderWithAnyStatus(@Param("user") User user, @Param("ordering") String ordering);
 }

@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import rf.senla.advertisement.domain.dto.AdvertisementDto;
 import rf.senla.advertisement.domain.dto.CommentDto;
+import rf.senla.advertisement.domain.dto.MessageDto;
 import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.entity.AdvertisementStatus;
 import rf.senla.advertisement.domain.entity.Comment;
+import rf.senla.advertisement.domain.entity.Message;
 import rf.senla.advertisement.domain.service.AdvertisementService;
 import rf.senla.advertisement.security.service.IUserService;
 
@@ -124,6 +126,43 @@ public final class DtoConverter {
     public List<Comment> getListComment(List<CommentDto> dtos) {
         return dtos.stream()
                 .map(this::getCommentFromDto)
+                .toList();
+    }
+
+    // TODO: дока
+    public MessageDto getDtoFromMessage(Message message) {
+        return MessageDto.builder()
+                .id(message.getId())
+                .advertisementId(message.getAdvertisement().getId())
+                .senderName(message.getSender().getUsername())
+                .recipientName(message.getRecipient().getUsername())
+                .text(message.getText())
+                .sentAt(message.getSentAt())
+                .read(message.getRead())
+                .build();
+    }
+
+    public Message getMessageFromDto(MessageDto dto) {
+        return Message.builder()
+                .id(dto.getId())
+                .advertisement(advertisementService.getById(dto.getAdvertisementId()))
+                .sender(userService.getByUsername(dto.getSenderName()))
+                .recipient(userService.getByUsername(dto.getRecipientName()))
+                .text(dto.getText())
+                .sentAt(dto.getSentAt())
+                .read(dto.getRead())
+                .build();
+    }
+
+    public List<MessageDto> getListMessageDto(List<Message> messages) {
+        return messages.stream()
+                .map(this::getDtoFromMessage)
+                .toList();
+    }
+
+    public List<Message> getListMessage(List<MessageDto> dtos) {
+        return dtos.stream()
+                .map(this::getMessageFromDto)
                 .toList();
     }
 }

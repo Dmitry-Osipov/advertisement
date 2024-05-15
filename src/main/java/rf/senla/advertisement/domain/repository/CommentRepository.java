@@ -13,9 +13,16 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     /**
-     * Найти список комментариев по объявлению.
-     * @param advertisement объявление
-     * @return список комментариев
+     * Получает список комментариев, связанных с указанным объявлением, упорядоченных по времени создания в порядке
+     * убывания.
+     * @param advertisement Объявление, для которого нужно получить комментарии.
+     * @return Список комментариев, связанных с объявлением, упорядоченных по времени создания в порядке убывания.
      */
-    List<Comment> findByAdvertisement(Advertisement advertisement);
+    List<Comment> findByAdvertisementOrderByCreatedAtDesc(Advertisement advertisement);
+
+    /**
+     * Получает все комментарии из репозитория, упорядоченные по времени создания в порядке убывания.
+     * @return Список всех комментариев в репозитории, упорядоченных по времени создания в порядке убывания.
+     */
+    List<Comment> findAllByOrderByCreatedAtDesc();
 }

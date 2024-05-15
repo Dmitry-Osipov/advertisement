@@ -45,18 +45,6 @@ public class RestAdvertisementController {
     }
 
     /**
-     * Получить список объявлений по заголовку.
-     * @param headline заголовок объявления
-     * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
-     */
-    @GetMapping("/{headline}")
-    public ResponseEntity<List<AdvertisementDto>> getAdvertisementByHeadline(
-            @PathVariable("headline") String headline,
-            @RequestParam(value = "sort", required = false) String sortBy) {
-        return ResponseEntity.ok(converter.getListAdvertisementDto(service.getAll(headline, sortBy)));
-    }
-
-    /**
      * Получить список объявлений по заголовку в промежутке цен с условием сортировки.
      * @param minPrice минимальная цена
      * @param maxPrice максимальная цена

@@ -34,16 +34,23 @@ public class Message implements Identifiable {
     private Long id;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinColumn(name = "conversation_id", nullable = false)
-    private Conversation conversation;
+    @JoinColumn(name = "advertisement_id", nullable = false)
+    private Advertisement advertisement;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinColumn(name = "recipient_id", nullable = false)
+    private User recipient;
 
     @Column(name = "text", nullable = false)
     private String text;
 
     @Column(name = "sent_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime sentAt;
+
+    @Column(name = "read", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean read;
 }
