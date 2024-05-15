@@ -8,6 +8,7 @@ import rf.senla.advertisement.domain.entity.Comment;
 import rf.senla.advertisement.domain.exception.AccessDeniedException;
 import rf.senla.advertisement.domain.exception.ErrorMessage;
 import rf.senla.advertisement.domain.repository.CommentRepository;
+import rf.senla.advertisement.domain.utils.comparator.CommentCreatedTimeComparator;
 import rf.senla.advertisement.security.entity.User;
 import rf.senla.advertisement.security.utils.validator.UserPermissionsValidator;
 
@@ -50,11 +51,15 @@ public class CommentService implements ICommentService {
 
     @Override
     public List<Comment> getAll() {
-        return repository.findAll();
+        return repository.findAll().stream()
+                .sorted(new CommentCreatedTimeComparator())
+                .toList();
     }
 
     @Override
     public List<Comment> getAll(Advertisement advertisement) {
-        return repository.findByAdvertisement(advertisement);
+        return repository.findByAdvertisement(advertisement).stream()
+                .sorted(new CommentCreatedTimeComparator())
+                .toList();
     }
 }
