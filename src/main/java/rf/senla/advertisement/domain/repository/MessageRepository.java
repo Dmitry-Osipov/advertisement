@@ -34,5 +34,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query("SELECT m FROM Message m " +
             "WHERE m.sender.id = :userId OR m.recipient.id = :userId " +
             "ORDER BY m.sentAt DESC")
-    List<Message> findAllInOrderBySentAtDesc(Long userId);
+    List<Message> findAllByUserIdInOrderBySentAtDesc(Long userId);
 }

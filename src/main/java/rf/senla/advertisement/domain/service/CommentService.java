@@ -5,11 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.entity.Comment;
-import rf.senla.advertisement.domain.exception.AccessDeniedException;
-import rf.senla.advertisement.domain.exception.ErrorMessage;
 import rf.senla.advertisement.domain.repository.CommentRepository;
-import rf.senla.advertisement.security.entity.User;
-import rf.senla.advertisement.security.utils.validator.UserPermissionsValidator;
 
 import java.util.List;
 
@@ -27,24 +23,12 @@ public class CommentService implements ICommentService {
     @Transactional
     @Override
     public Comment update(Comment entity) {
-        User user = entity.getUser();
-
-        if (!UserPermissionsValidator.validate(user)) {
-            throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
-        }
-
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public void delete(Comment entity) {
-        User user = entity.getUser();
-
-        if (!UserPermissionsValidator.validate(user)) {
-            throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
-        }
-
         repository.delete(entity);
     }
 

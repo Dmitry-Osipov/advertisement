@@ -4,13 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Advertisement;
-import rf.senla.advertisement.domain.exception.AccessDeniedException;
 import rf.senla.advertisement.domain.exception.ErrorMessage;
 import rf.senla.advertisement.domain.exception.NoEntityException;
 import rf.senla.advertisement.domain.exception.TechnicalException;
 import rf.senla.advertisement.domain.repository.AdvertisementRepository;
 import rf.senla.advertisement.security.entity.User;
-import rf.senla.advertisement.security.utils.validator.UserPermissionsValidator;
 
 import java.util.List;
 
@@ -31,24 +29,12 @@ public class AdvertisementService implements IAdvertisementService {
     @Transactional
     @Override
     public Advertisement update(Advertisement entity) {
-        User user = entity.getUser();
-
-        if (!UserPermissionsValidator.validate(user)) {
-            throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
-        }
-
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public void delete(Advertisement entity) {
-        User user = entity.getUser();
-
-        if (!UserPermissionsValidator.validate(user)) {
-            throw new AccessDeniedException(ErrorMessage.USER_IS_NOT_ADMIN_OR_AUTHOR.getMessage());
-        }
-
         repository.delete(entity);
     }
 

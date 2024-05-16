@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,6 +70,7 @@ public class RestCommentController {
      * @return ответ с кодом 200 (OK) и обновленными данными комментария в формате JSON
      */
     @PutMapping
+    @PreAuthorize("#dto.userName == authentication.principal.username")
     public ResponseEntity<CommentDto> updateComment(@Valid @RequestBody CommentDto dto) {
         return ResponseEntity.ok(converter.getDtoFromComment(service.update(converter.getCommentFromDto(dto))));
     }
@@ -79,6 +81,7 @@ public class RestCommentController {
      * @return ответ с кодом 200 (OK) и сообщением об успешном удалении
      */
     @DeleteMapping
+    @PreAuthorize("#dto.userName == authentication.principal.username or hasRole('ADMIN')")
     public ResponseEntity<String> deleteComment(@Valid @RequestBody CommentDto dto) {
         service.delete(converter.getCommentFromDto(dto));
         return ResponseEntity.ok("Deleted comment with id " + dto.getId());

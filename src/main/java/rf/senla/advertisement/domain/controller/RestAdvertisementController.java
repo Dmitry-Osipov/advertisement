@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,6 +95,7 @@ public class RestAdvertisementController {
      * @return объект {@link ResponseEntity} с обновленным объявлением и кодом 200 OK в случае успеха
      */
     @PutMapping
+    @PreAuthorize("#dto.userName == authentication.principal.username or hasRole('ADMIN')")
     public ResponseEntity<AdvertisementDto> updateAdvertisement(@RequestBody @Valid AdvertisementDto dto) {
         Advertisement advertisement = service.update(converter.getAdvertisementFromDto(dto));
         return ResponseEntity.ok(converter.getDtoFromAdvertisement(advertisement));
@@ -105,6 +107,7 @@ public class RestAdvertisementController {
      * @return объект {@link ResponseEntity} с сообщением об успешном удалении и кодом 200 OK в случае успеха
      */
     @DeleteMapping
+    @PreAuthorize("#dto.userName == authentication.principal.username or hasRole('ADMIN')")
     public ResponseEntity<String> deleteAdvertisement(@RequestBody @Valid AdvertisementDto dto) {
         service.delete(converter.getAdvertisementFromDto(dto));
         return ResponseEntity.ok("Deleted advertisement with headline " + dto.getHeadline());

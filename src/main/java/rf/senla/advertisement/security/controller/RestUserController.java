@@ -57,6 +57,7 @@ public class RestUserController {
      * @return ответ с обновленным пользователем
      */
     @PutMapping
+    @PreAuthorize("#dto.username == authentication.principal.username")
     public ResponseEntity<UserDto> updateUser(@RequestBody @Valid UserDto dto) {
         User user = DtoConverter.getUserFromDto(dto);
         return ResponseEntity.ok(DtoConverter.getDtoFromUser(service.update(user)));
@@ -68,6 +69,7 @@ public class RestUserController {
      * @return ответ об успешном удалении
      */
     @DeleteMapping
+    @PreAuthorize("#dto.username == authentication.principal.username or hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@RequestBody @Valid UserDto dto) {
         service.delete(DtoConverter.getUserFromDto(dto));
         return ResponseEntity.ok("Deleted user with username: " + dto.getUsername());
@@ -79,6 +81,7 @@ public class RestUserController {
      * @return обновлённый пользователь
      */
     @PutMapping("/password")
+    @PreAuthorize("#request.username == authentication.principal.username")
     public ResponseEntity<UserDto> updatePassword(@RequestBody @Valid ChangePasswordRequest request) {
         return ResponseEntity.ok(DtoConverter.getDtoFromUser(service.updatePassword(
                 request.getUsername(), request.getOldPassword(), request.getNewPassword())));

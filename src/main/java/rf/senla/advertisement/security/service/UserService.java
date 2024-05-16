@@ -11,10 +11,7 @@ import rf.senla.advertisement.domain.exception.EntityContainedException;
 import rf.senla.advertisement.security.entity.Role;
 import rf.senla.advertisement.security.entity.User;
 import rf.senla.advertisement.security.exception.ErrorMessage;
-import rf.senla.advertisement.security.exception.UserMismatchException;
 import rf.senla.advertisement.security.repository.UserRepository;
-import rf.senla.advertisement.security.utils.validator.CurrentUserValidator;
-import rf.senla.advertisement.security.utils.validator.UserPermissionsValidator;
 
 import java.util.List;
 
@@ -36,10 +33,6 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public User update(User user) {
-        if (!CurrentUserValidator.isCurrentUser(user)) {
-            throw new UserMismatchException(ErrorMessage.USERS_DO_NOT_MATCH.getMessage());
-        }
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return save(user);
     }
@@ -47,10 +40,6 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void delete(User user) {
-        if (!UserPermissionsValidator.validate(user)) {
-            throw new UserMismatchException(ErrorMessage.USERS_DO_NOT_MATCH.getMessage());
-        }
-
         repository.deleteByUsername(user.getUsername());
     }
 
@@ -69,10 +58,6 @@ public class UserService implements IUserService {
     @Override
     public User updatePassword(String username, String oldPassword, String newPassword) {
         User user = getByUsername(username);
-
-        if (!CurrentUserValidator.isCurrentUser(user)) {
-            throw new UserMismatchException(ErrorMessage.USERS_DO_NOT_MATCH.getMessage());
-        }
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new IllegalArgumentException(ErrorMessage.PASSWORDS_DO_NOT_MATCH.getMessage());

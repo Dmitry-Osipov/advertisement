@@ -5,11 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Message;
-import rf.senla.advertisement.domain.exception.ErrorMessage;
 import rf.senla.advertisement.domain.repository.MessageRepository;
 import rf.senla.advertisement.security.entity.Role;
 import rf.senla.advertisement.security.entity.User;
-import rf.senla.advertisement.security.exception.UserMismatchException;
 
 import java.util.List;
 
@@ -24,33 +22,18 @@ public class MessageService implements IMessageService {
     @Transactional
     @Override
     public Message save(Message entity) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!currentUser.getUsername().equals(entity.getSender().getUsername())) {
-            throw new UserMismatchException(ErrorMessage.USER_IS_NOT_AUTHOR.getMessage());
-        }
-
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public Message update(Message entity) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!entity.getSender().getUsername().equals(currentUser.getUsername())) {
-            throw new UserMismatchException(ErrorMessage.USER_IS_NOT_AUTHOR.getMessage());
-        }
-
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public void delete(Message entity) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!entity.getSender().getUsername().equals(currentUser.getUsername())) {
-            throw new UserMismatchException(ErrorMessage.USER_IS_NOT_AUTHOR.getMessage());
-        }
-
         repository.delete(entity);
     }
 
@@ -58,7 +41,7 @@ public class MessageService implements IMessageService {
     public List<Message> getAll() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return user.getRole().equals(Role.ROLE_ADMIN) ? repository.findAll() :
-                repository.findAllInOrderBySentAtDesc(user.getId());
+                repository.findAllByUserIdInOrderBySentAtDesc(user.getId());
     }
 
     @Override

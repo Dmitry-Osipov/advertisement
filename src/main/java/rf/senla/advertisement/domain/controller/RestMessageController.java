@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,6 +60,7 @@ public class RestMessageController {
      * @return {@link ResponseEntity} с созданным сообщением в формате {@link MessageDto}.
      */
     @PostMapping
+    @PreAuthorize("#dto.senderName == authentication.principal.username")
     public ResponseEntity<MessageDto> createMessage(@Valid @RequestBody MessageDto dto) {
         return ResponseEntity.ok(converter.getDtoFromMessage(service.save(converter.getMessageFromDto(dto))));
     }
@@ -69,6 +71,7 @@ public class RestMessageController {
      * @return {@link ResponseEntity} с обновленным сообщением в формате {@link MessageDto}.
      */
     @PutMapping
+    @PreAuthorize("#dto.senderName == authentication.principal.username")
     public ResponseEntity<MessageDto> updateMessage(@Valid @RequestBody MessageDto dto) {
         return ResponseEntity.ok(converter.getDtoFromMessage(service.update(converter.getMessageFromDto(dto))));
     }
@@ -79,6 +82,7 @@ public class RestMessageController {
      * @return {@link ResponseEntity} с информацией об удаленном сообщении.
      */
     @DeleteMapping
+    @PreAuthorize("#dto.senderName == authentication.principal.username")
     public ResponseEntity<String> deleteMessage(@Valid @RequestBody MessageDto dto) {
         service.delete(converter.getMessageFromDto(dto));
         return ResponseEntity.ok("Deleted message with text: " + dto.getText());
