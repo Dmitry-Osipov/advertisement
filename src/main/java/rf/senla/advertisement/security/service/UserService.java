@@ -45,7 +45,7 @@ public class UserService implements IUserService {
 
     @Override
     public List<User> getAll() {
-        return repository.findAll();
+        return repository.findAllByOrderByBoostedDescRatingDesc();
     }
 
     @Override

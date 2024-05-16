@@ -27,6 +27,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
             "ORDER BY " +
             "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
             "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
+            "CASE WHEN :ordering IS NULL THEN a.user.boosted END DESC, " +
             "CASE WHEN :ordering IS NULL THEN a.user.rating END DESC")
     List<Advertisement> findByPriceBetweenInOrder(@Param("min") Integer min,
                                                   @Param("max") Integer max,
@@ -38,7 +39,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
      */
     @Query("SELECT a FROM Advertisement a " +
             "WHERE a.status = 'ACTIVE' " +
-            "ORDER BY a.user.rating DESC")
+            "ORDER BY a.user.boosted DESC, a.user.rating DESC")
     List<Advertisement> findAllInOrderByUserRating();
 
     /**
@@ -56,7 +57,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
             "WHERE a.price BETWEEN :min AND :max AND LOWER(a.headline) = LOWER(:headline) AND a.status = 'ACTIVE' " +
             "ORDER BY " +
             "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
-            "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
+            "CASE WHEN :ordering IS NULL THEN a.user.boosted END DESC, " +
             "CASE WHEN :ordering IS NULL THEN a.user.rating END DESC")
     List<Advertisement> findByPriceBetweenAndHeadlineIgnoreCaseInOrder(@Param("min") Integer min,
                                                                        @Param("max") Integer max,

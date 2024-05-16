@@ -9,7 +9,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ErrorMessage {
-    USERS_DO_NOT_MATCH("Current and transferred users do not match"),
     PASSWORDS_DO_NOT_MATCH("Current and transferred passwords do not match"),
     USER_NOT_FOUND("User not found"),
     USERNAME_ALREADY_EXISTS("Username already exists"),

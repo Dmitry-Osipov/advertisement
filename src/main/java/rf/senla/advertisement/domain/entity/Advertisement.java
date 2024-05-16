@@ -37,7 +37,7 @@ public class Advertisement implements Identifiable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "price")
+    @Column(name = "price", columnDefinition = "INTEGER DEFAULT 0")
     private Integer price;
 
     @Column(name = "headline", nullable = false)

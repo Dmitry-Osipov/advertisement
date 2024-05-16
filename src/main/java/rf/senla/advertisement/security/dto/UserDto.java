@@ -10,13 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import rf.senla.advertisement.security.entity.Role;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * DTO, представляющее сущность пользователя.
@@ -26,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "DTO сущности пользователя")
-public class UserDto implements UserDetails {
+public class UserDto {
     @Schema(description = "ID пользователя", example = "1")
     @NotNull
     private Long id;
@@ -59,49 +53,4 @@ public class UserDto implements UserDetails {
 
     @Schema(description = "Роль", example = "ROLE_USER")
     private Role role;
-
-    /**
-     * Получение роли пользователя в виде коллекции GrantedAuthority.
-     * @return Роли пользователя.
-     */
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
-    }
-
-    /**
-     * Проверка, истек ли срок действия учетной записи пользователя.
-     * @return Всегда возвращает {@code true}, так как срок действия учетной записи не учитывается.
-     */
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    /**
-     * Проверка, заблокирована ли учетная запись пользователя.
-     * @return Всегда возвращает {@code true}, так как учетная запись пользователя не блокируется.
-     */
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    /**
-     * Проверка, истек ли срок действия учетных данных пользователя.
-     * @return Всегда возвращает {@code true}, так как срок действия учетных данных не учитывается.
-     */
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    /**
-     * Проверка, активирована ли учетная запись пользователя.
-     * @return Всегда возвращает {@code true}, так как учетная запись пользователя всегда активна.
-     */
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

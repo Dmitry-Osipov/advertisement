@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import rf.senla.advertisement.security.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,6 +14,12 @@ import java.util.Optional;
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    /**
+     * Найти список пользователь в порядке убывания рейтинга.
+     * @return список пользователей
+     */
+    List<User> findAllByOrderByBoostedDescRatingDesc();
+
     /**
      * Найти пользователя по его имени пользователя.
      * @param username имя пользователя

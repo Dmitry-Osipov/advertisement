@@ -58,14 +58,4 @@ public final class DtoConverter {
                 .toList();
     }
 
-    /**
-     * Преобразует список объектов DTO в список объектов пользователя.
-     * @param dtos список объектов DTO
-     * @return список объектов пользователя
-     */
-    public List<User> getListUser(List<UserDto> dtos) {
-        return dtos.stream()
-                .map(DtoConverter::getUserFromDto)
-                .toList();
-    }
 }

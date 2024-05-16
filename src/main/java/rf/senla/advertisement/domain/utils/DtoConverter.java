@@ -67,17 +67,6 @@ public final class DtoConverter {
     }
 
     /**
-     * Преобразует список объектов DTO в список объектов объявлений.
-     * @param dtos список объектов DTO
-     * @return список объектов объявлений
-     */
-    public List<Advertisement> getListAdvertisement(List<AdvertisementDto> dtos) {
-        return dtos.stream()
-                .map(this::getAdvertisementFromDto)
-                .toList();
-    }
-
-    /**
      * Преобразует объект {@link Comment} в соответствующий ему DTO.
      * @param comment Комментарий, который требуется преобразовать.
      * @return {@link CommentDto}, представляющий переданный комментарий.
@@ -119,17 +108,10 @@ public final class DtoConverter {
     }
 
     /**
-     * Преобразует список {@link CommentDto} в список объектов {@link Comment}.
-     * @param dtos Список DTO, которые требуется преобразовать.
-     * @return Список объектов {@link Comment}, представляющих переданные DTO.
+     * Преобразует объект {@link Message} в объект {@link MessageDto}.
+     * @param message объект {@link Message}, который нужно преобразовать
+     * @return объект {@link MessageDto}, соответствующий переданному {@link Message}
      */
-    public List<Comment> getListComment(List<CommentDto> dtos) {
-        return dtos.stream()
-                .map(this::getCommentFromDto)
-                .toList();
-    }
-
-    // TODO: дока
     public MessageDto getDtoFromMessage(Message message) {
         return MessageDto.builder()
                 .id(message.getId())
@@ -142,6 +124,11 @@ public final class DtoConverter {
                 .build();
     }
 
+    /**
+     * Преобразует объект {@link MessageDto} в объект {@link Message}.
+     * @param dto объект {@link MessageDto}, который нужно преобразовать
+     * @return объект {@link Message}, соответствующий переданному {@link MessageDto}
+     */
     public Message getMessageFromDto(MessageDto dto) {
         return Message.builder()
                 .id(dto.getId())
@@ -154,15 +141,14 @@ public final class DtoConverter {
                 .build();
     }
 
+    /**
+     * Преобразует список объектов {@link Message} в список объектов {@link MessageDto}.
+     * @param messages список объектов {@link Message}, которые нужно преобразовать
+     * @return список объектов {@link MessageDto}, соответствующих переданным {@link Message}
+     */
     public List<MessageDto> getListMessageDto(List<Message> messages) {
         return messages.stream()
                 .map(this::getDtoFromMessage)
-                .toList();
-    }
-
-    public List<Message> getListMessage(List<MessageDto> dtos) {
-        return dtos.stream()
-                .map(this::getMessageFromDto)
                 .toList();
     }
 }
