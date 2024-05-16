@@ -30,9 +30,8 @@ public interface IUserService extends IService<User> {
 
     /**
      * Создание пользователя
-     * @return созданный пользователь
      */
-    User create(User user);
+    void create(User user);
 
     /**
      * Получение пользователя по имени пользователя
@@ -41,4 +40,10 @@ public interface IUserService extends IService<User> {
      * @return пользователь
      */
     UserDetailsService userDetailsService();
+
+    /**
+     * Продвижение пользователя
+     * @param username имя пользователя
+     */
+    void setBoosted(String username);
 }

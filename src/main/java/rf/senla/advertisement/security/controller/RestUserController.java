@@ -92,10 +92,22 @@ public class RestUserController {
      * @param username логин пользователя
      * @return строку с сообщением об успешной установке роли администратора
      */
-    @GetMapping("/admin/{username}")
+    @PutMapping("${spring.data.rest.admin-path}/role-admin/{username}")
     @PreAuthorize("hasRole('ADMIN')")
-    public String setRoleAdmin(@PathVariable String username) {
+    public ResponseEntity<String> setRoleAdmin(@PathVariable String username) {
         service.setAdminRole(username);
-        return "The admin role is set to " + username;
+        return ResponseEntity.ok("The admin role is set to " + username);
+    }
+
+    /**
+     * Метод для продвижения пользователя.
+     * @param username логин пользователя
+     * @return строка с сообщением об успешном продвижении
+     */
+    @PutMapping("${spring.data.rest.admin-path}/boosted/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> setBoosted(@PathVariable String username) {
+        service.setBoosted(username);
+        return ResponseEntity.ok("User " + username + " has received a boost");
     }
 }

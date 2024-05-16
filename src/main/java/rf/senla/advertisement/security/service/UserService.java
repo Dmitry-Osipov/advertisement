@@ -78,7 +78,7 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
-    public User create(User user) {
+    public void create(User user) {
         if (repository.existsByUsername(user.getUsername())) {
             throw new EntityContainedException(ErrorMessage.USERNAME_ALREADY_EXISTS.getMessage());
         }
@@ -87,11 +87,19 @@ public class UserService implements IUserService {
             throw new EntityContainedException(ErrorMessage.EMAIL_ALREADY_EXISTS.getMessage());
         }
 
-        return save(user);
+        save(user);
     }
 
     @Override
     public UserDetailsService userDetailsService() {
         return this::getByUsername;
+    }
+
+    @Transactional
+    @Override
+    public void setBoosted(String username) {
+        User user = getByUsername(username);
+        user.setBoosted(true);
+        save(user);
     }
 }
