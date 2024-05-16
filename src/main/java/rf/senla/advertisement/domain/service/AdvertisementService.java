@@ -2,6 +2,9 @@ package rf.senla.advertisement.domain.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.exception.ErrorMessage;
@@ -40,11 +43,12 @@ public class AdvertisementService implements IAdvertisementService {
 
     @Override
     public List<Advertisement> getAll() {
-        return repository.findAllInOrderByUserRating();
+        return repository.findAllInOrderByUserRating(getPageable("rating", 0, 10));
     }
 
     @Override
-    public List<Advertisement> getAll(Integer min, Integer max, String headline, String sortBy) {
+    public List<Advertisement> getAll(Integer min, Integer max, String headline, String sortBy,
+                                      Integer page, Integer size) {
         if (min == null) {
             min = 0;
         }
@@ -55,20 +59,24 @@ public class AdvertisementService implements IAdvertisementService {
 
         checkPrices(min, max);
 
+        Pageable pageable = getPageable(sortBy, page, size);
+
         if (headline == null) {
-            return repository.findByPriceBetweenInOrder(min, max, sortBy);
+            return repository.findByPriceBetweenInOrder(min, max, pageable);
         }
 
-        return repository.findByPriceBetweenAndHeadlineIgnoreCaseInOrder(min, max, headline, sortBy);
+        return repository.findByPriceBetweenAndHeadlineIgnoreCaseInOrder(min, max, headline, pageable);
     }
 
     @Override
-    public List<Advertisement> getAll(User user, String sortBy, Boolean active) {
+    public List<Advertisement> getAll(User user, String sortBy, Boolean active, Integer page, Integer size) {
+        Pageable pageable = getPageable(sortBy, page, size);
+
         if (Boolean.FALSE.equals(active) || active == null) {
-            return repository.findByUserInOrderWithAnyStatus(user, sortBy);
+            return repository.findByUserInOrderWithAnyStatus(user, pageable);
         }
 
-        return repository.findByUserInOrder(user, sortBy);
+        return repository.findByUserInOrder(user, pageable);
     }
 
     @Override
@@ -83,7 +91,7 @@ public class AdvertisementService implements IAdvertisementService {
      * @param max максимальная цена
      * @throws TechnicalException если минимальная цена больше максимальной или какая-либо цена меньше 0
      */
-    private static void checkPrices(Integer min, Integer max) {
+    private void checkPrices(Integer min, Integer max) {
         if (min < 0) {
             throw new TechnicalException(ErrorMessage.PRICE_IS_NEGATIVE.getMessage());
         }
@@ -91,5 +99,31 @@ public class AdvertisementService implements IAdvertisementService {
         if (min > max) {
             throw new TechnicalException(ErrorMessage.MIN_PRICE_IS_HIGHEST.getMessage());
         }
+    }
+
+    /**
+     * Служебный метод на основе переданного типа сортировки формирует пагинацию.
+     * @param sortBy способ сортировки
+     * @param page порядковый номер страницы
+     * @param size размер страницы
+     * @return пагинация
+     */
+    private Pageable getPageable(String sortBy, Integer page, Integer size) {
+        if (page == null) {
+            page = 0;
+        }
+
+        if (size == null) {
+            size = 10;
+        }
+
+        Sort sort;
+        switch (sortBy) {
+            case "asc" -> sort = Sort.by(Sort.Direction.ASC, "price");
+            case "desc" -> sort = Sort.by(Sort.Direction.DESC, "price");
+            case null, default -> sort = Sort.by(Sort.Direction.DESC, "user.boosted", "user.rating");
+        }
+
+        return PageRequest.of(page, size, sort);
     }
 }

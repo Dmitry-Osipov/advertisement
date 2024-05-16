@@ -2,6 +2,9 @@ package rf.senla.advertisement.security.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -45,7 +48,12 @@ public class UserService implements IUserService {
 
     @Override
     public List<User> getAll() {
-        return repository.findAllByOrderByBoostedDescRatingDesc();
+        return repository.findAll(getPageable(0, 10)).getContent();
+    }
+
+    @Override
+    public List<User> getAll(Integer page, Integer size) {
+        return repository.findAll(getPageable(page, size)).getContent();
     }
 
     @Override
@@ -101,5 +109,23 @@ public class UserService implements IUserService {
         User user = getByUsername(username);
         user.setBoosted(true);
         save(user);
+    }
+
+    /**
+     * Служебный метод возвращает пагинацию топовых пользователей.
+     * @param page Порядковый номер страницы.
+     * @param size Размер страницы.
+     * @return Пагинация
+     */
+    private Pageable getPageable(Integer page, Integer size) {
+        if (page == null) {
+            page = 0;
+        }
+
+        if (size == null) {
+            size = 10;
+        }
+
+        return PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "boosted", "rating"));
     }
 }

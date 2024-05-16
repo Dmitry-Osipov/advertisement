@@ -1,5 +1,6 @@
 package rf.senla.advertisement.domain.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,82 +16,59 @@ import java.util.List;
 @Repository
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {
     /**
-     * Получает список объявлений с ценой в указанном диапазоне и упорядоченных в соответствии с указанным порядком.
+     * Получает все объявления, отсортированные по рейтингу пользователя.
+     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
+     * @return Список объявлений, отсортированный по рейтингу пользователя.
+     */
+    @Query("SELECT a FROM Advertisement a WHERE a.status = 'ACTIVE'")
+    List<Advertisement> findAllInOrderByUserRating(Pageable pageable);
+
+    /**
+     * Получает объявления с ценой в указанном диапазоне, отсортированные по цене.
      * @param min Минимальная цена.
      * @param max Максимальная цена.
-     * @param ordering Порядок сортировки (asc - по возрастанию цены, desc - по убыванию цены, null - по убыванию
-     * рейтинга пользователя).
-     * @return Список объявлений с ценой в указанном диапазоне и упорядоченных в соответствии с указанным порядком.
+     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
+     * @return Страница объявлений с ценой в указанном диапазоне, отсортированных по цене.
      */
     @Query("SELECT a FROM Advertisement a " +
-            "WHERE a.price BETWEEN :min AND :max AND a.status = 'ACTIVE' " +
-            "ORDER BY " +
-            "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
-            "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
-            "CASE WHEN :ordering IS NULL THEN a.user.boosted END DESC, " +
-            "CASE WHEN :ordering IS NULL THEN a.user.rating END DESC")
+            "WHERE a.price BETWEEN :min AND :max " +
+            "AND a.status = 'ACTIVE'")
     List<Advertisement> findByPriceBetweenInOrder(@Param("min") Integer min,
                                                   @Param("max") Integer max,
-                                                  @Param("ordering") String ordering);
+                                                  Pageable pageable);
 
     /**
-     * Получает список всех активных объявлений, упорядоченных по рейтингу пользователя в порядке убывания.
-     * @return Список всех активных объявлений, упорядоченных по рейтингу пользователя в порядке убывания.
-     */
-    @Query("SELECT a FROM Advertisement a " +
-            "WHERE a.status = 'ACTIVE' " +
-            "ORDER BY a.user.boosted DESC, a.user.rating DESC")
-    List<Advertisement> findAllInOrderByUserRating();
-
-    /**
-     * Получает список объявлений с ценой в указанном диапазоне, содержащих указанный заголовок и упорядоченных в
-     * соответствии с указанным порядком.
+     * Получает объявления с ценой в указанном диапазоне и с указанным заголовком,
+     * отсортированные по цене.
      * @param min Минимальная цена.
      * @param max Максимальная цена.
-     * @param headline Заголовок объявления (игнорирует регистр).
-     * @param ordering Порядок сортировки (asc - по возрастанию цены, desc - по убыванию цены, null - по убыванию
-     * рейтинга пользователя).
-     * @return Список объявлений с ценой в указанном диапазоне, содержащих указанный заголовок и упорядоченных в
-     * соответствии с указанным порядком.
+     * @param headline Заголовок объявления.
+     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
+     * @return Страница объявлений с ценой в указанном диапазоне и указанным заголовком, отсортированных по цене.
      */
     @Query("SELECT a FROM Advertisement a " +
-            "WHERE a.price BETWEEN :min AND :max AND LOWER(a.headline) = LOWER(:headline) AND a.status = 'ACTIVE' " +
-            "ORDER BY " +
-            "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
-            "CASE WHEN :ordering IS NULL THEN a.user.boosted END DESC, " +
-            "CASE WHEN :ordering IS NULL THEN a.user.rating END DESC")
+            "WHERE a.price BETWEEN :min AND :max AND LOWER(a.headline) = LOWER(:headline) " +
+            "AND a.status = 'ACTIVE'")
     List<Advertisement> findByPriceBetweenAndHeadlineIgnoreCaseInOrder(@Param("min") Integer min,
                                                                        @Param("max") Integer max,
                                                                        @Param("headline") String headline,
-                                                                       @Param("ordering") String ordering);
+                                                                       Pageable pageable);
 
     /**
-     * Получает список объявлений пользователя, упорядоченных в соответствии с указанным порядком.
+     * Получает объявления для указанного пользователя, отсортированные с учетом любого статуса.
      * @param user Пользователь, для которого нужно получить объявления.
-     * @param ordering Порядок сортировки (asc - по возрастанию цены, desc - по убыванию цены, null - по убыванию
-     * рейтинга пользователя).
-     * @return Список объявлений пользователя, упорядоченных в соответствии с указанным порядком.
+     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
+     * @return Страница объявлений для указанного пользователя, отсортированных с учетом любого статуса.
      */
-    @Query("SELECT a FROM Advertisement a " +
-            "WHERE a.user = :user AND a.status = 'ACTIVE' " +
-            "ORDER BY " +
-            "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
-            "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
-            "CASE WHEN :ordering IS NULL THEN a.id END DESC")
-    List<Advertisement> findByUserInOrder(@Param("user") User user, @Param("ordering") String ordering);
+    @Query("SELECT a FROM Advertisement a WHERE a.user = :user ")
+    List<Advertisement> findByUserInOrderWithAnyStatus(@Param("user") User user, Pageable pageable);
 
     /**
-     * Получает список объявлений пользователя с любым статусом, упорядоченных в соответствии с указанным порядком.
-     * @param user Пользователь, для которого нужно получить объявления.
-     * @param ordering Порядок сортировки (asc - по возрастанию цены, desc - по убыванию цены, null - по убыванию
-     * рейтинга пользователя).
-     * @return Список объявлений пользователя с любым статусом, упорядоченных в соответствии с указанным порядком.
+     * Получает активные объявления для указанного пользователя, отсортированные по рейтингу пользователя.
+     * @param user Пользователь, для которого нужно получить активные объявления.
+     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
+     * @return Страница активных объявлений для указанного пользователя, отсортированных по рейтингу пользователя.
      */
-    @Query("SELECT a FROM Advertisement a " +
-            "WHERE a.user = :user " +
-            "ORDER BY " +
-            "CASE WHEN :ordering = 'asc' THEN a.price END ASC, " +
-            "CASE WHEN :ordering = 'desc' THEN a.price END DESC, " +
-            "CASE WHEN :ordering IS NULL THEN a.id END DESC")
-    List<Advertisement> findByUserInOrderWithAnyStatus(@Param("user") User user, @Param("ordering") String ordering);
+    @Query("SELECT a FROM Advertisement a WHERE a.user = :user AND a.status = 'ACTIVE'")
+    List<Advertisement> findByUserInOrder(@Param("user") User user, Pageable pageable);
 }

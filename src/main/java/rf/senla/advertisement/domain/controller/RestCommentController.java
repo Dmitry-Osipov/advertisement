@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.domain.dto.CommentDto;
 import rf.senla.advertisement.domain.service.IAdvertisementService;
@@ -35,7 +36,7 @@ public class RestCommentController {
     private final DtoConverter converter;
 
     /**
-     * Получить список всех комментариев.
+     * Получить список последних 10 комментариев.
      * @return ответ с кодом 200 (OK) и списком всех комментариев в формате JSON
      */
     @GetMapping
@@ -49,9 +50,12 @@ public class RestCommentController {
      * @return ответ с кодом 200 (OK) и списком всех комментариев объявления в формате JSON
      */
     @GetMapping("/{advertisementId}")
-    public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(@PathVariable Long advertisementId) {
+    public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(
+            @PathVariable Long advertisementId,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
         return ResponseEntity.ok(converter.getListCommentDto(
-                service.getAll(advertisementService.getById(advertisementId))));
+                service.getAll(advertisementService.getById(advertisementId), page, size)));
     }
 
     /**

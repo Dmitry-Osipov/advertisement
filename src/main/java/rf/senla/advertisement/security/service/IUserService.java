@@ -4,6 +4,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import rf.senla.advertisement.domain.service.IService;
 import rf.senla.advertisement.security.entity.User;
 
+import java.util.List;
+
 /**
  * Сервис для работы с пользователями.
  */
@@ -46,4 +48,12 @@ public interface IUserService extends IService<User> {
      * @param username имя пользователя
      */
     void setBoosted(String username);
+
+    /**
+     * Получить список пользователей с пагинацией.
+     * @param page Порядковый номер страницы.
+     * @param size Размер страницы.
+     * @return Список пользователей.
+     */
+    List<User> getAll(Integer page, Integer size);
 }

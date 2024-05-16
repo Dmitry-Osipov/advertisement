@@ -27,7 +27,7 @@ public interface IService<T extends Identifiable> {
     void delete(T entity);
 
     /**
-     * Получение всех сущностей
+     * Получение списка сущностей
      * @return список сущностей
      */
     List<T> getAll();

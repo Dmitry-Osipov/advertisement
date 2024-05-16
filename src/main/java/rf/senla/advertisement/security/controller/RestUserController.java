@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.security.dto.ChangePasswordRequest;
 import rf.senla.advertisement.security.dto.UserDto;
@@ -43,12 +44,25 @@ public class RestUserController {
     }
 
     /**
-     * Получить всех пользователей.
+     * Получить 10 топовых пользователей.
      * @return ответ со списком пользователей
      */
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         return ResponseEntity.ok(DtoConverter.getListDto(service.getAll()));
+    }
+
+    /**
+     * Получить список пользователей с пагинацией.
+     * @param page Порядковый номер страницы.
+     * @param size Размер страницы.
+     * @return ответ со списком пользователей
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDto>> getUsersBySearch(
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
+        return ResponseEntity.ok(DtoConverter.getListDto(service.getAll(page, size)));
     }
 
     /**

@@ -37,7 +37,7 @@ public class RestAdvertisementController {
     private final DtoConverter converter;
 
     /**
-     * Получить все объявления.
+     * Получить список 10 топовых объявлений.
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
     @GetMapping
@@ -46,11 +46,13 @@ public class RestAdvertisementController {
     }
 
     /**
-     * Получить список объявлений по заголовку в промежутке цен с условием сортировки.
+     * Получить список объявлений по заголовку в промежутке цен с условием сортировки и пагинацией.
      * @param minPrice минимальная цена
      * @param maxPrice максимальная цена
      * @param headline заголовок
      * @param sortBy условие сортировки
+     * @param page страница
+     * @param size размер страницы
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
     @GetMapping("/search")
@@ -58,24 +60,31 @@ public class RestAdvertisementController {
             @RequestParam(value = "min", required = false) Integer minPrice,
             @RequestParam(value = "max", required = false) Integer maxPrice,
             @RequestParam(value = "headline", required = false) String headline,
-            @RequestParam(value = "sort", required = false) String sortBy) {
+            @RequestParam(value = "sort", required = false) String sortBy,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
         return ResponseEntity.ok(converter.getListAdvertisementDto(
-                service.getAll(minPrice, maxPrice, headline, sortBy)));
+                service.getAll(minPrice, maxPrice, headline, sortBy, page, size)));
     }
 
     /**
-     * Получить список объявлений по пользователю.
+     * Получить список объявлений по пользователю с пагинацией.
      * @param username имя пользователя (логин)
      * @param sortBy условие сортировки
+     * @param active требуется выводить только активные объявления
+     * @param page порядковый номер страницы
+     * @param size размер страницы
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
     @GetMapping("/search/{username}")
     public ResponseEntity<List<AdvertisementDto>> getAllByUser(
             @PathVariable("username") String username,
             @RequestParam(value = "sort", required = false) String sortBy,
-            @RequestParam(value = "active", required = false) Boolean active) {
+            @RequestParam(value = "active", required = false) Boolean active,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
         return ResponseEntity.ok(converter.getListAdvertisementDto(
-                service.getAll(userService.getByUsername(username), sortBy, active)));
+                service.getAll(userService.getByUsername(username), sortBy, active, page, size)));
     }
 
     /**

@@ -35,7 +35,7 @@ public class RestMessageController {
     private final DtoConverter converter;
 
     /**
-     * Получает список всех сообщений.
+     * Получает список последних 10 сообщений.
      * @return {@link ResponseEntity} со списком всех сообщений в формате {@link MessageDto}.
      */
     @GetMapping
@@ -46,12 +46,18 @@ public class RestMessageController {
     /**
      * Получает переписку между текущим пользователем и пользователем с указанным именем.
      * @param username Имя пользователя, с которым нужно получить переписку.
+     * @param page Порядковый номер страницы.
+     * @param size Размер страницы.
      * @return {@link ResponseEntity} со списком сообщений в формате {@link MessageDto} между текущим пользователем и
      * пользователем с указанным именем.
      */
     @GetMapping("/search")
-    public ResponseEntity<List<MessageDto>> getUserCorrespondence(@RequestParam(value = "username") String username) {
-        return ResponseEntity.ok(converter.getListMessageDto(service.getAll(userService.getByUsername(username))));
+    public ResponseEntity<List<MessageDto>> getUserCorrespondence(
+            @RequestParam(value = "username") String username,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
+        return ResponseEntity.ok(converter.getListMessageDto(
+                service.getAll(userService.getByUsername(username), page, size)));
     }
 
     /**

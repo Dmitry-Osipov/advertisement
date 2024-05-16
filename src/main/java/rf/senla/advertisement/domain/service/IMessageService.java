@@ -10,9 +10,11 @@ import java.util.List;
  */
 public interface IMessageService extends IService<Message> {
     /**
-     * Получить все сообщения от или к конкретному пользователю.
+     * Получить все сообщения от или к конкретному пользователю с пагинацией.
      * @param user пользователь
+     * @param page порядковый номер страницы
+     * @param size размер страницы
      * @return список сообщений
      */
-    List<Message> getAll(User user);
+    List<Message> getAll(User user, Integer page, Integer size);
 }

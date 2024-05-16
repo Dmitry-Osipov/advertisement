@@ -1,5 +1,6 @@
 package rf.senla.advertisement.domain.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import rf.senla.advertisement.domain.entity.Advertisement;
@@ -13,16 +14,10 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     /**
-     * Получает список комментариев, связанных с указанным объявлением, упорядоченных по времени создания в порядке
-     * убывания.
+     * Получает список комментариев, связанных с указанным объявлением, с пагинацией.
      * @param advertisement Объявление, для которого нужно получить комментарии.
-     * @return Список комментариев, связанных с объявлением, упорядоченных по времени создания в порядке убывания.
+     * @param pageable Пагинация.
+     * @return Список комментариев, связанных с объявлением.
      */
-    List<Comment> findByAdvertisementOrderByCreatedAtDesc(Advertisement advertisement);
-
-    /**
-     * Получает все комментарии из репозитория, упорядоченные по времени создания в порядке убывания.
-     * @return Список всех комментариев в репозитории, упорядоченных по времени создания в порядке убывания.
-     */
-    List<Comment> findAllByOrderByCreatedAtDesc();
+    List<Comment> findByAdvertisement(Advertisement advertisement, Pageable pageable);
 }
