@@ -71,7 +71,7 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA advertisement TO advertisement_user
 -- 'foodie', 'deliciousFood'
 -- 'admin', 'abvgdU7523467'
 INSERT INTO advertisement.users (username, password, phone_number, rating, email, boosted, role) VALUES
-('user123', '$2a$10$.PSEN9QPfyvpoXh9RQzdy.Wlok/5KO.iwcNYQOe.mmVgdTAeOO0AW', '+7(123)456-78-90', NULL, 'storm-yes@yandex.ru', TRUE, 'ROLE_USER'),
+('user123', '$2a$10$.PSEN9QPfyvpoXh9RQzdy.Wlok/5KO.iwcNYQOe.mmVgdTAeOO0AW', '+7(123)456-78-90', 0, 'storm-yes@yandex.ru', TRUE, 'ROLE_USER'),
 ('cool_guy', '$2a$10$pT4a.wJbqJ9S8egWxAsQDuGoW2/JtO3/sFNqKRywS1my1HrVk.riq', '+7(456)789-01-23', 100, 'john.doe@gmail.com', FALSE, 'ROLE_USER'),
 ('adventure_lover', '$2a$10$vUso4/3dhelewojnFMwe3eEuuYbDjhB2w8DD7whkUNI68AEmozmVO', '+7(789)012-34-56', 200, 'jane.smith@yahoo.com', FALSE, 'ROLE_USER'),
 ('soccer_fanatic', '$2a$10$9FTmJyd2uuYAhCs8zS29IOFu7L1A3Sgtwm7y2zk40AuAyOX7jk9YC', '+7(234)567-89-01', 200, 'alexander.wilson@hotmail.com', TRUE, 'ROLE_USER'),
@@ -81,11 +81,11 @@ INSERT INTO advertisement.users (username, password, phone_number, rating, email
 ('travel_bug', '$2a$10$Fy0RzoBw1LWvUu.G0SAoxOlDiVoLny4JcywrHCxxZZrRZyr5sMmxK', '+7(678)901-23-45', 500, 'michael.johnson@aol.com', FALSE, 'ROLE_USER'),
 ('fitness_freak', '$2a$10$J.nuQTavp.Q3J3X0ZtMutef1lsuZDA.icUtzpntSfh527ZCW1I3V.', '+7(901)234-56-78', 500, 'laura.davis@yandex.ru', FALSE, 'ROLE_USER'),
 ('movie_buff', '$2a$10$D5GA3XIYSPLuCg3kdhskSO3NrYToLWGGJo3CWIBXSMCINDfl2c5nC', '+7(432)109-87-65', 500, 'james.miller@protonmail.com', FALSE, 'ROLE_USER'),
-('gaming_pro', '$2a$10$VeQVo/2UEOlQ3BO0zv6gJuUKY/Eeq8xSXg0mpMvNvfTTHWctXeE62', '+7(210)987-65-43', NULL, 'olivia.taylor@live.com', FALSE, 'ROLE_USER'),
-('art_enthusiast', '$2a$10$xWKGPXDUuxxnpTI8EkAZeeKubMAyjAxWQQKz.CtNlOrvph3FKoJoW', '+7(098)765-43-21', NULL, 'william.anderson@inbox.lv', FALSE, 'ROLE_USER'),
-('nature_lover', '$2a$10$TRq3w57OEgUfuZLXSYCRS..9LmukEPmrRVHv9QIed.b850ky/cIJy', '+7(876)543-21-09', NULL, 'sophia.thomas@bk.ru', FALSE, 'ROLE_USER'),
-('foodie', '$2a$10$TjJmASFFMmKK1iVgAwZaDel8TgWEurRYL.8jTs4ECE9FPaW13TbXG', '+7(953)180-00-61', NULL, 'jacob.moore@rambler.ru', FALSE, 'ROLE_USER'),
-('admin', '$2a$10$/v7NnuEmQ8wvQg6oK.RFkeX1fPF25xzQIFYSz2M7BTVLkbi1RExYe', '+7(902)902-98-11', NULL, 'dimaosipov00@gmail.com', FALSE, 'ROLE_ADMIN');
+('gaming_pro', '$2a$10$VeQVo/2UEOlQ3BO0zv6gJuUKY/Eeq8xSXg0mpMvNvfTTHWctXeE62', '+7(210)987-65-43', 0, 'olivia.taylor@live.com', FALSE, 'ROLE_USER'),
+('art_enthusiast', '$2a$10$xWKGPXDUuxxnpTI8EkAZeeKubMAyjAxWQQKz.CtNlOrvph3FKoJoW', '+7(098)765-43-21', 0, 'william.anderson@inbox.lv', FALSE, 'ROLE_USER'),
+('nature_lover', '$2a$10$TRq3w57OEgUfuZLXSYCRS..9LmukEPmrRVHv9QIed.b850ky/cIJy', '+7(876)543-21-09', 0, 'sophia.thomas@bk.ru', FALSE, 'ROLE_USER'),
+('foodie', '$2a$10$TjJmASFFMmKK1iVgAwZaDel8TgWEurRYL.8jTs4ECE9FPaW13TbXG', '+7(953)180-00-61', 0, 'jacob.moore@rambler.ru', FALSE, 'ROLE_USER'),
+('admin', '$2a$10$/v7NnuEmQ8wvQg6oK.RFkeX1fPF25xzQIFYSz2M7BTVLkbi1RExYe', '+7(902)902-98-11', 0, 'dimaosipov00@gmail.com', FALSE, 'ROLE_ADMIN');
 
 INSERT INTO advertisement.advertisements (user_id, price, headline, description, status) VALUES
 (1, 1000, 'Smartphone', 'A portable device combining the functions of a mobile phone and a computer, typically offering internet access, touchscreen interface, and various applications.', 'ACTIVE'),
