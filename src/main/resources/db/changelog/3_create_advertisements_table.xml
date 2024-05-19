@@ -10,7 +10,7 @@
             DROP TABLE IF EXISTS advertisement.advertisements;
         </sql>
         <createTable schemaName="advertisement" tableName="advertisements">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">

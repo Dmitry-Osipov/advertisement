@@ -10,7 +10,7 @@
             DROP TABLE IF EXISTS advertisement.users;
         </sql>
         <createTable schemaName="advertisement" tableName="users">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="username" type="VARCHAR(50)">

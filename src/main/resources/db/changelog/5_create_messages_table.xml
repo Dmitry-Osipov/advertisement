@@ -2,41 +2,54 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
-    <changeSet id="0003-drop-comments-table" author="dmitry">
-        <sql>DROP TABLE IF EXISTS advertisement.comments CASCADE;</sql>
+    <changeSet id="0004-drop-messages-table" author="dmitry">
+        <sql>DROP TABLE IF EXISTS advertisement.messages CASCADE;</sql>
     </changeSet>
-    <changeSet id="0003-create-table-comments" author="dmitry">
+    <changeSet id="007-create-table-messages" author="dmitry">
         <sql>
-            DROP TABLE IF EXISTS advertisement.comments;
+            DROP TABLE IF EXISTS advertisement.messages;
         </sql>
-        <createTable schemaName="advertisement" tableName="comments">
-            <column name="id" type="BIGINT">
+        <createTable schemaName="advertisement" tableName="messages">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="advertisement_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="user_id" type="BIGINT">
+            <column name="sender_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipient_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="text" type="TEXT">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+            <column name="sent_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="read" type="BOOLEAN" defaultValue="FALSE">
                 <constraints nullable="true"/>
             </column>
         </createTable>
         <addForeignKeyConstraint baseTableSchemaName="advertisement"
-                                 baseTableName="comments"
+                                 baseTableName="messages"
                                  baseColumnNames="advertisement_id"
                                  constraintName="fk_advertisement_id"
                                  referencedTableSchemaName="advertisement"
                                  referencedTableName="advertisements"
                                  referencedColumnNames="id"/>
         <addForeignKeyConstraint baseTableSchemaName="advertisement"
-                                 baseTableName="comments"
-                                 baseColumnNames="user_id"
-                                 constraintName="fk_user_id"
+                                 baseTableName="messages"
+                                 baseColumnNames="sender_id"
+                                 constraintName="fk_sender_id"
+                                 referencedTableSchemaName="advertisement"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableSchemaName="advertisement"
+                                 baseTableName="messages"
+                                 baseColumnNames="recipient_id"
+                                 constraintName="fk_recipient_id"
                                  referencedTableSchemaName="advertisement"
                                  referencedTableName="users"
                                  referencedColumnNames="id"/>
