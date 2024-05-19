@@ -1,4 +1,6 @@
 spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
   application:
     name: advertisement
   datasource:
@@ -11,6 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_schema: advertisement
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   data:
     rest:

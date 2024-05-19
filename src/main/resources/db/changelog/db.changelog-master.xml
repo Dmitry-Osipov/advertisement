@@ -1,0 +1,14 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <include file="/db/changelog/01_create_schema.xml"/>
+    <include file="/db/changelog/02_create_users_table.xml"/>
+    <include file="/db/changelog/03_create_advertisements_table.xml"/>
+    <include file="/db/changelog/04_create_comments_table.xml"/>
+    <include file="/db/changelog/05_create_messages_table.xml"/>
+    <include file="/db/changelog/06_grant_all_privileges.xml"/>
+    <include file="/db/changelog/07_insert_test_data.xml"/>
+
+</databaseChangeLog>

@@ -1,0 +1,12 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    <changeSet id="0005-grant-all-privileges" author="dmitry">
+        <sql>
+            ALTER DATABASE advertisement OWNER TO advertisement_user;
+            ALTER SCHEMA advertisement OWNER TO advertisement_user;
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA advertisement TO advertisement_user;
+        </sql>
+    </changeSet>
+</databaseChangeLog>
