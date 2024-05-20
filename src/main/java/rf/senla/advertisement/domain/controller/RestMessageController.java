@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.domain.dto.MessageDto;
-import rf.senla.advertisement.domain.service.MessageService;
+import rf.senla.advertisement.domain.service.IMessageService;
 import rf.senla.advertisement.domain.utils.DtoConverter;
-import rf.senla.advertisement.security.service.UserService;
+import rf.senla.advertisement.security.service.IUserService;
 
 import java.util.List;
 
@@ -30,8 +30,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Работа с сообщениями")
 public class RestMessageController {
-    private final MessageService service;
-    private final UserService userService;
+    private final IMessageService service;
+    private final IUserService userService;
     private final DtoConverter converter;
 
     /**

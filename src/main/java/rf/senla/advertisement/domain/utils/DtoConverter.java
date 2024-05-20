@@ -9,7 +9,7 @@ import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.entity.AdvertisementStatus;
 import rf.senla.advertisement.domain.entity.Comment;
 import rf.senla.advertisement.domain.entity.Message;
-import rf.senla.advertisement.domain.service.AdvertisementService;
+import rf.senla.advertisement.domain.service.IAdvertisementService;
 import rf.senla.advertisement.security.service.IUserService;
 
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public final class DtoConverter {
     private final IUserService userService;
-    private final AdvertisementService advertisementService;
+    private final IAdvertisementService advertisementService;
 
     /**
      * Преобразует объект типа {@link Advertisement} в объект типа UserDto.
@@ -57,11 +57,11 @@ public final class DtoConverter {
 
     /**
      * Преобразует список объектов объявлений в список объектов DTO.
-     * @param users список объектов объявлений
+     * @param advertisements список объектов объявлений
      * @return список объектов DTO
      */
-    public List<AdvertisementDto> getListAdvertisementDto(List<Advertisement> users) {
-        return users.stream()
+    public List<AdvertisementDto> getListAdvertisementDto(List<Advertisement> advertisements) {
+        return advertisements.stream()
                 .map(this::getDtoFromAdvertisement)
                 .toList();
     }
