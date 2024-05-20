@@ -3,12 +3,8 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-<!--    <include file="/db/changelog/1_create_schema.xml"/>-->
-<!--    <include file="/db/changelog/2_create_users_table.xml"/>-->
-<!--    <include file="/db/changelog/3_create_advertisements_table.xml"/>-->
-<!--    <include file="/db/changelog/4_create_comments_table.xml"/>-->
-<!--    <include file="/db/changelog/5_create_messages_table.xml"/>-->
-<!--    <include file="/db/changelog/06_grant_all_privileges.xml"/>-->
-<!--    <include file="/db/changelog/7_insert_test_data.xml"/>-->
+    <include file="/db/changelog/001_create_work_schema.xml"/>
+    <include file="/db/changelog/002_create_tables.xml"/>
+    <include file="/db/changelog/003_filling_tables.xml"/>
 
 </databaseChangeLog>

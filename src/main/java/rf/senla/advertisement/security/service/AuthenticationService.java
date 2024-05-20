@@ -29,6 +29,7 @@ public class AuthenticationService implements IAuthenticationService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
+                .rating(0)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .boosted(false)
                 .role(Role.ROLE_USER)
