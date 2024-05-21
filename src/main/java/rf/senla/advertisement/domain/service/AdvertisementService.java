@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Advertisement;
+import rf.senla.advertisement.domain.exception.EntityContainedException;
 import rf.senla.advertisement.domain.exception.ErrorMessage;
 import rf.senla.advertisement.domain.exception.NoEntityException;
 import rf.senla.advertisement.domain.exception.TechnicalException;
@@ -26,18 +27,30 @@ public class AdvertisementService implements IAdvertisementService {
     @Transactional
     @Override
     public Advertisement save(Advertisement entity) {
+        if (entity.getId() != null && repository.existsById(entity.getId())) {
+            throw new EntityContainedException(ErrorMessage.ADVERTISEMENT_ALREADY_EXISTS.getMessage());
+        }
+
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public Advertisement update(Advertisement entity) {
+        if (!repository.existsById(entity.getId())) {
+            throw new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage());
+        }
+
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public void delete(Advertisement entity) {
+        if (!repository.existsById(entity.getId())) {
+            throw new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage());
+        }
+
         repository.delete(entity);
     }
 

@@ -61,7 +61,7 @@ public class RestAdvertisementController {
                                     "\"price\": 1500,\"headline\": \"Laptop\",\"description\": \"A laptop computer " +
                                     "is a portable, personal computer with a clamshell form factor, suitable for " +
                                     "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<AdvertisementDto>> getAllAdvertisements() {
         return ResponseEntity.ok(converter.getListAdvertisementDto(service.getAll()));
@@ -90,7 +90,7 @@ public class RestAdvertisementController {
                                     "\"price\": 1500,\"headline\": \"Laptop\",\"description\": \"A laptop computer " +
                                     "is a portable, personal computer with a clamshell form factor, suitable for " +
                                     "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<AdvertisementDto>> getAllByPriceAndHeadline(
             @Parameter(description = "Минимальная стоимость", example = "500", in = ParameterIn.QUERY)
@@ -131,7 +131,7 @@ public class RestAdvertisementController {
                                     "\"price\": 1500,\"headline\": \"Laptop\",\"description\": \"A laptop computer " +
                                     "is a portable, personal computer with a clamshell form factor, suitable for " +
                                     "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<AdvertisementDto>> getAllByUser(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
@@ -163,7 +163,7 @@ public class RestAdvertisementController {
                                     "\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
                                     "device that combines the functions of a cell phone and a personal computer\"," +
                                     "\"status\": \"ACTIVE\"}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<AdvertisementDto> createAdvertisement(
             @Parameter(description = "Данные объявления", required = true,
@@ -189,7 +189,7 @@ public class RestAdvertisementController {
                                     "\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
                                     "device that combines the functions of a cell phone and a personal computer\"," +
                                     "\"status\": \"REVIEW\"}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<AdvertisementDto> updateAdvertisement(
             @Parameter(description = "Данные объявления", required = true,
@@ -209,7 +209,7 @@ public class RestAdvertisementController {
     @Operation(summary = "Удалить объявление")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<String> deleteAdvertisement(
             @Parameter(description = "Данные объявления", required = true,

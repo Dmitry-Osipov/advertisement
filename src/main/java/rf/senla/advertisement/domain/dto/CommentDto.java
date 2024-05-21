@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Schema(description = "DTO сущности комментария")
 public class CommentDto {
-    @Schema(description = "ID пользователя", example = "1")
+    @Schema(description = "ID комментария", example = "1")
     private Long id;
 
     @Schema(description = "ID объявления", example = "1")

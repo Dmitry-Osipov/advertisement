@@ -8,6 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.entity.Comment;
+import rf.senla.advertisement.domain.exception.EntityContainedException;
+import rf.senla.advertisement.domain.exception.ErrorMessage;
+import rf.senla.advertisement.domain.exception.NoEntityException;
 import rf.senla.advertisement.domain.repository.CommentRepository;
 
 import java.util.List;
@@ -20,18 +23,30 @@ public class CommentService implements ICommentService {
     @Transactional
     @Override
     public Comment save(Comment entity) {
+        if (entity.getId() != null && repository.existsById(entity.getId())) {
+            throw new EntityContainedException(ErrorMessage.COMMENT_ALREADY_EXISTS.getMessage());
+        }
+
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public Comment update(Comment entity) {
+        if (!repository.existsById(entity.getId())) {
+            throw new NoEntityException(ErrorMessage.NO_COMMENT_FOUND.getMessage());
+        }
+
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public void delete(Comment entity) {
+        if (!repository.existsById(entity.getId())) {
+            throw new NoEntityException(ErrorMessage.NO_COMMENT_FOUND.getMessage());
+        }
+
         repository.delete(entity);
     }
 

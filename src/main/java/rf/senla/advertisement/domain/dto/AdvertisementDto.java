@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "DTO сущности объявления")
 public class AdvertisementDto {
-    @Schema(description = "ID пользователя", example = "1")
+    @Schema(description = "ID объявления", example = "1")
     private Long id;
 
     @Schema(description = "Имя пользователя", example = "John Doe")

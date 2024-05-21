@@ -8,6 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import rf.senla.advertisement.domain.entity.Message;
+import rf.senla.advertisement.domain.exception.EntityContainedException;
+import rf.senla.advertisement.domain.exception.ErrorMessage;
+import rf.senla.advertisement.domain.exception.NoEntityException;
 import rf.senla.advertisement.domain.repository.MessageRepository;
 import rf.senla.advertisement.security.entity.Role;
 import rf.senla.advertisement.security.entity.User;
@@ -25,18 +28,30 @@ public class MessageService implements IMessageService {
     @Transactional
     @Override
     public Message save(Message entity) {
+        if (entity.getId() != null && repository.existsById(entity.getId())) {
+            throw new EntityContainedException(ErrorMessage.MESSAGE_ALREADY_EXISTS.getMessage());
+        }
+
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public Message update(Message entity) {
+        if (!repository.existsById(entity.getId())) {
+            throw new NoEntityException(ErrorMessage.NO_MESSAGE_FOUND.getMessage());
+        }
+
         return repository.save(entity);
     }
 
     @Transactional
     @Override
     public void delete(Message entity) {
+        if (!repository.existsById(entity.getId())) {
+            throw new NoEntityException(ErrorMessage.NO_MESSAGE_FOUND.getMessage());
+        }
+
         repository.delete(entity);
     }
 

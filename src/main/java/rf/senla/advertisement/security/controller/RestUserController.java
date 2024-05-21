@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.security.dto.ChangePasswordRequest;
 import rf.senla.advertisement.security.dto.UserDto;
-import rf.senla.advertisement.security.entity.User;
 import rf.senla.advertisement.security.service.IUserService;
 import rf.senla.advertisement.security.utils.DtoConverter;
 
@@ -56,7 +55,7 @@ public class RestUserController {
                                     "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
                                     "\"rating\": 100,\"email\": \"jondoe@gmail.com\",\"boosted\": false," +
                                     "\"role\": \"ROLE_USER\"}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<UserDto> getUserByUsername(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
@@ -81,7 +80,7 @@ public class RestUserController {
                                     "\"password\": \"another_secret_password\",\"phoneNumber\": \"+7(888)888-88-88\"," +
                                     "\"rating\": 200,\"email\": \"janesmith@gmail.com\",\"boosted\": false," +
                                     "\"role\": \"ROLE_ADMIN\"} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<UserDto>> getAllUsers() {
         return ResponseEntity.ok(DtoConverter.getListDto(service.getAll()));
@@ -106,7 +105,7 @@ public class RestUserController {
                                     "\"password\": \"another_secret_password\",\"phoneNumber\": \"+7(888)888-88-88\"," +
                                     "\"rating\": 200,\"email\": \"janesmith@gmail.com\",\"boosted\": true," +
                                     "\"role\": \"ROLE_ADMIN\"} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<UserDto>> getUsersBySearch(
             @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
@@ -132,14 +131,13 @@ public class RestUserController {
                                     "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
                                     "\"rating\": 300,\"email\": \"jondoe@gmail.com\",\"boosted\": false," +
                                     "\"role\": \"ROLE_USER\"}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<UserDto> updateUser(
             @Parameter(description = "Данные пользователя", required = true,
                     content = @Content(schema = @Schema(implementation = UserDto.class)))
             @RequestBody @Valid UserDto dto) {
-        User user = DtoConverter.getUserFromDto(dto);
-        return ResponseEntity.ok(DtoConverter.getDtoFromUser(service.update(user)));
+        return ResponseEntity.ok(DtoConverter.getDtoFromUser(service.update(DtoConverter.getUserFromDto(dto))));
     }
 
     /**
@@ -152,7 +150,7 @@ public class RestUserController {
     @Operation(summary = "Удалить пользователя")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<String> deleteUser(
             @Parameter(description = "Данные пользователя", required = true,
@@ -178,7 +176,7 @@ public class RestUserController {
                                     "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
                                     "\"rating\": 100,\"email\": \"jondoe@gmail.com\",\"boosted\": false," +
                                     "\"role\": \"ROLE_USER\"}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<UserDto> updatePassword(
             @Parameter(description = "Данные смены пароля", required = true,
@@ -198,7 +196,7 @@ public class RestUserController {
     @Operation(summary = "Метод для установки роли администратора для пользователя")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<String> setRoleAdmin(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
@@ -217,7 +215,7 @@ public class RestUserController {
     @Operation(summary = "Метод для продвижения пользователя")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<String> setBoosted(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)

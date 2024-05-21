@@ -58,7 +58,7 @@ public class RestMessageController {
                                     "\"advertisementId\": 2,\"senderName\": \"Laura Davis\",\"recipientName\": " +
                                     "\"John Doe\",\"text\": \"Hi there!\",\"sentAt\": \"2024-05-10T10:20:30.123456\"," +
                                     "\"read\": false} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<MessageDto>> getAllMessages() {
         return ResponseEntity.ok(converter.getListMessageDto(service.getAll()));
@@ -84,7 +84,7 @@ public class RestMessageController {
                                     "\"advertisementId\": 2,\"senderName\": \"Laura Davis\",\"recipientName\": " +
                                     "\"John Doe\",\"text\": \"Hi there!\",\"sentAt\": \"2024-05-10T10:20:30.123456\"," +
                                     "\"read\": false} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<MessageDto>> getUserCorrespondence(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.QUERY)
@@ -112,7 +112,7 @@ public class RestMessageController {
                             examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1,\"senderName\": " +
                                     "\"John Doe\",\"recipientName\": \"Laura Davis\",\"text\": \"Hello!\"," +
                                     "\"sentAt\": \"2024-05-09T14:55:46.765819\",\"read\": true}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<MessageDto> createMessage(
             @Parameter(description = "Данные сообщения", required = true,
@@ -136,7 +136,7 @@ public class RestMessageController {
                             examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1,\"senderName\": " +
                                     "\"John Doe\",\"recipientName\": \"Laura Davis\",\"text\": \"Hello!\"," +
                                     "\"sentAt\": \"2024-05-09T14:55:46.765819\",\"read\": false}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<MessageDto> updateMessage(
             @Parameter(description = "Данные сообщения", required = true,
@@ -155,7 +155,7 @@ public class RestMessageController {
     @Operation(summary = "Удалить сообщение")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<String> deleteMessage(
             @Parameter(description = "Данные сообщения", required = true,

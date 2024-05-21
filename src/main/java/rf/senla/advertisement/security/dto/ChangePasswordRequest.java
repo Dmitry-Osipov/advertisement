@@ -21,7 +21,7 @@ public class ChangePasswordRequest {
     @NotBlank(message = "Пароль не может быть пустыми")
     private String oldPassword;
 
-    @Schema(description = "Новый пароль", example = "MY-NEW-SUPER-SEcre1_passw0rD")
+    @Schema(description = "Новый пароль", example = "MY-NEW-SUPER?S3cre1_passw0rD!")
     @Size(min = 8, max = 255, message = "Длина пароля должна быть от 8 до 255 символов")
     @NotBlank(message = "Пароль не может быть пустыми")
     private String newPassword;

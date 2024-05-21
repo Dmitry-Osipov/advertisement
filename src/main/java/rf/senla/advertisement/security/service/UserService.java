@@ -36,6 +36,10 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public User update(User user) {
+        if (!repository.existsByUsername(user.getUsername())) {
+            throw new UsernameNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage());
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return save(user);
     }
@@ -43,7 +47,12 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void delete(User user) {
-        repository.deleteByUsername(user.getUsername());
+        String username = user.getUsername();
+        if (!repository.existsByUsername(username)) {
+            throw new UsernameNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage());
+        }
+
+        repository.deleteByUsername(username);
     }
 
     @Override

@@ -58,7 +58,7 @@ public class RestCommentController {
                                     "\"John Doe\",\"text\": \"Hello!\",\"createdAt\": \"2024-05-09T14:55:46.765819\"}, " +
                                     "{\"id\": 2,\"advertisementId\": 2,\"userName\": \"Jane Smith\",\"text\": " +
                                     "\"Hi there!\",\"createdAt\": \"2024-05-10T10:30:00.000000\"} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<CommentDto>> getAllComments() {
         return ResponseEntity.ok(converter.getListCommentDto(service.getAll()));
@@ -79,7 +79,7 @@ public class RestCommentController {
                                     "\"John Doe\",\"text\": \"Hello!\",\"createdAt\": \"2024-05-09T14:55:46.765819\"}, " +
                                     "{\"id\": 2,\"advertisementId\": 1,\"userName\": \"Jane Smith\",\"text\": " +
                                     "\"Hi there!\",\"createdAt\": \"2024-05-10T10:30:00.000000\"} ]"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(
             @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
@@ -106,7 +106,7 @@ public class RestCommentController {
                             examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1," +
                                     "\"userName\": \"John Doe\",\"text\": \"Hello!\",\"createdAt\": " +
                                     "\"2024-05-09T14:55:46.765819\"}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<CommentDto> createComment(
             @Parameter(description = "Данные комментария", required = true,
@@ -130,7 +130,7 @@ public class RestCommentController {
                             examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1," +
                                     "\"userName\": \"John Doe\",\"text\": \"Hi!\",\"createdAt\": " +
                                     "\"2024-05-09T14:55:46.765819\"}"))),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<CommentDto> updateComment(
             @Parameter(description = "Данные комментария", required = true,
@@ -149,7 +149,7 @@ public class RestCommentController {
     @Operation(summary = "Удалить комментарий")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<String> deleteComment(
             @Parameter(description = "Данные комментария", required = true,
