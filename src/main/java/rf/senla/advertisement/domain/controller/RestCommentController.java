@@ -1,5 +1,13 @@
 package rf.senla.advertisement.domain.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import rf.senla.advertisement.domain.dto.AdvertisementDto;
 import rf.senla.advertisement.domain.dto.CommentDto;
 import rf.senla.advertisement.domain.service.IAdvertisementService;
 import rf.senla.advertisement.domain.service.ICommentService;
@@ -29,7 +38,7 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/comments")
 @Validated
 @RequiredArgsConstructor
-@Tag(name = "Работа с комментариями")
+@Tag(name = "Комментарии")
 public class RestCommentController {
     private final ICommentService service;
     private final IAdvertisementService advertisementService;
@@ -40,6 +49,17 @@ public class RestCommentController {
      * @return ответ с кодом 200 (OK) и списком всех комментариев в формате JSON
      */
     @GetMapping
+    @Operation(summary = "Получить список последних 10 комментариев")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AdvertisementDto.class),
+                            examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisementId\": 1,\"userName\": " +
+                                    "\"John Doe\",\"text\": \"Hello!\",\"createdAt\": \"2024-05-09T14:55:46.765819\"}, " +
+                                    "{\"id\": 2,\"advertisementId\": 2,\"userName\": \"Jane Smith\",\"text\": " +
+                                    "\"Hi there!\",\"createdAt\": \"2024-05-10T10:30:00.000000\"} ]"))),
+            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+    })
     public ResponseEntity<List<CommentDto>> getAllComments() {
         return ResponseEntity.ok(converter.getListCommentDto(service.getAll()));
     }
@@ -50,9 +70,23 @@ public class RestCommentController {
      * @return ответ с кодом 200 (OK) и списком всех комментариев объявления в формате JSON
      */
     @GetMapping("/{advertisementId}")
+    @Operation(summary = "Получить список всех комментариев по ID объявления с пагинацией")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AdvertisementDto.class),
+                            examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisementId\": 1,\"userName\": " +
+                                    "\"John Doe\",\"text\": \"Hello!\",\"createdAt\": \"2024-05-09T14:55:46.765819\"}, " +
+                                    "{\"id\": 2,\"advertisementId\": 1,\"userName\": \"Jane Smith\",\"text\": " +
+                                    "\"Hi there!\",\"createdAt\": \"2024-05-10T10:30:00.000000\"} ]"))),
+            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+    })
     public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(
+            @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
             @PathVariable Long advertisementId,
+            @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
             @RequestParam(value = "page", required = false) Integer page,
+            @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
         return ResponseEntity.ok(converter.getListCommentDto(
                 service.getAll(advertisementService.getById(advertisementId), page, size)));
@@ -64,7 +98,20 @@ public class RestCommentController {
      * @return ответ с кодом 200 (OK) и данными нового комментария в формате JSON
      */
     @PostMapping
-    public ResponseEntity<CommentDto> createComment(@Valid @RequestBody CommentDto dto) {
+    @Operation(summary = "Создать новый комментарий")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AdvertisementDto.class),
+                            examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1," +
+                                    "\"userName\": \"John Doe\",\"text\": \"Hello!\",\"createdAt\": " +
+                                    "\"2024-05-09T14:55:46.765819\"}"))),
+            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+    })
+    public ResponseEntity<CommentDto> createComment(
+            @Parameter(description = "Данные комментария", required = true,
+                    content = @Content(schema = @Schema(implementation = CommentDto.class)))
+            @Valid @RequestBody CommentDto dto) {
         return ResponseEntity.ok(converter.getDtoFromComment(service.save(converter.getCommentFromDto(dto))));
     }
 
@@ -75,7 +122,20 @@ public class RestCommentController {
      */
     @PutMapping
     @PreAuthorize("#dto.userName == authentication.principal.username")
-    public ResponseEntity<CommentDto> updateComment(@Valid @RequestBody CommentDto dto) {
+    @Operation(summary = "Обновить комментарий")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AdvertisementDto.class),
+                            examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1," +
+                                    "\"userName\": \"John Doe\",\"text\": \"Hi!\",\"createdAt\": " +
+                                    "\"2024-05-09T14:55:46.765819\"}"))),
+            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+    })
+    public ResponseEntity<CommentDto> updateComment(
+            @Parameter(description = "Данные комментария", required = true,
+                    content = @Content(schema = @Schema(implementation = CommentDto.class)))
+            @Valid @RequestBody CommentDto dto) {
         return ResponseEntity.ok(converter.getDtoFromComment(service.update(converter.getCommentFromDto(dto))));
     }
 
@@ -86,7 +146,15 @@ public class RestCommentController {
      */
     @DeleteMapping
     @PreAuthorize("#dto.userName == authentication.principal.username or hasRole('ADMIN')")
-    public ResponseEntity<String> deleteComment(@Valid @RequestBody CommentDto dto) {
+    @Operation(summary = "Удалить комментарий")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "404", description = "Forbidden", content = @Content)
+    })
+    public ResponseEntity<String> deleteComment(
+            @Parameter(description = "Данные комментария", required = true,
+                    content = @Content(schema = @Schema(implementation = CommentDto.class)))
+            @Valid @RequestBody CommentDto dto) {
         service.delete(converter.getCommentFromDto(dto));
         return ResponseEntity.ok("Deleted comment with id " + dto.getId());
     }

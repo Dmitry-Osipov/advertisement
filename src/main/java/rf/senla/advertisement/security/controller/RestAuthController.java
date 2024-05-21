@@ -1,5 +1,12 @@
 package rf.senla.advertisement.security.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +37,19 @@ public class RestAuthController {
      * @return объект с JWT-токеном для успешной регистрации
      */
     @PostMapping("/sign-up")
-    public JwtAuthenticationResponse signUp(@Valid @RequestBody SignUpRequest request) {
+    @Operation(summary = "Регистрация с получением JWT-токена")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = JwtAuthenticationResponse.class),
+                            examples = @ExampleObject(value = "{\"token\": " +
+                                    "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...\"}"))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    })
+    public JwtAuthenticationResponse signUp(
+            @Parameter(description = "Данные регистрации", required = true,
+                    content = @Content(schema = @Schema(implementation = SignUpRequest.class)))
+            @Valid @RequestBody SignUpRequest request) {
         return authenticationService.signUp(request);
     }
 
@@ -40,7 +59,19 @@ public class RestAuthController {
      * @return объект с JWT-токеном для успешного входа
      */
     @PostMapping("/sign-in")
-    public JwtAuthenticationResponse signIn(@Valid @RequestBody SignInRequest request) {
+    @Operation(summary = "Авторизация с получением JWT-токена")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = JwtAuthenticationResponse.class),
+                            examples = @ExampleObject(value = "{\"token\": " +
+                                    "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...\"}"))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    })
+    public JwtAuthenticationResponse signIn(
+            @Parameter(description = "Данные авторизации", required = true,
+                    content = @Content(schema = @Schema(implementation = SignInRequest.class)))
+            @Valid @RequestBody SignInRequest request) {
         return authenticationService.signIn(request);
     }
 }
