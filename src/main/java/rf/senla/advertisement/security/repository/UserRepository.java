@@ -41,4 +41,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("DELETE FROM User u WHERE u.username = :username")
     void deleteByUsername(String username);
+
+    /**
+     * Получить пользователя по токену восстановления пароля.
+     * @param resetPasswordToken токен восстановления пароля
+     * @return объект Optional, содержащий пользователя, если найден, иначе пустой Optional
+     */
+    Optional<User> findByResetPasswordToken(String resetPasswordToken);
 }

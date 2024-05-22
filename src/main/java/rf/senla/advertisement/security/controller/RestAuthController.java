@@ -2,6 +2,7 @@ package rf.senla.advertisement.security.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,15 +11,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.security.dto.JwtAuthenticationResponse;
 import rf.senla.advertisement.security.dto.SignInRequest;
 import rf.senla.advertisement.security.dto.SignUpRequest;
+import rf.senla.advertisement.security.entity.User;
 import rf.senla.advertisement.security.service.IAuthenticationService;
+import rf.senla.advertisement.security.service.IEmailService;
+import rf.senla.advertisement.security.service.IUserService;
 
 /**
  * Контроллер для обработки запросов аутентификации через REST API.
@@ -30,6 +36,8 @@ import rf.senla.advertisement.security.service.IAuthenticationService;
 @Tag(name = "Аутентификация")
 public class RestAuthController {
     private final IAuthenticationService authenticationService;
+    private final IUserService userService;
+    private final IEmailService emailService;
 
     /**
      * Метод для регистрации нового пользователя.
@@ -73,5 +81,53 @@ public class RestAuthController {
                     content = @Content(schema = @Schema(implementation = SignInRequest.class)))
             @Valid @RequestBody SignInRequest request) {
         return authenticationService.signIn(request);
+    }
+
+    /**
+     * Метод для отправки пользователю ссылку на восстановление пароля
+     * @param username имя пользователя, которому требуется восстановить пароль
+     * @param email актуальная почта пользователя, которому требуется восстановить пароль
+     * @return сообщение об успешном выполнении операции
+     */
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Метод для отправки пользователю ссылку на восстановление пароля")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    })
+    public ResponseEntity<String> forgotPassword(
+            @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.QUERY)
+            @RequestParam(value = "username") String username,
+            @Parameter(description = "Адрес электронной почты", example = "jondoe@gmail.com",
+                    required = true, in = ParameterIn.QUERY)
+            @RequestParam(value = "email") String email) {
+        User user = userService.getByUsername(username);
+        authenticationService.createPasswordResetToken(user);
+        emailService.sendResetPasswordEmail(email, user.getResetPasswordToken());
+        return ResponseEntity.ok("Reset password email has been sent");
+    }
+
+    /**
+     * Метод обновления пароля пользователю
+     * @param token токен, высланный на почту
+     * @param password новый пароль
+     * @return сообщение об успешном выполнении операции
+     */
+    @PostMapping("/reset-password")
+    @Operation(summary = "Метод обновления пароля пользователю")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    })
+    public ResponseEntity<String> resetPassword(
+            @Parameter(description = "Токен восстановления пароля",
+                    example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...",
+                    required = true, in = ParameterIn.QUERY)
+            @RequestParam(value = "token") String token,
+            @Parameter(description = "Пароль", example = "MY-NEW-SUPER?S3cre1_passw0rD!",
+                    required = true, in = ParameterIn.QUERY)
+            @RequestParam(value = "password") String password) {
+        authenticationService.updatePassword(authenticationService.getByResetPasswordToken(token), password);
+        return ResponseEntity.ok("Password has been reset");
     }
 }

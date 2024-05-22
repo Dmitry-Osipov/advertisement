@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import rf.senla.advertisement.domain.entity.Identifiable;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +60,13 @@ public class User implements UserDetails, Identifiable {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_token_expiry_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date resetPasswordTokenExpiryDate;
 
     /**
      * Получение роли пользователя в виде коллекции GrantedAuthority.

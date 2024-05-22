@@ -1,5 +1,6 @@
 package rf.senla.advertisement.security.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -118,6 +119,12 @@ public class UserService implements IUserService {
         User user = getByUsername(username);
         user.setBoosted(true);
         save(user);
+    }
+
+    @Override
+    public User getByResetPasswordToken(String token) {
+        return repository.findByResetPasswordToken(token)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage()));
     }
 
     /**

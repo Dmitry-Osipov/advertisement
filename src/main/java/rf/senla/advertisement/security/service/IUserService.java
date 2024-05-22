@@ -56,4 +56,11 @@ public interface IUserService extends IService<User> {
      * @return Список пользователей.
      */
     List<User> getAll(Integer page, Integer size);
+
+    /**
+     * Метод получения пользователя по токену восстановления пароля
+     * @param token токен восстановления пароля
+     * @return пользователь
+     */
+    User getByResetPasswordToken(String token);
 }
