@@ -16,7 +16,8 @@ public enum ErrorMessage {
     MIN_PRICE_IS_HIGHEST("The minimum price cannot be higher than the maximum price"),
     ADVERTISEMENT_ALREADY_EXISTS("The advertisement already exists"),
     MESSAGE_ALREADY_EXISTS("The message already exists"),
-    COMMENT_ALREADY_EXISTS("The comment already exists");
+    COMMENT_ALREADY_EXISTS("The comment already exists"),
+    INCORRECT_HTTP_METHOD_SELECTED("Incorrect http method selected");
 
     private final String message;
 }

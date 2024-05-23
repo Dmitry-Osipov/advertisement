@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.domain.dto.MessageDto;
+import rf.senla.advertisement.domain.entity.Message;
 import rf.senla.advertisement.domain.service.IMessageService;
 import rf.senla.advertisement.domain.utils.DtoConverter;
 import rf.senla.advertisement.security.service.IUserService;
@@ -37,6 +39,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @Tag(name = "Сообщения")
+@Slf4j
 public class RestMessageController {
     private final IMessageService service;
     private final IUserService userService;
@@ -61,7 +64,10 @@ public class RestMessageController {
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<MessageDto>> getAllMessages() {
-        return ResponseEntity.ok(converter.getListMessageDto(service.getAll()));
+        log.info("Получение списка последних 10 сообщений");
+        List<MessageDto> list = converter.getListMessageDto(service.getAll());
+        successfullyListLog(list);
+        return ResponseEntity.ok(list);
     }
 
     /**
@@ -93,8 +99,12 @@ public class RestMessageController {
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(converter.getListMessageDto(
-                service.getAll(userService.getByUsername(username), page, size)));
+        log.info("Получение переписки с пользователем - {}, с номером страницы - {}, с размером страницы - {}",
+                username, page, size);
+        List<MessageDto> list = converter.getListMessageDto(
+                service.getAll(userService.getByUsername(username), page, size));
+        successfullyListLog(list);
+        return ResponseEntity.ok(list);
     }
 
     /**
@@ -118,7 +128,10 @@ public class RestMessageController {
             @Parameter(description = "Данные сообщения", required = true,
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
-        return ResponseEntity.ok(converter.getDtoFromMessage(service.save(converter.getMessageFromDto(dto))));
+        log.info("Создание сообщения {}", dto);
+        Message message = service.save(converter.getMessageFromDto(dto));
+        log.info("Создано сообщение {}", message);
+        return ResponseEntity.ok(converter.getDtoFromMessage(message));
     }
 
     /**
@@ -142,7 +155,10 @@ public class RestMessageController {
             @Parameter(description = "Данные сообщения", required = true,
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
-        return ResponseEntity.ok(converter.getDtoFromMessage(service.update(converter.getMessageFromDto(dto))));
+        log.info("Обновление сообщения {}", dto);
+        Message message = service.update(converter.getMessageFromDto(dto));
+        log.info("Обновлено сообщение {}", message);
+        return ResponseEntity.ok(converter.getDtoFromMessage(message));
     }
 
     /**
@@ -161,7 +177,17 @@ public class RestMessageController {
             @Parameter(description = "Данные сообщения", required = true,
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
+        log.info("Удаление сообщения {}", dto);
         service.delete(converter.getMessageFromDto(dto));
+        log.info("Сообщение {} удалено успешно", dto);
         return ResponseEntity.ok("Deleted message with text: " + dto.getText());
+    }
+
+    /**
+     * Служебный метод логирует данные списка
+     * @param list список
+     */
+    private static void successfullyListLog(List<MessageDto> list) {
+        log.info("Получен список из {} сообщений: {}", list.size(), list);
     }
 }

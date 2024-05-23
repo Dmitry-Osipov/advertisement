@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -23,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import rf.senla.advertisement.domain.dto.AdvertisementDto;
 import rf.senla.advertisement.domain.dto.CommentDto;
+import rf.senla.advertisement.domain.entity.Comment;
 import rf.senla.advertisement.domain.service.IAdvertisementService;
 import rf.senla.advertisement.domain.service.ICommentService;
 import rf.senla.advertisement.domain.utils.DtoConverter;
@@ -39,6 +40,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @Tag(name = "Комментарии")
+@Slf4j
 public class RestCommentController {
     private final ICommentService service;
     private final IAdvertisementService advertisementService;
@@ -53,7 +55,7 @@ public class RestCommentController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AdvertisementDto.class),
+                            schema = @Schema(implementation = CommentDto.class),
                             examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisementId\": 1,\"userName\": " +
                                     "\"John Doe\",\"text\": \"Hello!\",\"createdAt\": \"2024-05-09T14:55:46.765819\"}, " +
                                     "{\"id\": 2,\"advertisementId\": 2,\"userName\": \"Jane Smith\",\"text\": " +
@@ -61,7 +63,10 @@ public class RestCommentController {
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<CommentDto>> getAllComments() {
-        return ResponseEntity.ok(converter.getListCommentDto(service.getAll()));
+        log.info("Получение списка из последних 10 комментариев");
+        List<CommentDto> list = converter.getListCommentDto(service.getAll());
+        successfullyListLog(list);
+        return ResponseEntity.ok(list);
     }
 
     /**
@@ -74,7 +79,7 @@ public class RestCommentController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AdvertisementDto.class),
+                            schema = @Schema(implementation = CommentDto.class),
                             examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisementId\": 1,\"userName\": " +
                                     "\"John Doe\",\"text\": \"Hello!\",\"createdAt\": \"2024-05-09T14:55:46.765819\"}, " +
                                     "{\"id\": 2,\"advertisementId\": 1,\"userName\": \"Jane Smith\",\"text\": " +
@@ -88,8 +93,12 @@ public class RestCommentController {
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(converter.getListCommentDto(
-                service.getAll(advertisementService.getById(advertisementId), page, size)));
+        log.info("Получение списка для объявления с ID {}, с номером страницы - {}, с размером страницы - {}",
+                advertisementId, page, size);
+        List<CommentDto> list = converter.getListCommentDto(
+                service.getAll(advertisementService.getById(advertisementId), page, size));
+        successfullyListLog(list);
+        return ResponseEntity.ok(list);
     }
 
     /**
@@ -102,7 +111,7 @@ public class RestCommentController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AdvertisementDto.class),
+                            schema = @Schema(implementation = CommentDto.class),
                             examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1," +
                                     "\"userName\": \"John Doe\",\"text\": \"Hello!\",\"createdAt\": " +
                                     "\"2024-05-09T14:55:46.765819\"}"))),
@@ -112,7 +121,10 @@ public class RestCommentController {
             @Parameter(description = "Данные комментария", required = true,
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
-        return ResponseEntity.ok(converter.getDtoFromComment(service.save(converter.getCommentFromDto(dto))));
+        log.info("Создание комментария {}", dto);
+        Comment comment = service.save(converter.getCommentFromDto(dto));
+        log.info("Создан комментарий {}", comment);
+        return ResponseEntity.ok(converter.getDtoFromComment(comment));
     }
 
     /**
@@ -126,7 +138,7 @@ public class RestCommentController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AdvertisementDto.class),
+                            schema = @Schema(implementation = CommentDto.class),
                             examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1," +
                                     "\"userName\": \"John Doe\",\"text\": \"Hi!\",\"createdAt\": " +
                                     "\"2024-05-09T14:55:46.765819\"}"))),
@@ -136,7 +148,10 @@ public class RestCommentController {
             @Parameter(description = "Данные комментария", required = true,
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
-        return ResponseEntity.ok(converter.getDtoFromComment(service.update(converter.getCommentFromDto(dto))));
+        log.info("Обновления комментария {}", dto);
+        Comment comment = service.update(converter.getCommentFromDto(dto));
+        log.info("Обновлён комментарий {}", comment);
+        return ResponseEntity.ok(converter.getDtoFromComment(comment));
     }
 
     /**
@@ -155,7 +170,17 @@ public class RestCommentController {
             @Parameter(description = "Данные комментария", required = true,
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
+        log.info("Удаление комментария {}", dto);
         service.delete(converter.getCommentFromDto(dto));
+        log.info("Комментарий {} успешно удалён", dto);
         return ResponseEntity.ok("Deleted comment with id " + dto.getId());
+    }
+
+    /**
+     * Служебный метод логирует данные списка
+     * @param list список
+     */
+    private static void successfullyListLog(List<CommentDto> list) {
+        log.info("Получен список из {} комментариев: {}", list.size(), list);
     }
 }

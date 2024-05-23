@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +40,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @Tag(name = "Объявления")
+@Slf4j
 public class RestAdvertisementController {
     private final IAdvertisementService service;
     private final IUserService userService;
@@ -63,8 +65,11 @@ public class RestAdvertisementController {
                                     "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<List<AdvertisementDto>> getAllAdvertisements() {
-        return ResponseEntity.ok(converter.getListAdvertisementDto(service.getAll()));
+    public ResponseEntity<List<AdvertisementDto>> getAdvertisements() {
+        log.info("Получение списка 10 объявлений");
+        List<AdvertisementDto> list = converter.getListAdvertisementDto(service.getAll());
+        successfullyListLog(list);
+        return ResponseEntity.ok(list);
     }
 
     /**
@@ -105,8 +110,12 @@ public class RestAdvertisementController {
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(converter.getListAdvertisementDto(
-                service.getAll(minPrice, maxPrice, headline, sortBy, page, size)));
+        log.info("Получение списка объявлений с номером страницы - {}, размером страницы - {}, загловоком - {}, в " +
+                "промежутке цен - {} и {}, с сортировкой - {}", page, size, headline, minPrice, maxPrice, sortBy);
+        List<AdvertisementDto> list = converter.getListAdvertisementDto(
+                service.getAll(minPrice, maxPrice, headline, sortBy, page, size));
+        successfullyListLog(list);
+        return ResponseEntity.ok(list);
     }
 
     /**
@@ -144,8 +153,12 @@ public class RestAdvertisementController {
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(converter.getListAdvertisementDto(
-                service.getAll(userService.getByUsername(username), sortBy, active, page, size)));
+        log.info("Получение списка объявлений по пользователю - {}, статусу - {}, с условием сортировки - {}, с " +
+                "номером страницы - {}, с размером страницы - {}", username, active, sortBy, page, size);
+        List<AdvertisementDto> list = converter.getListAdvertisementDto(
+                service.getAll(userService.getByUsername(username), sortBy, active, page, size));
+        successfullyListLog(list);
+        return ResponseEntity.ok(list);
     }
 
     /**
@@ -169,7 +182,9 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
+        log.info("Создание нового объявления - {}", dto);
         Advertisement advertisement = service.save(converter.getAdvertisementFromDto(dto));
+        log.info("Создано объявление - {}", advertisement);
         return ResponseEntity.ok(converter.getDtoFromAdvertisement(advertisement));
     }
 
@@ -195,7 +210,9 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
+        log.info("Обновление объявления - {}", dto);
         Advertisement advertisement = service.update(converter.getAdvertisementFromDto(dto));
+        log.info("Обновлено объявление - {}", advertisement);
         return ResponseEntity.ok(converter.getDtoFromAdvertisement(advertisement));
     }
 
@@ -215,7 +232,17 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
+        log.info("Удаление объявления - {}", dto);
         service.delete(converter.getAdvertisementFromDto(dto));
+        log.info("Успешно удалено объявление - {}", dto);
         return ResponseEntity.ok("Deleted advertisement with headline " + dto.getHeadline());
+    }
+
+    /**
+     * Служебный метод логирует данные списка
+     * @param list список
+     */
+    private static void successfullyListLog(List<AdvertisementDto> list) {
+        log.info("Получен список из {} объявлений: {}", list.size(), list);
     }
 }
