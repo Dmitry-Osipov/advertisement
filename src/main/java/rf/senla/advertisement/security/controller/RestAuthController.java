@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,7 @@ import rf.senla.advertisement.security.service.IUserService;
 @Validated
 @RequiredArgsConstructor
 @Tag(name = "Аутентификация")
+@Slf4j
 public class RestAuthController {
     private final IAuthenticationService authenticationService;
     private final IUserService userService;
@@ -58,7 +60,10 @@ public class RestAuthController {
             @Parameter(description = "Данные регистрации", required = true,
                     content = @Content(schema = @Schema(implementation = SignUpRequest.class)))
             @Valid @RequestBody SignUpRequest request) {
-        return authenticationService.signUp(request);
+        log.info("Регистрация нового пользователя {}", request.getUsername());
+        JwtAuthenticationResponse response = authenticationService.signUp(request);
+        log.info("Новый пользователь {} успешно зарегистрирован", request.getUsername());
+        return response;
     }
 
     /**
@@ -80,7 +85,10 @@ public class RestAuthController {
             @Parameter(description = "Данные авторизации", required = true,
                     content = @Content(schema = @Schema(implementation = SignInRequest.class)))
             @Valid @RequestBody SignInRequest request) {
-        return authenticationService.signIn(request);
+        log.info("Авторизация пользователя {}", request.getUsername());
+        JwtAuthenticationResponse response = authenticationService.signIn(request);
+        log.info("Пользователь {} авторизован успешно", request.getUsername());
+        return response;
     }
 
     /**
@@ -101,9 +109,11 @@ public class RestAuthController {
             @Parameter(description = "Адрес электронной почты", example = "jondoe@gmail.com",
                     required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "email") String email) {
+        log.info("Отправление пользователю {} на почту {} ссылку на восстановление пароля", username, email);
         User user = userService.getByUsername(username);
         authenticationService.createPasswordResetToken(user);
         emailService.sendResetPasswordEmail(email, user.getResetPasswordToken());
+        log.info("Отправлена ссылка восстановления пароля для пользователя {} на почту {}", username, email);
         return ResponseEntity.ok("Reset password email has been sent");
     }
 
@@ -127,7 +137,10 @@ public class RestAuthController {
             @Parameter(description = "Пароль", example = "MY-NEW-SUPER?S3cre1_passw0rD!",
                     required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "password") String password) {
-        authenticationService.updatePassword(authenticationService.getByResetPasswordToken(token), password);
+        User user = authenticationService.getByResetPasswordToken(token);
+        log.info("Обновление пароля для пользователя {}", user.getUsername());
+        authenticationService.updatePassword(user, password);
+        log.info("Пароль для пользователя {} успешно обновлён", user.getUsername());
         return ResponseEntity.ok("Password has been reset");
     }
 }

@@ -80,6 +80,32 @@
         </encoder>
     </appender>
 
+    <appender name="AUTH_CONTROLLER_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${CONTROLLER_LOG}/auth.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${CONTROLLER_LOG}/auth.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${DEFAULT_PATTERN} %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="USER_CONTROLLER_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${CONTROLLER_LOG}/user.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${CONTROLLER_LOG}/user.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${DEFAULT_PATTERN} %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="ADVERTISEMENT_SERVICE_FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${SERVICE_LOG}/advertisement.log</file>
@@ -119,6 +145,58 @@
         </encoder>
     </appender>
 
+    <appender name="AUTH_SERVICE_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${SERVICE_LOG}/auth.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${SERVICE_LOG}/auth.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${DEFAULT_PATTERN} %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="EMAIL_SERVICE_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${SERVICE_LOG}/email.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${SERVICE_LOG}/email.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${DEFAULT_PATTERN} %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="JWT_SERVICE_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${SERVICE_LOG}/jwt.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${SERVICE_LOG}/jwt.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${DEFAULT_PATTERN} %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="USER_SERVICE_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${SERVICE_LOG}/user.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${SERVICE_LOG}/user.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${DEFAULT_PATTERN} %msg%n</pattern>
+        </encoder>
+    </appender>
+
 
     <logger name="rf.senla.advertisement.AdvertisementApplication" level="debug" additivity="false">
         <appender-ref ref="APPLICATION_FILE" />
@@ -140,6 +218,14 @@
         <appender-ref ref="MESSAGE_CONTROLLER_FILE" />
     </logger>
 
+    <logger name="rf.senla.advertisement.security.controller.RestAuthController" level="debug" additivity="false">
+        <appender-ref ref="AUTH_CONTROLLER_FILE" />
+    </logger>
+
+    <logger name="rf.senla.advertisement.security.controller.RestUserController" level="debug" additivity="false">
+        <appender-ref ref="USER_CONTROLLER_FILE" />
+    </logger>
+
     <logger name="rf.senla.advertisement.domain.service.AdvertisementService" level="debug" additivity="false">
         <appender-ref ref="ADVERTISEMENT_SERVICE_FILE" />
     </logger>
@@ -150,6 +236,22 @@
 
     <logger name="rf.senla.advertisement.domain.service.MessageService" level="debug" additivity="false">
         <appender-ref ref="MESSAGE_SERVICE_FILE" />
+    </logger>
+
+    <logger name="rf.senla.advertisement.security.service.AuthenticationService" level="debug" additivity="false">
+        <appender-ref ref="AUTH_SERVICE_FILE" />
+    </logger>
+
+    <logger name="rf.senla.advertisement.security.service.EmailService" level="debug" additivity="false">
+        <appender-ref ref="EMAIL_SERVICE_FILE" />
+    </logger>
+
+    <logger name="rf.senla.advertisement.security.service.JwtService" level="debug" additivity="false">
+        <appender-ref ref="JWT_SERVICE_FILE" />
+    </logger>
+
+    <logger name="rf.senla.advertisement.security.service.UserService" level="debug" additivity="false">
+        <appender-ref ref="USER_SERVICE_FILE" />
     </logger>
 
     <root level="INFO">
