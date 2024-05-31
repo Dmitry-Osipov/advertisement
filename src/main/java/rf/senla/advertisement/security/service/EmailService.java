@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -32,13 +33,12 @@ public class EmailService implements IEmailService {
             helper.setTo(email);
             helper.setSubject(subject);
             helper.setText(content, true);
-        } catch (MessagingException e) {
+            mailSender.send(message);
+            log.info("Удалось отправить ссылку восстановления пароля на почту {}", email);
+        } catch (MessagingException | MailException e) {
             log.error("Не удалось отправить ссылку восстановления пароля на почту {} с заголовком {} и содержимым {}",
                     email, subject, content);
             throw new EmailException(e);
         }
-
-        mailSender.send(message);
-        log.info("Удалось отправить ссылку восстановления пароля на почту {}", email);
     }
 }
