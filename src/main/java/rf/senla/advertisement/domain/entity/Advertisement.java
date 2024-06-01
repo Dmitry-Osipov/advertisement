@@ -16,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import rf.senla.advertisement.security.entity.User;
 
 /**
@@ -28,6 +29,7 @@ import rf.senla.advertisement.security.entity.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(schema = "advertisement", name = "advertisements")
+@ToString
 public class Advertisement implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

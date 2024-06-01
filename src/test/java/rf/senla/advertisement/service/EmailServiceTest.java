@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import rf.senla.advertisement.security.exception.EmailException;
 import rf.senla.advertisement.security.service.EmailService;

@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import rf.senla.advertisement.security.entity.Role;
 
 /**
@@ -20,6 +21,7 @@ import rf.senla.advertisement.security.entity.Role;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "DTO сущности пользователя")
+@ToString
 public class UserDto {
     @Schema(description = "ID пользователя", example = "1")
     @NotNull

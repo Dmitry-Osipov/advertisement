@@ -45,6 +45,7 @@ public class UserService implements IUserService {
         log.info("Обновление пользователя {}", entity);
 
         if (!repository.existsByUsername(entity.getUsername())) {
+            log.error("Не найден пользователь {}", entity);
             throw new UsernameNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage());
         }
 

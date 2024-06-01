@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import rf.senla.advertisement.security.entity.User;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(schema = "advertisement", name = "messages")
+@ToString
 public class Message implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

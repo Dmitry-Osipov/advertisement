@@ -6,12 +6,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * Класс для представления запроса на регистрацию нового пользователя.
  */
 @Data
 @Schema(description = "Запрос на регистрацию")
+@ToString
 public class SignUpRequest {
     @Schema(description = "Имя пользователя", example = "John Doe")
     @Size(min = 5, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")
