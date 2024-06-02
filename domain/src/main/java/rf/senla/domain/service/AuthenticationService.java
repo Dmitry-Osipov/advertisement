@@ -1,6 +1,5 @@
 package rf.senla.domain.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rf.senla.domain.dto.SignInRequest;
 import rf.senla.domain.dto.SignUpRequest;
 import rf.senla.domain.entity.Role;
@@ -31,6 +31,7 @@ public class AuthenticationService implements IAuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
+    @Transactional
     @Override
     public JwtAuthenticationResponse signUp(SignUpRequest request) {
         log.info("Регистрация пользователя {}", request.getUsername());
@@ -49,6 +50,7 @@ public class AuthenticationService implements IAuthenticationService {
         return new JwtAuthenticationResponse(token);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public JwtAuthenticationResponse signIn(SignInRequest request) {
         log.info("Авторизация пользователя {}", request.getUsername());
@@ -72,6 +74,7 @@ public class AuthenticationService implements IAuthenticationService {
         log.info("Удалось сгенерировать токен восстановления пароля пользователю {}", user.getUsername());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User getByResetPasswordToken(String token) {
         log.info("Получение пользователя по токену восстановления пароля {}", token);

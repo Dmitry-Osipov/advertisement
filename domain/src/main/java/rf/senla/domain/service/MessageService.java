@@ -1,6 +1,5 @@
 package rf.senla.domain.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -8,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rf.senla.domain.entity.Message;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.ErrorMessage;
@@ -70,6 +70,7 @@ public class MessageService implements IMessageService {
         log.info("Удалось удалить сообщение {}", entity);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Message> getAll() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -80,6 +81,7 @@ public class MessageService implements IMessageService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Message> getAll(User user, Integer page, Integer size) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

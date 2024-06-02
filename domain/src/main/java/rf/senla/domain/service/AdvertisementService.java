@@ -1,12 +1,12 @@
 package rf.senla.domain.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rf.senla.domain.entity.Advertisement;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.ErrorMessage;
@@ -67,6 +67,7 @@ public class AdvertisementService implements IAdvertisementService {
         log.info("Удалось удалить объявление {}", entity);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Advertisement> getAll() {
         log.info("Получение списка объявлений");
@@ -76,6 +77,7 @@ public class AdvertisementService implements IAdvertisementService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Advertisement> getAll(Integer min, Integer max, String headline, String sortBy,
                                       Integer page, Integer size) {
@@ -107,6 +109,7 @@ public class AdvertisementService implements IAdvertisementService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Advertisement> getAll(User user, String sortBy, Boolean active, Integer page, Integer size) {
         log.info("Получение списка объявлений пользователя - {}, с сортировкой - {}, флаг только активных " +
@@ -124,6 +127,7 @@ public class AdvertisementService implements IAdvertisementService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Advertisement getById(Long id) {
         try {

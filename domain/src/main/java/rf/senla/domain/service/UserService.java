@@ -1,7 +1,6 @@
 package rf.senla.domain.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
@@ -69,6 +69,7 @@ public class UserService implements IUserService {
         log.info("Пользователь {} удалён успешно", entity);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<User> getAll() {
         log.info("Получение списка 10 топовых пользователей");
@@ -77,6 +78,7 @@ public class UserService implements IUserService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<User> getAll(Integer page, Integer size) {
         log.info("Получение списка пользователей с номером страницы {} и размером страницы {}", page, size);
@@ -85,6 +87,7 @@ public class UserService implements IUserService {
         return lis;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User getByUsername(String username) {
         try {
@@ -144,6 +147,7 @@ public class UserService implements IUserService {
         log.info("Удалось создать нового пользователя {}", user.getUsername());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetailsService userDetailsService() {
         log.info("Вызов метода userDetailsService");
@@ -161,6 +165,7 @@ public class UserService implements IUserService {
         return user;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User getByResetPasswordToken(String token) {
         try {

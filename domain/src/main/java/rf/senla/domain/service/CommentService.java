@@ -1,12 +1,12 @@
 package rf.senla.domain.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rf.senla.domain.entity.Advertisement;
 import rf.senla.domain.entity.Comment;
 import rf.senla.domain.exception.EntityContainedException;
@@ -66,6 +66,7 @@ public class CommentService implements ICommentService {
         log.error("Удалось обновить комментарий {}", entity);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Comment> getAll() {
         log.info("Получение списка комментариев");
@@ -74,6 +75,7 @@ public class CommentService implements ICommentService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Comment> getAll(Advertisement advertisement, Integer page, Integer size) {
         log.info("Получение списка комментариев по объявлению - {}, с номером страницы - {}, с разером страницы - {}",
