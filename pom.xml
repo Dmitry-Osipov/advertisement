@@ -15,7 +15,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>advertisement</name>
 	<description>advertisement</description>
-	<packaging>jar</packaging>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>domain</module>
+		<module>web</module>
+	</modules>
 
 	<properties>
 		<java.version>21</java.version>
@@ -122,21 +127,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
