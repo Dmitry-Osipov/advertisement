@@ -80,7 +80,7 @@ public class RestCommentController {
                                     "\"Hi there!\",\"createdAt\": \"2024-05-10T10:30:00.000000\"} ]"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(
+    public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(  // TODO: перенести функционал в метод выше
             @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
             @PathVariable Long advertisementId,
             @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)

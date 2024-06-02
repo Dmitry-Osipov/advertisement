@@ -120,7 +120,7 @@ public class RestAdvertisementController {
      * @param size размер страницы
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
-    @GetMapping("/search/{username}")
+    @GetMapping("/search/{username}")  // TODO: перенести весь функционал в перый метод
     @Operation(summary = "Получить список объявлений по пользователю с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",

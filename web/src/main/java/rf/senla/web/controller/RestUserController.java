@@ -93,7 +93,7 @@ public class RestUserController {
      * @param size Размер страницы.
      * @return ответ со списком пользователей
      */
-    @GetMapping("/search")
+    @GetMapping("/search")  // TODO: перенести функционал в метод выше
     @Operation(summary = "Получить список пользователей с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",

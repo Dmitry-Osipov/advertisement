@@ -74,7 +74,7 @@ public class RestMessageController {
      * @return {@link ResponseEntity} со списком сообщений в формате {@link MessageDto} между текущим пользователем и
      * пользователем с указанным именем.
      */
-    @GetMapping("/search")
+    @GetMapping("/search")  // TODO: перенести функционал в метод выше
     @Operation(summary = "Получить переписку с пользователем с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
