@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -151,12 +152,13 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
-    public void setBoosted(String username) {
-        log.info("Установка продвижения для пользователя {}", username);
-        User user = getByUsername(username);
+    public User setBoosted() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        log.info("Установка продвижения для пользователя {}", user);
         user.setBoosted(true);
-        save(user);
-        log.info("Удалось установить продвижение для пользователя {}", username);
+        user = save(user);
+        log.info("Удалось установить продвижение для пользователя {}", user);
+        return user;
     }
 
     @Override

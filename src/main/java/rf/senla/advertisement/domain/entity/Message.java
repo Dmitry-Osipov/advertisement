@@ -23,14 +23,14 @@ import java.time.LocalDateTime;
  * Сущность, представляющая сообщение.
  */
 @Entity
-@Builder
 @Getter
 @Setter
+@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(schema = "advertisement", name = "messages")
-@ToString
-public class Message implements Identifiable {
+public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

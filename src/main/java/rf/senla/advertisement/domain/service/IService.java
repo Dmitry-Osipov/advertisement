@@ -1,15 +1,13 @@
 package rf.senla.advertisement.domain.service;
 
-import rf.senla.advertisement.domain.entity.Identifiable;
-
 import java.util.List;
 
 /**
- * Сервис для работы с сущностями, имеющими id.
+ * Сервис для работы с сущностями.
  */
-public interface IService<T extends Identifiable> {
+public interface IService<T> {
     /**
-     * Сохранение пользователя сущности
+     * Сохранение сущности
      * @param entity сущность
      * @return сохранённая сущность
      */

@@ -45,9 +45,9 @@ public interface IUserService extends IService<User> {
 
     /**
      * Продвижение пользователя
-     * @param username имя пользователя
+     * @return Обновлённый пользователь
      */
-    void setBoosted(String username);
+    User setBoosted();
 
     /**
      * Получить список пользователей с пагинацией.

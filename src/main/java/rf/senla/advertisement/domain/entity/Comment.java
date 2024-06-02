@@ -23,14 +23,14 @@ import java.time.LocalDateTime;
  * Сущность, представляющая комментарий.
  */
 @Entity
-@Builder
 @Getter
 @Setter
+@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(schema = "advertisement", name = "comments")
-@ToString
-public class Comment implements Identifiable {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

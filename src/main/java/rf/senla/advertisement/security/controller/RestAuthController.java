@@ -35,7 +35,6 @@ import rf.senla.advertisement.security.service.IUserService;
 @Validated
 @RequiredArgsConstructor
 @Tag(name = "Аутентификация")
-@Slf4j
 public class RestAuthController {
     private final IAuthenticationService authenticationService;
     private final IUserService userService;
@@ -60,10 +59,7 @@ public class RestAuthController {
             @Parameter(description = "Данные регистрации", required = true,
                     content = @Content(schema = @Schema(implementation = SignUpRequest.class)))
             @Valid @RequestBody SignUpRequest request) {
-        log.info("Регистрация нового пользователя {}", request.getUsername());
-        JwtAuthenticationResponse response = authenticationService.signUp(request);
-        log.info("Новый пользователь {} успешно зарегистрирован", request.getUsername());
-        return response;
+        return authenticationService.signUp(request);
     }
 
     /**
@@ -85,10 +81,7 @@ public class RestAuthController {
             @Parameter(description = "Данные авторизации", required = true,
                     content = @Content(schema = @Schema(implementation = SignInRequest.class)))
             @Valid @RequestBody SignInRequest request) {
-        log.info("Авторизация пользователя {}", request.getUsername());
-        JwtAuthenticationResponse response = authenticationService.signIn(request);
-        log.info("Пользователь {} авторизован успешно", request.getUsername());
-        return response;
+        return authenticationService.signIn(request);
     }
 
     /**
@@ -109,11 +102,10 @@ public class RestAuthController {
             @Parameter(description = "Адрес электронной почты", example = "jondoe@gmail.com",
                     required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "email") String email) {
-        log.info("Отправление пользователю {} на почту {} ссылку на восстановление пароля", username, email);
+        // TODO: засунуть всю логику в один сервис
         User user = userService.getByUsername(username);
         authenticationService.createPasswordResetToken(user);
         emailService.sendResetPasswordEmail(email, user.getResetPasswordToken());
-        log.info("Отправлена ссылка восстановления пароля для пользователя {} на почту {}", username, email);
         return ResponseEntity.ok("Reset password email has been sent");
     }
 
@@ -135,12 +127,10 @@ public class RestAuthController {
                     required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "token") String token,
             @Parameter(description = "Пароль", example = "MY-NEW-SUPER?S3cre1_passw0rD!",
-                    required = true, in = ParameterIn.QUERY)
+                    required = true, in = ParameterIn.QUERY)  // TODO: передавать @RequestBody
             @RequestParam(value = "password") String password) {
-        User user = authenticationService.getByResetPasswordToken(token);
-        log.info("Обновление пароля для пользователя {}", user.getUsername());
-        authenticationService.updatePassword(user, password);
-        log.info("Пароль для пользователя {} успешно обновлён", user.getUsername());
+        // TODO: передавать jwt-токен
+        authenticationService.updatePassword(authenticationService.getByResetPasswordToken(token), password);
         return ResponseEntity.ok("Password has been reset");
     }
 }

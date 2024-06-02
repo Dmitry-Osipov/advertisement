@@ -9,6 +9,9 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import rf.senla.advertisement.domain.exception.EntityContainedException;
@@ -35,6 +38,10 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class UserServiceTest {
     private List<User> users;
+    @Mock
+    private SecurityContext securityContext;
+    @Mock
+    private Authentication authentication;
     @Mock
     private UserRepository userRepository;
     @InjectMocks
@@ -341,24 +348,15 @@ class UserServiceTest {
     @Test
     void setBoostedDoesNotThrowException() {
         User expected = users.getFirst();
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(expected));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(expected);
+        SecurityContextHolder.setContext(securityContext);
         when(userRepository.save(any())).thenReturn(expected);
 
-        assertDoesNotThrow(() -> sut.setBoosted(expected.getUsername()));
+        User actual = assertDoesNotThrow(() -> sut.setBoosted());
 
-        assertTrue(expected.getBoosted());
-        verify(userRepository, times(1)).findByUsername(anyString());
+        assertTrue(actual.getBoosted());
         verify(userRepository, times(1)).save(any());
-    }
-
-    @Test
-    void setBoostedThrowsUsernameNotFoundException() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class, () -> sut.setBoosted("notFoundUser"));
-
-        verify(userRepository, times(1)).findByUsername(anyString());
-        verify(userRepository, times(0)).save(any());
     }
 
     @Test

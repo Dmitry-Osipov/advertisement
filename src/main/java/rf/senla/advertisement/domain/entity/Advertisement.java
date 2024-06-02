@@ -23,14 +23,14 @@ import rf.senla.advertisement.security.entity.User;
  * Сущность, представляющая объявление.
  */
 @Entity
-@Builder
 @Getter
 @Setter
+@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(schema = "advertisement", name = "advertisements")
-@ToString
-public class Advertisement implements Identifiable {
+public class Advertisement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

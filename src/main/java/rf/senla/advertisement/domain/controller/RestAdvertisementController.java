@@ -11,7 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.advertisement.domain.dto.AdvertisementDto;
-import rf.senla.advertisement.domain.entity.Advertisement;
 import rf.senla.advertisement.domain.service.IAdvertisementService;
 import rf.senla.advertisement.domain.utils.DtoConverter;
 import rf.senla.advertisement.security.service.IUserService;
@@ -40,7 +40,6 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @Tag(name = "Объявления")
-@Slf4j
 public class RestAdvertisementController {
     private final IAdvertisementService service;
     private final IUserService userService;
@@ -66,10 +65,7 @@ public class RestAdvertisementController {
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<AdvertisementDto>> getAdvertisements() {
-        log.info("Получение списка 10 объявлений");
-        List<AdvertisementDto> list = converter.getListAdvertisementDto(service.getAll());
-        successfullyListLog(list);
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(converter.getListAdvertisementDto(service.getAll()));
     }
 
     /**
@@ -106,16 +102,13 @@ public class RestAdvertisementController {
             @RequestParam(value = "headline", required = false) String headline,
             @Parameter(description = "Условие сортировки", example = "asc", in = ParameterIn.QUERY)
             @RequestParam(value = "sort", required = false) String sortBy,
+            @PageableDefault(value = 2, page = 0) Pageable pageable,  // TODO: доработать
             @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
-        log.info("Получение списка объявлений с номером страницы - {}, размером страницы - {}, загловоком - {}, в " +
-                "промежутке цен - {} и {}, с сортировкой - {}", page, size, headline, minPrice, maxPrice, sortBy);
-        List<AdvertisementDto> list = converter.getListAdvertisementDto(
-                service.getAll(minPrice, maxPrice, headline, sortBy, page, size));
-        successfullyListLog(list);
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(converter.getListAdvertisementDto(
+                service.getAll(minPrice, maxPrice, headline, sortBy, page, size)));
     }
 
     /**
@@ -153,12 +146,8 @@ public class RestAdvertisementController {
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
-        log.info("Получение списка объявлений по пользователю - {}, статусу - {}, с условием сортировки - {}, с " +
-                "номером страницы - {}, с размером страницы - {}", username, active, sortBy, page, size);
-        List<AdvertisementDto> list = converter.getListAdvertisementDto(
-                service.getAll(userService.getByUsername(username), sortBy, active, page, size));
-        successfullyListLog(list);
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(converter.getListAdvertisementDto(
+                service.getAll(userService.getByUsername(username), sortBy, active, page, size)));
     }
 
     /**
@@ -182,10 +171,8 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
-        log.info("Создание нового объявления - {}", dto);
-        Advertisement advertisement = service.save(converter.getAdvertisementFromDto(dto));
-        log.info("Создано объявление - {}", advertisement);
-        return ResponseEntity.ok(converter.getDtoFromAdvertisement(advertisement));
+        return ResponseEntity.ok(converter.getDtoFromAdvertisement(
+                service.save(converter.getAdvertisementFromDto(dto))));
     }
 
     /**
@@ -210,10 +197,8 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
-        log.info("Обновление объявления - {}", dto);
-        Advertisement advertisement = service.update(converter.getAdvertisementFromDto(dto));
-        log.info("Обновлено объявление - {}", advertisement);
-        return ResponseEntity.ok(converter.getDtoFromAdvertisement(advertisement));
+        return ResponseEntity.ok(converter.getDtoFromAdvertisement(
+                service.update(converter.getAdvertisementFromDto(dto))));
     }
 
     /**
@@ -232,17 +217,7 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
-        log.info("Удаление объявления - {}", dto);
         service.delete(converter.getAdvertisementFromDto(dto));
-        log.info("Успешно удалено объявление - {}", dto);
         return ResponseEntity.ok("Deleted advertisement with headline " + dto.getHeadline());
-    }
-
-    /**
-     * Служебный метод логирует данные списка
-     * @param list список
-     */
-    private static void successfullyListLog(List<AdvertisementDto> list) {
-        log.info("Получен список из {} объявлений: {}", list.size(), list);
     }
 }

@@ -19,7 +19,6 @@ import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import rf.senla.advertisement.domain.entity.Identifiable;
 
 import java.util.Collection;
 import java.util.Date;
@@ -36,7 +35,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @Table(schema = "advertisement", name = "users")
-public class User implements UserDetails, Identifiable {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
