@@ -1,4 +1,4 @@
-package rf.senla.advertisement.service;
+package rf.senla.web.services;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

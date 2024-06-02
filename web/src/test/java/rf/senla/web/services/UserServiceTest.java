@@ -1,4 +1,4 @@
-package rf.senla.advertisement.service;
+package rf.senla.web.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;

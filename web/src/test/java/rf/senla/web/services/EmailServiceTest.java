@@ -1,4 +1,4 @@
-package rf.senla.advertisement.service;
+package rf.senla.web.services;
 
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;

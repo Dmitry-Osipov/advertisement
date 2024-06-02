@@ -1,4 +1,4 @@
-package rf.senla.advertisement.service;
+package rf.senla.web.services;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -6,39 +6,36 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import rf.senla.domain.entity.Advertisement;
 import rf.senla.domain.entity.AdvertisementStatus;
-import rf.senla.domain.entity.Comment;
-import rf.senla.domain.exception.EntityContainedException;
-import rf.senla.domain.exception.NoEntityException;
-import rf.senla.domain.repository.CommentRepository;
-import rf.senla.domain.service.CommentService;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
+import rf.senla.domain.exception.EntityContainedException;
+import rf.senla.domain.exception.NoEntityException;
+import rf.senla.domain.repository.AdvertisementRepository;
+import rf.senla.domain.service.AdvertisementService;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class CommentServiceTest {
+class AdvertisementServiceTest {
     private List<User> users;
     private List<Advertisement> advertisements;
-    private List<Comment> comments;
     @Mock
-    private CommentRepository commentRepository;
+    private AdvertisementRepository advertisementRepository;
     @InjectMocks
-    private CommentService sut;
+    private AdvertisementService sut;
 
     @BeforeEach
     public void setUp() {
@@ -314,211 +311,150 @@ class CommentServiceTest {
                 .status(AdvertisementStatus.ACTIVE)
                 .build();
 
-        Comment comment1 = Comment.builder()
-                .id(1L)
-                .advertisement(advertisement1)
-                .user(user2)
-                .text("This smartphone is amazing! The camera quality is top-notch, and the battery life lasts all day.")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment2 = Comment.builder()
-                .id(2L)
-                .advertisement(advertisement1)
-                .user(user3)
-                .text("I've been using this smartphone for a month now, and I'm impressed with its performance. It's " +
-                        "fast, reliable, and the screen is stunning.")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment3 = Comment.builder()
-                .id(3L)
-                .advertisement(advertisement2)
-                .user(user1)
-                .text("Absolutely love this laptop! It's sleek, powerful, and perfect for both work and " +
-                        "entertainment. The battery life is impressive, and the display is crystal clear.")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment4 = Comment.builder()
-                .id(4L)
-                .advertisement(advertisement3)
-                .user(user4)
-                .text("These headphones are amazing! The sound quality is fantastic, with deep bass and clear highs. " +
-                        "They are also very comfortable to wear for long periods of time. Highly recommended!")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment5 = Comment.builder()
-                .id(5L)
-                .advertisement(advertisement3)
-                .user(user5)
-                .text("I was disappointed with these headphones. The build quality feels cheap, and the sound is " +
-                        "mediocre at best. They also tend to be uncomfortable after wearing them for a while. I " +
-                        "wouldn't recommend them.")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment6 = Comment.builder()
-                .id(6L)
-                .advertisement(advertisement4)
-                .user(user6)
-                .text("I recently purchased this backpack for my hiking trips, and I must say I'm impressed. It's " +
-                        "incredibly spacious, with plenty of compartments to keep all my gear organized. The " +
-                        "material feels durable, and the padded straps make it comfortable to carry even when fully " +
-                        "loaded. Overall, I'm very satisfied with my purchase!")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment7 = Comment.builder()
-                .id(7L)
-                .advertisement(advertisement5)
-                .user(user7)
-                .text("I've been using these sunglasses for a few weeks now, and they're fantastic! The polarized " +
-                        "lenses provide excellent protection from the sun's glare, making them perfect for driving " +
-                        "or outdoor activities. Plus, they look stylish and feel comfortable to wear all day. Highly " +
-                        "recommend!")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment8 = Comment.builder()
-                .id(8L)
-                .advertisement(advertisement5)
-                .user(user8)
-                .text("Unfortunately, I was disappointed with these sunglasses. While they look great, the lenses " +
-                        "scratched easily, and the frame felt flimsy. Additionally, they didn't provide much UV " +
-                        "protection, which was a concern for me. Overall, I wouldn't recommend them for long-term use.")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment9 = Comment.builder()
-                .id(9L)
-                .advertisement(advertisement6)
-                .user(user9)
-                .text("I recently purchased this watch, and I couldn't be happier with it! The craftsmanship is " +
-                        "excellent, and it looks even better in person than in the pictures. The automatic movement " +
-                        "keeps accurate time, and the design is both elegant and versatile. It's become my everyday " +
-                        "timepiece, and I've received numerous compliments on it.")
-                .createdAt(LocalDateTime.now())
-                .build();
-        Comment comment10 = Comment.builder()
-                .id(10L)
-                .advertisement(advertisement7)
-                .user(user10)
-                .text("These sneakers are a disappointment. While they initially looked stylish and felt comfortable, " +
-                        "they started falling apart after just a few weeks of wear. The sole began to separate from " +
-                        "the upper, and the stitching came undone. Additionally, they didn't provide much support, " +
-                        "and my feet would ache after wearing them for extended periods. Overall, I wouldn't recommend " +
-                        "these sneakers.")
-                .createdAt(LocalDateTime.now())
-                .build();
-
         users = new ArrayList<>(List.of(user1, user2, user3, user4, user5, user6, user7, user8, user9, user10, user11,
                 user12, user13, user14, user15));
         advertisements = new ArrayList<>(List.of(advertisement1, advertisement2, advertisement3, advertisement4,
                 advertisement5, advertisement6, advertisement7, advertisement8, advertisement9, advertisement10));
-        comments = new ArrayList<>(List.of(comment1, comment2, comment3, comment4, comment5, comment6, comment7,
-                comment8, comment9, comment10));
     }
 
     @AfterEach
     public void tearDown() {
         users = null;
         advertisements = null;
-        comments = null;
     }
 
     @Test
     void getAllDoesNotThrowException() {
-        when(commentRepository.findAll((Pageable) any())).thenReturn(Page.empty());
+        when(advertisementRepository.findAllInOrderByUserRating(any())).thenReturn(advertisements);
 
         assertDoesNotThrow(() -> sut.getAll());
 
-        verify(commentRepository, times(1)).findAll((Pageable) any());
+        verify(advertisementRepository, times(1)).findAllInOrderByUserRating(any());
     }
 
     @Test
-    void getAllByAdvertisementDoesNotThrowException() {
-        when(commentRepository.findByAdvertisement(any(), any())).thenReturn(comments);
+    void getAllByUserWithAllStatusesDoesNotThrowException() {
+        when(advertisementRepository.findByUserInOrderWithAnyStatus(any(), any())).thenReturn(advertisements);
 
-        assertDoesNotThrow(() -> sut.getAll(advertisements.getFirst(), 0, 1));
+        assertDoesNotThrow(() -> sut.getAll(any(), anyString(), null, 0, 1));
 
-        verify(commentRepository, times(1)).findByAdvertisement(any(), any());
+        verify(advertisementRepository, times(1)).findByUserInOrderWithAnyStatus(any(), any());
     }
 
     @Test
-    void saveDoesNotThrowException() {
-        Comment expected = Comment.builder()
+    void getAllByUserWithActiveStatusesDoesNotThrowException() {
+        when(advertisementRepository.findByUserInOrderWithAnyStatus(any(), any())).thenReturn(advertisements);
+
+        assertDoesNotThrow(() -> sut.getAll(any(), anyString(), true, 0, 1));
+
+        verify(advertisementRepository, times(1)).findByUserInOrder(any(), any());
+    }
+
+    @Test
+    void getByIdDoesNotThrowException() {
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(advertisements.getFirst()));
+
+        assertDoesNotThrow(() -> sut.getById(anyLong()));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
+    void getByIdThrowsNoEntityException() {
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NoEntityException.class, () -> sut.getById(anyLong()));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
+    void saveDoestNotThrowException() {
+        Advertisement expected = Advertisement.builder()
                 .id(11L)
-                .advertisement(advertisements.getLast())
                 .user(users.get(11))
-                .text("No way")
-                .createdAt(LocalDateTime.now())
+                .price(5000)
+                .headline("Glasses")
+                .description("No sale")
+                .status(AdvertisementStatus.REVIEW)
                 .build();
-        when(commentRepository.existsById(anyLong())).thenReturn(false);
-        when(commentRepository.save(any())).thenReturn(expected);
+        when(advertisementRepository.existsById(anyLong())).thenReturn(false);
+        when(advertisementRepository.save(any())).thenReturn(expected);
 
         assertDoesNotThrow(() -> sut.save(expected));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
-        verify(commentRepository, times(1)).save(any());
+        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(1)).save(any());
     }
 
     @Test
     void saveThrowsEntityContainedException() {
-        when(commentRepository.existsById(anyLong())).thenReturn(true);
+        Advertisement expected = advertisements.getLast();
+        when(advertisementRepository.existsById(anyLong())).thenReturn(true);
 
-        assertThrows(EntityContainedException.class, () -> sut.save(comments.getLast()));
+        assertThrows(EntityContainedException.class, () -> sut.save(expected));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
-        verify(commentRepository, times(0)).save(any());
+        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(0)).save(any());
     }
 
     @Test
-    void updateDoesNotThrowException() {
-        Comment expected = comments.getLast();
-        when(commentRepository.existsById(anyLong())).thenReturn(true);
-        when(commentRepository.save(any())).thenReturn(expected);
+    void updateDoesNotThrowsException() {
+        Advertisement expected = advertisements.getLast();
+        expected.setStatus(AdvertisementStatus.SOLD);
+        when(advertisementRepository.existsById(anyLong())).thenReturn(true);
+        when(advertisementRepository.save(any())).thenReturn(expected);
 
         assertDoesNotThrow(() -> sut.update(expected));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
-        verify(commentRepository, times(1)).save(any());
+        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(1)).save(any());
     }
 
     @Test
     void updateThrowsNoEntityException() {
-        Comment expected = Comment.builder()
+        Advertisement expected = Advertisement.builder()
                 .id(11L)
-                .advertisement(advertisements.getLast())
                 .user(users.get(11))
-                .text("No way")
-                .createdAt(LocalDateTime.now())
+                .price(5000)
+                .headline("Glasses")
+                .description("No sale")
+                .status(AdvertisementStatus.REVIEW)
                 .build();
-        when(commentRepository.existsById(anyLong())).thenReturn(false);
+        when(advertisementRepository.existsById(anyLong())).thenReturn(false);
 
         assertThrows(NoEntityException.class, () -> sut.update(expected));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
-        verify(commentRepository, times(0)).save(any());
+        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(0)).save(any());
     }
 
     @Test
     void deleteDoesNotThrowException() {
-        when(commentRepository.existsById(anyLong())).thenReturn(true);
+        Advertisement expected = advertisements.getLast();
+        when(advertisementRepository.existsById(anyLong())).thenReturn(true);
 
-        assertDoesNotThrow(() -> sut.delete(comments.getLast()));
+        assertDoesNotThrow(() -> sut.delete(expected));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
-        verify(commentRepository, times(1)).delete(any());
+        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(1)).delete(any());
     }
 
     @Test
     void deleteThrowsNoEntityException() {
-        Comment expected = Comment.builder()
+        Advertisement expected = Advertisement.builder()
                 .id(11L)
-                .advertisement(advertisements.getLast())
                 .user(users.get(11))
-                .text("No way")
-                .createdAt(LocalDateTime.now())
+                .price(5000)
+                .headline("Glasses")
+                .description("No sale")
+                .status(AdvertisementStatus.REVIEW)
                 .build();
-        when(commentRepository.existsById(anyLong())).thenReturn(false);
+        when(advertisementRepository.existsById(anyLong())).thenReturn(false);
 
         assertThrows(NoEntityException.class, () -> sut.delete(expected));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
-        verify(commentRepository, times(0)).delete(any());
+        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(0)).delete(any());
     }
 }

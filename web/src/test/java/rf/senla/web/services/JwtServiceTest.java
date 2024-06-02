@@ -1,4 +1,4 @@
-package rf.senla.advertisement.service;
+package rf.senla.web.services;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
