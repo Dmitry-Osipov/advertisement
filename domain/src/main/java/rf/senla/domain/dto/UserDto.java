@@ -18,10 +18,10 @@ import rf.senla.domain.entity.Role;
  */
 @Data
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "DTO сущности пользователя")
-@ToString
 public class UserDto {
     @Schema(description = "ID пользователя", example = "1")
     @NotNull

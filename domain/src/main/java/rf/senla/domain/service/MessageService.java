@@ -20,9 +20,9 @@ import java.util.List;
 /**
  * Сервис работы с сообщениями.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MessageService implements IMessageService {
     private final MessageRepository repository;
 

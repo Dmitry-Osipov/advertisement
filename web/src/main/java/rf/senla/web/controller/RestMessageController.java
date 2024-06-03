@@ -34,11 +34,11 @@ import java.util.List;
 /**
  * Контроллер для обработки запросов сообщений через REST API.
  */
-@RestController
-@RequestMapping("${spring.data.rest.base-path}/messages")
 @Validated
+@RestController
 @RequiredArgsConstructor
 @Tag(name = "Сообщения")
+@RequestMapping("${spring.data.rest.base-path}/messages")
 public class RestMessageController {
     private final IMessageService service;
     private final IUserService userService;

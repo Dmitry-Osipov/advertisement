@@ -12,8 +12,8 @@ import lombok.ToString;
  * Класс для представления запроса на регистрацию нового пользователя.
  */
 @Data
-@Schema(description = "Запрос на регистрацию")
 @ToString
+@Schema(description = "Запрос на регистрацию")
 public class SignUpRequest {
     @Schema(description = "Имя пользователя", example = "John Doe")
     @Size(min = 5, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")

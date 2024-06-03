@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "DTO сущности ошибки")
-@ToString
 public class ErrorDto {
     @Schema(description = "Сообщение об ошибке", example = "Access Denied")
     private String message;

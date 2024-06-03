@@ -24,9 +24,9 @@ import java.util.List;
 /**
  * Сервис для управления пользователями.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserRepository repository;

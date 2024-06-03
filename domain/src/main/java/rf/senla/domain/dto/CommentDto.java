@@ -18,10 +18,10 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "DTO сущности комментария")
-@ToString
 public class CommentDto {
     @Schema(description = "ID комментария", example = "1")
     private Long id;

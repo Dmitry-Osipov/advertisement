@@ -33,11 +33,11 @@ import java.util.List;
 /**
  * Контроллер для обработки запросов комментариев через REST API.
  */
-@RestController
-@RequestMapping("${spring.data.rest.base-path}/comments")
 @Validated
+@RestController
 @RequiredArgsConstructor
 @Tag(name = "Комментарии")
+@RequestMapping("${spring.data.rest.base-path}/comments")
 public class RestCommentController {
     private final ICommentService service;
     private final IAdvertisementService advertisementService;

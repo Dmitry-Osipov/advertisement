@@ -21,8 +21,8 @@ import java.util.function.Function;
 /**
  * Сервис для работы с JWT.
  */
-@Service
 @Slf4j
+@Service
 public class JwtService implements IJwtService {
     @Value("${token.signing.key}")
     private String jwtSigningKey;

@@ -20,9 +20,9 @@ import java.util.List;
 /**
  * Сервис для работы с объявлениями.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AdvertisementService implements IAdvertisementService {
     private final AdvertisementRepository repository;
 

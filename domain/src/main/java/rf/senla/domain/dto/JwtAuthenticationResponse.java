@@ -12,10 +12,10 @@ import lombok.ToString;
  */
 @Data
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Ответ с токеном доступа")
-@ToString
 public class JwtAuthenticationResponse {
     @Schema(description = "Токен доступа", example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...")
     private String token;

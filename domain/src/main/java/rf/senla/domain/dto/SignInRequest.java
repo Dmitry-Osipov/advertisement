@@ -10,8 +10,8 @@ import lombok.ToString;
  * Класс для представления запроса на вход (аутентификацию).
  */
 @Data
-@Schema(description = "Запрос на аутентификацию")
 @ToString
+@Schema(description = "Запрос на аутентификацию")
 public class SignInRequest {
     @Schema(description = "Имя пользователя", example = "John Doe")
     @Size(min = 5, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")

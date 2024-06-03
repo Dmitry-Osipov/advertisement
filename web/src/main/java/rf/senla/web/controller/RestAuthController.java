@@ -29,11 +29,11 @@ import rf.senla.domain.service.IUserService;
 /**
  * Контроллер для обработки запросов аутентификации через REST API.
  */
-@RestController
-@RequestMapping("${spring.data.rest.base-path}/auth")
 @Validated
+@RestController
 @RequiredArgsConstructor
 @Tag(name = "Аутентификация")
+@RequestMapping("${spring.data.rest.base-path}/auth")
 public class RestAuthController {
     private final IAuthenticationService authenticationService;
     private final IUserService userService;

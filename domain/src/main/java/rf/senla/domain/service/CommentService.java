@@ -16,9 +16,9 @@ import rf.senla.domain.repository.CommentRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CommentService implements ICommentService {
     private final CommentRepository repository;
 

@@ -25,8 +25,8 @@ import java.time.LocalDateTime;
 /**
  * Контроллер обработки ошибок
  */
-@RestControllerAdvice
 @Slf4j
+@RestControllerAdvice
 public class RestExceptionHandler {
     /**
      * Метод возвращает информацию об ошибке типа {@link NoEntityException} или {@link UsernameNotFoundException}

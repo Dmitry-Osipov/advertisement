@@ -22,9 +22,9 @@ import java.util.UUID;
 /**
  * Сервис для аутентификации и регистрации пользователей.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuthenticationService implements IAuthenticationService {
     private final IUserService userService;
     private final IJwtService jwtService;

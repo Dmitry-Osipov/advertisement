@@ -28,12 +28,12 @@ import java.util.List;
  * Сущность, представляющая пользователя.
  */
 @Entity
-@Builder
 @Getter
 @Setter
+@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Table(schema = "advertisement", name = "users")
 public class User implements UserDetails {
     @Id

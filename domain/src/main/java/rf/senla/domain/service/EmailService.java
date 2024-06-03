@@ -13,9 +13,9 @@ import rf.senla.domain.exception.EmailException;
 /**
  * Сервис для работы с почтовой рассылкой.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class EmailService implements IEmailService {
     private final JavaMailSender mailSender;
 

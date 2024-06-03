@@ -32,11 +32,11 @@ import java.util.List;
 /**
  * Контроллер для обработки запросов пользователей через REST API.
  */
-@RestController
-@RequestMapping("${spring.data.rest.base-path}/users")
 @Validated
+@RestController
 @RequiredArgsConstructor
 @Tag(name = "Пользователи")
+@RequestMapping("${spring.data.rest.base-path}/users")
 public class RestUserController {
     private final IUserService service;
     private final DtoConverter converter;

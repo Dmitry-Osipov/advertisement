@@ -15,10 +15,10 @@ import lombok.ToString;
  */
 @Data
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "DTO сущности объявления")
-@ToString
 public class AdvertisementDto {
     @Schema(description = "ID объявления", example = "1")
     private Long id;

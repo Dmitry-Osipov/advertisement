@@ -35,11 +35,11 @@ import java.util.List;
 /**
  * Контроллер для обработки запросов объявлений через REST API.
  */
-@RestController
-@RequestMapping("${spring.data.rest.base-path}/advertisements")
 @Validated
+@RestController
 @RequiredArgsConstructor
 @Tag(name = "Объявления")
+@RequestMapping("${spring.data.rest.base-path}/advertisements")
 public class RestAdvertisementController {
     private final IAdvertisementService service;
     private final IUserService userService;
