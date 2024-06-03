@@ -25,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdvertisementService implements IAdvertisementService {
     private final AdvertisementRepository repository;
+    private final IUserService userService;
 
     @Transactional
     @Override
@@ -67,6 +68,7 @@ public class AdvertisementService implements IAdvertisementService {
         log.info("Удалось удалить объявление {}", entity);
     }
 
+    // TODO: remove
     @Transactional(readOnly = true)
     @Override
     public List<Advertisement> getAll() {
@@ -164,6 +166,7 @@ public class AdvertisementService implements IAdvertisementService {
         log.info("Проверка для цен {} и {} пройдена успешно", min, max);
     }
 
+    // TODO: remove
     /**
      * Служебный метод на основе переданного типа сортировки формирует пагинацию.
      * @param sortBy способ сортировки

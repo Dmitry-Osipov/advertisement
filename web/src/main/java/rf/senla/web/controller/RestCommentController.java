@@ -44,26 +44,6 @@ public class RestCommentController {
     private final DtoConverter converter;
 
     /**
-     * Получить список последних 10 комментариев.
-     * @return ответ с кодом 200 (OK) и списком всех комментариев в формате JSON
-     */
-    @GetMapping
-    @Operation(summary = "Получить список последних 10 комментариев")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommentDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisementId\": 1,\"userName\": " +
-                                    "\"John Doe\",\"text\": \"Hello!\",\"createdAt\": \"2024-05-09T14:55:46.765819\"}, " +
-                                    "{\"id\": 2,\"advertisementId\": 2,\"userName\": \"Jane Smith\",\"text\": " +
-                                    "\"Hi there!\",\"createdAt\": \"2024-05-10T10:30:00.000000\"} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
-    })
-    public ResponseEntity<List<CommentDto>> getAllComments() {
-        return ResponseEntity.ok(converter.getListCommentDto(service.getAll()));
-    }
-
-    /**
      * Получить список всех комментариев по ID объявления.
      * @param advertisementId id объявления
      * @return ответ с кодом 200 (OK) и списком всех комментариев объявления в формате JSON
@@ -80,15 +60,16 @@ public class RestCommentController {
                                     "\"Hi there!\",\"createdAt\": \"2024-05-10T10:30:00.000000\"} ]"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(  // TODO: перенести функционал в метод выше
+    public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(
             @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
             @PathVariable Long advertisementId,
+            // TODO: Pageable
             @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(converter.getListCommentDto(
-                service.getAll(advertisementService.getById(advertisementId), page, size)));
+        // TODO: MapStruct
+        return ResponseEntity.ok(converter.getListCommentDto(service.getAll(advertisementId, page, size)));
     }
 
     /**
@@ -111,6 +92,7 @@ public class RestCommentController {
             @Parameter(description = "Данные комментария", required = true,
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromComment(service.save(converter.getCommentFromDto(dto))));
     }
 
@@ -135,6 +117,7 @@ public class RestCommentController {
             @Parameter(description = "Данные комментария", required = true,
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromComment(service.update(converter.getCommentFromDto(dto))));
     }
 
@@ -154,6 +137,7 @@ public class RestCommentController {
             @Parameter(description = "Данные комментария", required = true,
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
+        // TODO: MapStruct
         service.delete(converter.getCommentFromDto(dto));
         return ResponseEntity.ok("Deleted comment with id " + dto.getId());
     }

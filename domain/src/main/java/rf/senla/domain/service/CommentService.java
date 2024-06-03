@@ -21,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentService implements ICommentService {
     private final CommentRepository repository;
+    private final IAdvertisementService advertisementService;
 
     @Transactional
     @Override
@@ -66,6 +67,7 @@ public class CommentService implements ICommentService {
         log.error("Удалось обновить комментарий {}", entity);
     }
 
+    // TODO: remove
     @Transactional(readOnly = true)
     @Override
     public List<Comment> getAll() {
@@ -77,7 +79,8 @@ public class CommentService implements ICommentService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Comment> getAll(Advertisement advertisement, Integer page, Integer size) {
+    public List<Comment> getAll(Long advertisementId, Integer page, Integer size) {
+        Advertisement advertisement = advertisementService.getById(advertisementId);
         log.info("Получение списка комментариев по объявлению - {}, с номером страницы - {}, с разером страницы - {}",
                 advertisement, page, size);
         List<Comment> list = repository.findByAdvertisement(advertisement, getPageable(page, size));
@@ -85,6 +88,7 @@ public class CommentService implements ICommentService {
         return list;
     }
 
+    // TODO: remove
     /**
      * Служебный метод формирует пагинацию по времени.
      * @param page порядковый номер страницы

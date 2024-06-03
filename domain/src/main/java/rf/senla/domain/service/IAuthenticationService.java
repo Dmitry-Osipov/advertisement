@@ -24,10 +24,11 @@ public interface IAuthenticationService {
     JwtAuthenticationResponse signIn(SignInRequest request);
 
     /**
-     * Создание токена восстановления пароля
-     * @param user пользователь, для которого создаётся токен
+     * Отправка токена восстановления пароля на почту
+     * @param email почта
+     * @param username имя пользователя
      */
-    void createPasswordResetToken(User user);
+    void sendResetPasswordEmail(String email, String username);
 
     /**
      * Получение пользователя по токену восстановления пароля
@@ -38,8 +39,8 @@ public interface IAuthenticationService {
 
     /**
      * Обновление пароля для пользователя
-     * @param user пользователь
+     * @param token токен восстановления пароля
      * @param newPassword новый пароль
      */
-    void updatePassword(User user, String newPassword);
+    void updatePassword(String token, String newPassword);
 }

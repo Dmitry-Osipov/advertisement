@@ -6,17 +6,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import rf.senla.domain.entity.Rating;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.domain.exception.ErrorMessage;
+import rf.senla.domain.repository.RatingRepository;
 import rf.senla.domain.repository.UserRepository;
 
 import java.util.List;
@@ -27,9 +29,11 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("java:S6809")
 public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserRepository repository;
+    private final RatingRepository ratingRepository;
 
     @Transactional
     @Override
@@ -51,6 +55,7 @@ public class UserService implements IUserService {
         }
 
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        entity.setRating(getRating(entity));
         User user = save(entity);
         log.info("Пользователь успешно обновлён {}", user);
         return user;
@@ -69,31 +74,34 @@ public class UserService implements IUserService {
         log.info("Пользователь {} удалён успешно", entity);
     }
 
-    @Transactional(readOnly = true)
+    // TODO: remove
+    @Transactional
     @Override
     public List<User> getAll() {
         log.info("Получение списка 10 топовых пользователей");
-        List<User> list = repository.findAll(getPageable(0, 10)).getContent();
+        List<User> list = correctRating(repository.findAll(getPageable(0, 10)).getContent());
         successfullyListLog(list);
         return list;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public List<User> getAll(Integer page, Integer size) {
         log.info("Получение списка пользователей с номером страницы {} и размером страницы {}", page, size);
-        List<User> lis = repository.findAll(getPageable(page, size)).getContent();
-        successfullyListLog(lis);
-        return lis;
+        List<User> list = correctRating(repository.findAll(getPageable(page, size)).getContent());
+        successfullyListLog(list);
+        return list;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public User getByUsername(String username) {
         try {
             log.info("Получение пользователя по логину {}", username);
             User user = repository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage()));
+            user.setRating(getRating(user));
+
             log.info("Пользователь {} успешно получен", user);
             return user;
         } catch (UsernameNotFoundException e) {
@@ -156,8 +164,8 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
-    public User setBoosted() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public User setBoosted(UserDetails userDetails) {
+        User user = (User) userDetails;
         log.info("Установка продвижения для пользователя {}", user);
         user.setBoosted(true);
         user = save(user);
@@ -172,7 +180,7 @@ public class UserService implements IUserService {
             log.info("Получение пользователя по токену восстановления пароля {}", token);
             User user = repository.findByResetPasswordToken(token)
                     .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage()));
-            log.info("Удалось получить пользователя {} по токену восстановления пароля", user);
+            log.info("Удалось получить пользователя {} по токену восстановления пароля {}", user, token);
             return user;
         } catch (EntityNotFoundException e) {
             log.error("Не удалось получить пользователя по токену восстановления пароля {}", token);
@@ -180,6 +188,78 @@ public class UserService implements IUserService {
         }
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Double getUserRating(User user) {
+        log.error("Получение рейтинга для пользователя {}", user);
+        Double rating = ratingRepository.findByAverageRatingByRecipient(user);
+        if (rating != null) {
+            log.info("Для пользователя {} получен рейтинг {}", user, rating);
+        } else {
+            log.warn("У пользователя {} нет рейтинга", user);
+        }
+        return rating;
+    }
+
+    @Transactional
+    @Override
+    public User addEvaluation(UserDetails sender, String username, Integer evaluation) {
+        User currentUser = getByUsername(sender.getUsername());
+        User recipient = getByUsername(username);
+        log.info("Пользователь {} пытается поставить оценку {} пользователю {}", currentUser, evaluation, recipient);
+
+        if (ratingRepository.existsBySenderAndRecipient(currentUser, recipient)) {
+            log.error("Пользователь {} уже ставил оценку пользователю {}", currentUser, recipient);
+            throw new EntityContainedException(ErrorMessage.SENDER_ALREADY_VOTED.getMessage());
+        }
+
+        Rating rating = Rating.builder()
+                .sender(currentUser)
+                .recipient(recipient)
+                .evaluation(evaluation)
+                .build();
+        ratingRepository.save(rating);
+        recipient.setRating(getUserRating(recipient));
+
+        log.info("Пользователю {} удалось поставить оценку {} для пользователя {}", currentUser, evaluation, recipient);
+        return update(recipient);
+    }
+
+    /**
+     * Служебный метод корректирует рейтинг каждого пользователя переданного списка
+     * @param users список пользователей
+     * @return список пользователей
+     */
+    private List<User> correctRating(List<User> users) {
+        log.info("Вызов корректировки рейтинга для списка пользователей: {}", users);
+        List<User> result = users.stream()
+                .map(user -> {
+                    user.setRating(getRating(user));
+                    return user;
+                })
+                .toList();
+        log.info("Удалось скорректировать рейтинг для списка пользователей: {}", result);
+        return result;
+    }
+
+    /**
+     * Служебный метод получает рейтинг пользователя либо устанавливает дефолтное значение
+     * @param user пользователь
+     * @return рейтинг пользователя
+     */
+    private Double getRating(User user) {
+        log.info("Вызван метод получения рейтинга пользователя {}", user);
+        Double rating = getUserRating(user);
+        if (rating == null) {
+            rating = 0.0;
+            log.warn("У пользователя {} не было рейтинга, установлено значение по умолчанию {}", user, rating);
+        }
+
+        log.info("Пользователю {} установлен рейтинг {}", user, rating);
+        return rating;
+    }
+
+    // TODO: remove
     /**
      * Служебный метод возвращает пагинацию топовых пользователей.
      * @param page Порядковый номер страницы.

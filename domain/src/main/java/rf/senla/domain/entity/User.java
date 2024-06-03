@@ -49,8 +49,8 @@ public class User implements UserDetails {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "rating", columnDefinition = "INTEGER DEFAULT 0")
-    private Integer rating;
+    @Column(name = "rating", columnDefinition = "DOUBLE PRECISION DEFAULT 0")
+    private Double rating;
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;

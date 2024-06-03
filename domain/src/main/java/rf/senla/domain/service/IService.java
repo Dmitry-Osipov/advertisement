@@ -24,6 +24,7 @@ public interface IService<T> {
      */
     void delete(T entity);
 
+    // TODO: remove
     /**
      * Получение списка сущностей
      * @return список сущностей

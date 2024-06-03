@@ -41,8 +41,8 @@ public class UserDto {
     @Pattern(regexp = "\\+7\\(\\d{3}\\)\\d{3}-\\d{2}-\\d{2}", message = "Please use pattern +7(XXX)XXX-XX-XX")
     private String phoneNumber;
 
-    @Schema(description = "Рейтинг", example = "100")
-    private Integer rating;
+    @Schema(description = "Рейтинг", example = "4.8")
+    private Double rating;
 
     @Schema(description = "Адрес электронной почты", example = "jondoe@gmail.com")
     @Size(min = 5, max = 255, message = "Адрес электронной почты должен содержать от 5 до 255 символов")

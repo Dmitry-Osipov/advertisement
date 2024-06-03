@@ -22,7 +22,8 @@ public enum ErrorMessage {
     USERNAME_ALREADY_EXISTS("Username already exists"),
     EMAIL_ALREADY_EXISTS("Email already exists"),
     TOKEN_EXPIRED("Token expired"),
-    INCORRECT_HTTP_METHOD_SELECTED("Incorrect http method selected");
+    INCORRECT_HTTP_METHOD_SELECTED("Incorrect http method selected"),
+    SENDER_ALREADY_VOTED("The sender and receiver pair is already in place");
 
     private final String message;
 }

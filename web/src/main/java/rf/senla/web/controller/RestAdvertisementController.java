@@ -63,8 +63,9 @@ public class RestAdvertisementController {
                                     "is a portable, personal computer with a clamshell form factor, suitable for " +
                                     "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
-    })
+    })  // TODO: Pageable
     public ResponseEntity<List<AdvertisementDto>> getAdvertisements() {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getListAdvertisementDto(service.getAll()));
     }
 
@@ -78,7 +79,7 @@ public class RestAdvertisementController {
      * @param size размер страницы
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
-    @GetMapping("/search")
+    @GetMapping
     @Operation(summary = "Получить список объявлений по заголовку в промежутке цен с условием сортировки и пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -107,6 +108,7 @@ public class RestAdvertisementController {
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getListAdvertisementDto(
                 service.getAll(minPrice, maxPrice, headline, sortBy, page, size)));
     }
@@ -120,7 +122,7 @@ public class RestAdvertisementController {
      * @param size размер страницы
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
-    @GetMapping("/search/{username}")  // TODO: перенести весь функционал в перый метод
+    @GetMapping("/users/{username}")
     @Operation(summary = "Получить список объявлений по пользователю с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -135,7 +137,7 @@ public class RestAdvertisementController {
                                     "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<List<AdvertisementDto>> getAllByUser(
+    public ResponseEntity<List<AdvertisementDto>> getAllByUser(  // TODO: Pageable
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
             @PathVariable("username") String username,
             @Parameter(description = "Условие сортировки", example = "asc", in = ParameterIn.QUERY)
@@ -146,6 +148,7 @@ public class RestAdvertisementController {
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getListAdvertisementDto(
                 service.getAll(userService.getByUsername(username), sortBy, active, page, size)));
     }
@@ -171,6 +174,7 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromAdvertisement(
                 service.save(converter.getAdvertisementFromDto(dto))));
     }
@@ -197,6 +201,7 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromAdvertisement(
                 service.update(converter.getAdvertisementFromDto(dto))));
     }
@@ -217,6 +222,7 @@ public class RestAdvertisementController {
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
+        // TODO: MapStruct
         service.delete(converter.getAdvertisementFromDto(dto));
         return ResponseEntity.ok("Deleted advertisement with headline " + dto.getHeadline());
     }

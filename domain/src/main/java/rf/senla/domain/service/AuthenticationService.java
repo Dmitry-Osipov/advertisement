@@ -25,11 +25,13 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("java:S6809")
 public class AuthenticationService implements IAuthenticationService {
     private final IUserService userService;
     private final IJwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final IEmailService emailService;
 
     @Transactional
     @Override
@@ -39,7 +41,7 @@ public class AuthenticationService implements IAuthenticationService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
-                .rating(0)
+                .rating(0.0)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -65,13 +67,12 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Transactional
     @Override
-    public void createPasswordResetToken(User user) {
-        log.info("Генерация токена восстановления пароля пользователю {}", user.getUsername());
-        String token = UUID.randomUUID().toString();
-        user.setResetPasswordToken(token);
-        user.setResetPasswordTokenExpiryDate(new Date(System.currentTimeMillis() + 3600 * 1000));  // 1 hour expiry
-        userService.save(user);
-        log.info("Удалось сгенерировать токен восстановления пароля пользователю {}", user.getUsername());
+    public void sendResetPasswordEmail(String email, String username) {
+        log.info("Вызван метод отправки восстановления пароля для пользователя с логином {} на почту {}",
+                username, email);
+        User user = createPasswordResetToken(username);
+        emailService.sendResetPasswordEmail(email, user.getResetPasswordToken());
+        log.info("Удачно отправлен токен восстановления на почту {} для пользователя {}", email, username);
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +86,8 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Transactional
     @Override
-    public void updatePassword(User user, String newPassword) {
+    public void updatePassword(String token, String newPassword) {
+        User user = userService.getByResetPasswordToken(token);
         log.info("Обновления пароля пользователю {}", user.getUsername());
         user.setResetPasswordToken(null);
         user.setResetPasswordTokenExpiryDate(null);
@@ -107,6 +109,22 @@ public class AuthenticationService implements IAuthenticationService {
         }
         log.info("Валидация токена восстановления пароля пользователя {} прошла успешно", user.getUsername());
 
+        return user;
+    }
+
+    /**
+     * Создание токена восстановления пароля для пользователя
+     * @param username логин пользователя
+     * @return пользователь
+     */
+    private User createPasswordResetToken(String username) {
+        User user = userService.getByUsername(username);
+        log.info("Генерация токена восстановления пароля пользователю {}", user.getUsername());
+        String token = UUID.randomUUID().toString();
+        user.setResetPasswordToken(token);
+        user.setResetPasswordTokenExpiryDate(new Date(System.currentTimeMillis() + 3600 * 1000));  // 1 hour expiry
+        user = userService.save(user);
+        log.info("Удалось сгенерировать токен восстановления пароля пользователю {}", user.getUsername());
         return user;
     }
 }

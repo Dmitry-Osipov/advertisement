@@ -17,6 +17,7 @@ import rf.senla.domain.entity.Message;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.NoEntityException;
 import rf.senla.domain.repository.MessageRepository;
+import rf.senla.domain.service.IUserService;
 import rf.senla.domain.service.MessageService;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
@@ -30,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +43,8 @@ class MessageServiceTest {
     private List<Message> messages;
     @Mock
     private MessageRepository messageRepository;
+    @Mock
+    private IUserService userService;
     @InjectMocks
     private MessageService sut;
 
@@ -51,7 +55,7 @@ class MessageServiceTest {
                 .username("user123")
                 .password("$2a$10$.PSEN9QPfyvpoXh9RQzdy.Wlok/5KO.iwcNYQOe.mmVgdTAeOO0AW")
                 .phoneNumber("+7(123)456-78-90")
-                .rating(0)
+                .rating(0.0)
                 .email("storm-yes@yandex.ru")
                 .boosted(true)
                 .role(Role.ROLE_USER)
@@ -63,7 +67,7 @@ class MessageServiceTest {
                 .username("cool_guy")
                 .password("$2a$10$pT4a.wJbqJ9S8egWxAsQDuGoW2/JtO3/sFNqKRywS1my1HrVk.riq")
                 .phoneNumber("+7(456)789-01-23")
-                .rating(100)
+                .rating(100.0)
                 .email("john.doe@gmail.com")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -75,7 +79,7 @@ class MessageServiceTest {
                 .username("adventure_lover")
                 .password("$2a$10$vUso4/3dhelewojnFMwe3eEuuYbDjhB2w8DD7whkUNI68AEmozmVO")
                 .phoneNumber("+7(789)012-34-56")
-                .rating(200)
+                .rating(200.0)
                 .email("jane.smith@yahoo.com")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -87,7 +91,7 @@ class MessageServiceTest {
                 .username("soccer_fanatic")
                 .password("$2a$10$9FTmJyd2uuYAhCs8zS29IOFu7L1A3Sgtwm7y2zk40AuAyOX7jk9YC")
                 .phoneNumber("+7(234)567-89-01")
-                .rating(200)
+                .rating(200.0)
                 .email("alexander.wilson@hotmail.com")
                 .boosted(true)
                 .role(Role.ROLE_USER)
@@ -99,7 +103,7 @@ class MessageServiceTest {
                 .username("bookworm")
                 .password("$2a$10$7o45UjE92My4RzkKcp8PvOamK4PcbudQV3/Yb2F0C/3tfjG.46cDK")
                 .phoneNumber("+7(567)890-12-34")
-                .rating(300)
+                .rating(300.0)
                 .email("emily.jones@outlook.com")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -111,7 +115,7 @@ class MessageServiceTest {
                 .username("tech_guru")
                 .password("$2a$10$DCVbgoez.57rY4y24LWnL.IeUcbmf.QczNAkAaHFs00Jv0tvy/2Uq")
                 .phoneNumber("+7(890)123-45-67")
-                .rating(350)
+                .rating(350.0)
                 .email("david.brown@mail.ru")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -123,7 +127,7 @@ class MessageServiceTest {
                 .username("music_lover")
                 .password("$2a$10$rc70yvIMV6qt.uvtqgXY7eNUrlm7s9t0VVnmL10ZxQkSkChk3gr9q")
                 .phoneNumber("+7(345)678-90-12")
-                .rating(400)
+                .rating(400.0)
                 .email("sarah.wilson@icloud.com")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -135,7 +139,7 @@ class MessageServiceTest {
                 .username("travel_bug")
                 .password("$2a$10$Fy0RzoBw1LWvUu.G0SAoxOlDiVoLny4JcywrHCxxZZrRZyr5sMmxK")
                 .phoneNumber("+7(678)901-23-45")
-                .rating(500)
+                .rating(500.0)
                 .email("michael.johnson@aol.com")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -147,7 +151,7 @@ class MessageServiceTest {
                 .username("fitness_freak")
                 .password("$2a$10$J.nuQTavp.Q3J3X0ZtMutef1lsuZDA.icUtzpntSfh527ZCW1I3V.")
                 .phoneNumber("+7(901)234-56-78")
-                .rating(500)
+                .rating(500.0)
                 .email("laura.davis@yandex.ru")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -159,7 +163,7 @@ class MessageServiceTest {
                 .username("movie_buff")
                 .password("$2a$10$D5GA3XIYSPLuCg3kdhskSO3NrYToLWGGJo3CWIBXSMCINDfl2c5nC")
                 .phoneNumber("+7(432)109-87-65")
-                .rating(500)
+                .rating(500.0)
                 .email("james.miller@protonmail.com")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -171,7 +175,7 @@ class MessageServiceTest {
                 .username("gaming_pro")
                 .password("$2a$10$VeQVo/2UEOlQ3BO0zv6gJuUKY/Eeq8xSXg0mpMvNvfTTHWctXeE62")
                 .phoneNumber("+7(210)987-65-43")
-                .rating(0)
+                .rating(0.0)
                 .email("olivia.taylor@live.com")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -183,7 +187,7 @@ class MessageServiceTest {
                 .username("art_enthusiast")
                 .password("$2a$10$xWKGPXDUuxxnpTI8EkAZeeKubMAyjAxWQQKz.CtNlOrvph3FKoJoW")
                 .phoneNumber("+7(098)765-43-21")
-                .rating(0)
+                .rating(0.0)
                 .email("william.anderson@inbox.lv")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -195,7 +199,7 @@ class MessageServiceTest {
                 .username("nature_lover")
                 .password("$2a$10$TRq3w57OEgUfuZLXSYCRS..9LmukEPmrRVHv9QIed.b850ky/cIJy")
                 .phoneNumber("+7(876)543-21-09")
-                .rating(0)
+                .rating(0.0)
                 .email("sophia.thomas@bk.ru")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -207,7 +211,7 @@ class MessageServiceTest {
                 .username("foodie")
                 .password("$2a$10$TjJmASFFMmKK1iVgAwZaDel8TgWEurRYL.8jTs4ECE9FPaW13TbXG")
                 .phoneNumber("+7(953)180-00-61")
-                .rating(0)
+                .rating(0.0)
                 .email("jacob.moore@rambler.ru")
                 .boosted(false)
                 .role(Role.ROLE_USER)
@@ -219,7 +223,7 @@ class MessageServiceTest {
                 .username("admin")
                 .password("$2a$10$/v7NnuEmQ8wvQg6oK.RFkeX1fPF25xzQIFYSz2M7BTVLkbi1RExYe")
                 .phoneNumber("+7(902)902-98-11")
-                .rating(0)
+                .rating(0.0)
                 .email("dimaosipov00@gmail.com")
                 .boosted(false)
                 .role(Role.ROLE_ADMIN)
@@ -439,17 +443,17 @@ class MessageServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user123")
     void getAllBetweenUsersDoesNotThrowException() {
-        User user = users.getFirst();
-        List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        User sender = users.getFirst();
+        User recipient = users.getLast();
         when(messageRepository.findMessagesBetweenUsers(anyLong(), anyLong(), any())).thenReturn(messages);
+        when(userService.getByUsername(sender.getUsername())).thenReturn(sender);
+        when(userService.getByUsername(recipient.getUsername())).thenReturn(recipient);
 
-        assertDoesNotThrow(() -> sut.getAll(users.getLast(), 0, 1));
+        assertDoesNotThrow(() -> sut.getAll(sender, recipient.getUsername(), 0, 1));
 
         verify(messageRepository, times(1)).findMessagesBetweenUsers(anyLong(), anyLong(), any());
+        verify(userService, times(2)).getByUsername(anyString());
     }
 
     @Test

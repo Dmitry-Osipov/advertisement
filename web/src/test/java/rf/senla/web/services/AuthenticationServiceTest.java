@@ -125,7 +125,7 @@ class AuthenticationServiceTest {
                 .username("user123")
                 .password("$2a$10$.PSEN9QPfyvpoXh9RQzdy.Wlok/5KO.iwcNYQOe.mmVgdTAeOO0AW")
                 .phoneNumber("+7(123)456-78-90")
-                .rating(0)
+                .rating(0.0)
                 .email("storm-yes@yandex.ru")
                 .boosted(true)
                 .role(Role.ROLE_USER)
@@ -137,8 +137,9 @@ class AuthenticationServiceTest {
         expected.setResetPasswordTokenExpiryDate(new Date(System.currentTimeMillis() + 3600 * 1000));
         when(userService.save(any())).thenReturn(expected);
 
-        assertDoesNotThrow(() -> sut.createPasswordResetToken(expected));
+        assertDoesNotThrow(() -> sut.sendResetPasswordEmail(expected.getEmail(), expected.getUsername()));
 
+        // TODO: обновить тест
         verify(userService, times(1)).save(any());
     }
 
@@ -149,7 +150,7 @@ class AuthenticationServiceTest {
                 .username("user123")
                 .password("$2a$10$.PSEN9QPfyvpoXh9RQzdy.Wlok/5KO.iwcNYQOe.mmVgdTAeOO0AW")
                 .phoneNumber("+7(123)456-78-90")
-                .rating(0)
+                .rating(0.0)
                 .email("storm-yes@yandex.ru")
                 .boosted(true)
                 .role(Role.ROLE_USER)
@@ -183,7 +184,7 @@ class AuthenticationServiceTest {
                 .username("user123")
                 .password("$2a$10$.PSEN9QPfyvpoXh9RQzdy.Wlok/5KO.iwcNYQOe.mmVgdTAeOO0AW")
                 .phoneNumber("+7(123)456-78-90")
-                .rating(0)
+                .rating(0.0)
                 .email("storm-yes@yandex.ru")
                 .boosted(true)
                 .role(Role.ROLE_USER)
@@ -192,7 +193,7 @@ class AuthenticationServiceTest {
                 .build();
         when(userService.save(any())).thenReturn(expected);
 
-        assertDoesNotThrow(() -> sut.updatePassword(expected, "password123"));
+        assertDoesNotThrow(() -> sut.updatePassword(expected.getResetPasswordToken(), "password123"));
 
         verify(userService, times(1)).save(any());
         verify(passwordEncoder, times(1)).encode(anyString());

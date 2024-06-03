@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rf.senla.domain.entity.Message;
@@ -25,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageService implements IMessageService {
     private final MessageRepository repository;
+    private final IUserService userService;
 
     @Transactional
     @Override
@@ -70,6 +72,7 @@ public class MessageService implements IMessageService {
         log.info("Удалось удалить сообщение {}", entity);
     }
 
+    // TODO: remove
     @Transactional(readOnly = true)
     @Override
     public List<Message> getAll() {
@@ -83,16 +86,18 @@ public class MessageService implements IMessageService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Message> getAll(User user, Integer page, Integer size) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public List<Message> getAll(UserDetails sender, String recipientName, Integer page, Integer size) {
+        User user = (User) sender;
+        User recipient = userService.getByUsername(recipientName);
         log.info("Получение списка сообщений между пользователями {} и {}, с номером страницы {}, " +
-                "с размером страницы {}", currentUser, user, page, size);
+                "с размером страницы {}", user, recipient, page, size);
         List<Message> list =
-                repository.findMessagesBetweenUsers(currentUser.getId(), user.getId(), getPageable(page, size));
+                repository.findMessagesBetweenUsers(user.getId(), recipient.getId(), getPageable(page, size));
         successfullyListLog(list);
         return list;
     }
 
+    // TODO: remove
     /**
      * Служебный метод формирует пагинацию по времени.
      * @param page порядковый номер страницы

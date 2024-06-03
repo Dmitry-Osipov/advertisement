@@ -1,4 +1,4 @@
-package rf.senla.domain.dto;
+package rf.senla.web.exception;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -21,8 +21,10 @@ import java.time.LocalDateTime;
 public class ErrorDto {
     @Schema(description = "Сообщение об ошибке", example = "Access Denied")
     private String message;
+
     @Schema(description = "URI ошибки", example = "uri=/api/users/My_Inc0rrect-user")
     private String description;
+
     @Schema(description = "Время отчёта об ошибке", example = "2024-05-21T17:13:28.410277843")
     private LocalDateTime time;
 }

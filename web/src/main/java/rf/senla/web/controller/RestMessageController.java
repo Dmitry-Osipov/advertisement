@@ -10,11 +10,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.MessageDto;
 import rf.senla.domain.service.IMessageService;
 import rf.senla.web.utils.DtoConverter;
-import rf.senla.domain.service.IUserService;
 
 import java.util.List;
 
@@ -41,30 +40,7 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/messages")
 public class RestMessageController {
     private final IMessageService service;
-    private final IUserService userService;
     private final DtoConverter converter;
-
-    /**
-     * Получает список последних 10 сообщений.
-     * @return {@link ResponseEntity} со списком всех сообщений в формате {@link MessageDto}.
-     */
-    @GetMapping
-    @Operation(summary = "Получить список последних 10 сообщений")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisementId\": 1,\"senderName\": " +
-                                    "\"John Doe\",\"recipientName\": \"Laura Davis\",\"text\": \"Hello!\"," +
-                                    "\"sentAt\": \"2024-05-09T14:55:46.765819\",\"read\": true}, {\"id\": 2," +
-                                    "\"advertisementId\": 2,\"senderName\": \"Laura Davis\",\"recipientName\": " +
-                                    "\"John Doe\",\"text\": \"Hi there!\",\"sentAt\": \"2024-05-10T10:20:30.123456\"," +
-                                    "\"read\": false} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
-    })
-    public ResponseEntity<List<MessageDto>> getAllMessages() {
-        return ResponseEntity.ok(converter.getListMessageDto(service.getAll()));
-    }
 
     /**
      * Получает переписку между текущим пользователем и пользователем с указанным именем.
@@ -74,7 +50,7 @@ public class RestMessageController {
      * @return {@link ResponseEntity} со списком сообщений в формате {@link MessageDto} между текущим пользователем и
      * пользователем с указанным именем.
      */
-    @GetMapping("/search")  // TODO: перенести функционал в метод выше
+    @GetMapping
     @Operation(summary = "Получить переписку с пользователем с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -91,12 +67,15 @@ public class RestMessageController {
     public ResponseEntity<List<MessageDto>> getUserCorrespondence(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "username") String username,
+            // TODO: Pageable
             @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
-            @RequestParam(value = "page", required = false) @Min(0) @Max(2) Integer page,  // TODO: внедрить такую фильтрацию везде
+            @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
-            @RequestParam(value = "size", required = false) Integer size) {
+            @RequestParam(value = "size", required = false) Integer size,
+            @AuthenticationPrincipal UserDetails sender) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getListMessageDto(
-                service.getAll(userService.getByUsername(username), page, size)));
+                service.getAll(sender, username, page, size)));
     }
 
     /**
@@ -120,6 +99,7 @@ public class RestMessageController {
             @Parameter(description = "Данные сообщения", required = true,
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromMessage(service.save(converter.getMessageFromDto(dto))));
     }
 
@@ -144,6 +124,7 @@ public class RestMessageController {
             @Parameter(description = "Данные сообщения", required = true,
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromMessage(service.update(converter.getMessageFromDto(dto))));
     }
 
@@ -163,6 +144,7 @@ public class RestMessageController {
             @Parameter(description = "Данные сообщения", required = true,
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
+        // TODO: MapStruct
         service.delete(converter.getMessageFromDto(dto));
         return ResponseEntity.ok("Deleted message with text: " + dto.getText());
     }

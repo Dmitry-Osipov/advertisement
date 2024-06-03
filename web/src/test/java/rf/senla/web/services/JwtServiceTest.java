@@ -33,7 +33,7 @@ class JwtServiceTest {
                 .username("user123")
                 .password("$2a$10$.PSEN9QPfyvpoXh9RQzdy.Wlok/5KO.iwcNYQOe.mmVgdTAeOO0AW")
                 .phoneNumber("+7(123)456-78-90")
-                .rating(0)
+                .rating(0.0)
                 .email("storm-yes@yandex.ru")
                 .boosted(true)
                 .role(Role.ROLE_USER)

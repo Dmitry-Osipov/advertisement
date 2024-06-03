@@ -1,7 +1,7 @@
 package rf.senla.domain.service;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import rf.senla.domain.entity.Message;
-import rf.senla.domain.entity.User;
 
 import java.util.List;
 
@@ -11,10 +11,11 @@ import java.util.List;
 public interface IMessageService extends IService<Message> {
     /**
      * Получить все сообщения от или к конкретному пользователю с пагинацией.
-     * @param user пользователь
+     * @param sender отправитель
+     * @param recipientName логин получателя
      * @param page порядковый номер страницы
      * @param size размер страницы
      * @return список сообщений
      */
-    List<Message> getAll(User user, Integer page, Integer size);
+    List<Message> getAll(UserDetails sender, String recipientName, Integer page, Integer size);
 }

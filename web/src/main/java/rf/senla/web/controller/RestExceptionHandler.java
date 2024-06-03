@@ -9,10 +9,9 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import rf.senla.domain.dto.ErrorDto;
+import rf.senla.web.exception.ErrorDto;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.ErrorMessage;
 import rf.senla.domain.exception.NoEntityException;
@@ -26,7 +25,7 @@ import java.time.LocalDateTime;
  * Контроллер обработки ошибок
  */
 @Slf4j
-@RestControllerAdvice
+//@RestControllerAdvice  // TODO: вернуть после всех тестов
 public class RestExceptionHandler {
     /**
      * Метод возвращает информацию об ошибке типа {@link NoEntityException} или {@link UsernameNotFoundException}

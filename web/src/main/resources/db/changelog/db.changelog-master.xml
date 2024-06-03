@@ -11,5 +11,8 @@
     <include file="/db/changelog/006_grant_all_privileges_to_advertisement_user.sql"/>
     <include file="/db/changelog/007_filling_tables.sql"/>
     <include file="/db/changelog/008_add_password_reset_token_to_users.sql"/>
+    <include file="/db/changelog/009_create_ratings_table.sql"/>
+    <include file="/db/changelog/010_alter_rating_column_type_to_double.sql"/>
+    <include file="/db/changelog/011_update_test_data_with_rating.sql"/>
 
 </databaseChangeLog>

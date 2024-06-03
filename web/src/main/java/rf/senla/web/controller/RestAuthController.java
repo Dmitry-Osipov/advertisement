@@ -19,12 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.JwtAuthenticationResponse;
+import rf.senla.domain.dto.ResetPasswordRequest;
 import rf.senla.domain.dto.SignInRequest;
 import rf.senla.domain.dto.SignUpRequest;
-import rf.senla.domain.entity.User;
 import rf.senla.domain.service.IAuthenticationService;
-import rf.senla.domain.service.IEmailService;
-import rf.senla.domain.service.IUserService;
 
 /**
  * Контроллер для обработки запросов аутентификации через REST API.
@@ -36,8 +34,6 @@ import rf.senla.domain.service.IUserService;
 @RequestMapping("${spring.data.rest.base-path}/auth")
 public class RestAuthController {
     private final IAuthenticationService authenticationService;
-    private final IUserService userService;
-    private final IEmailService emailService;
 
     /**
      * Метод для регистрации нового пользователя.
@@ -101,17 +97,14 @@ public class RestAuthController {
             @Parameter(description = "Адрес электронной почты", example = "jondoe@gmail.com",
                     required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "email") String email) {
-        // TODO: засунуть всю логику в один сервис
-        User user = userService.getByUsername(username);
-        authenticationService.createPasswordResetToken(user);
-        emailService.sendResetPasswordEmail(email, user.getResetPasswordToken());
+        authenticationService.sendResetPasswordEmail(email, username);
         return ResponseEntity.ok("Reset password email has been sent");
     }
 
     /**
      * Метод обновления пароля пользователю
      * @param token токен, высланный на почту
-     * @param password новый пароль
+     * @param request новый пароль
      * @return сообщение об успешном выполнении операции
      */
     @PostMapping("/reset-password")
@@ -121,15 +114,13 @@ public class RestAuthController {
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<String> resetPassword(
-            @Parameter(description = "Токен восстановления пароля",
-                    example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...",
-                    required = true, in = ParameterIn.QUERY)
+            @Parameter(description = "Токен восстановления пароля", required = true, in = ParameterIn.QUERY,
+                    example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...")
             @RequestParam(value = "token") String token,
-            @Parameter(description = "Пароль", example = "MY-NEW-SUPER?S3cre1_passw0rD!",
-                    required = true, in = ParameterIn.QUERY)  // TODO: передавать @RequestBody
-            @RequestParam(value = "password") String password) {
-        // TODO: передавать jwt-токен
-        authenticationService.updatePassword(authenticationService.getByResetPasswordToken(token), password);
+            @Parameter(description = "Новый пароль", required = true,
+                    content = @Content(schema = @Schema(implementation = ResetPasswordRequest.class)))
+            @RequestBody @Valid ResetPasswordRequest request) {
+        authenticationService.updatePassword(token, request.getPassword());
         return ResponseEntity.ok("Password has been reset");
     }
 }

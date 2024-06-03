@@ -10,13 +10,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,30 +66,8 @@ public class RestUserController {
     public ResponseEntity<UserDto> getUserByUsername(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
             @PathVariable String username) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromUser(service.getByUsername(username)));
-    }
-
-    /**
-     * Получить 10 топовых пользователей.
-     * @return ответ со списком пользователей
-     */
-    @GetMapping
-    @Operation(summary = "Получить 10 топовых пользователей")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"username\": \"John Doe\"," +
-                                    "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
-                                    "\"rating\": 100,\"email\": \"johndoe@gmail.com\",\"boosted\": true," +
-                                    "\"role\": \"ROLE_USER\"}, {\"id\": 2,\"username\": \"Jane Smith\"," +
-                                    "\"password\": \"another_secret_password\",\"phoneNumber\": \"+7(888)888-88-88\"," +
-                                    "\"rating\": 200,\"email\": \"janesmith@gmail.com\",\"boosted\": false," +
-                                    "\"role\": \"ROLE_ADMIN\"} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
-    })
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return ResponseEntity.ok(converter.getListDto(service.getAll()));
     }
 
     /**
@@ -93,7 +76,7 @@ public class RestUserController {
      * @param size Размер страницы.
      * @return ответ со списком пользователей
      */
-    @GetMapping("/search")  // TODO: перенести функционал в метод выше
+    @GetMapping
     @Operation(summary = "Получить список пользователей с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -109,10 +92,12 @@ public class RestUserController {
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<UserDto>> getUsersBySearch(
+            // TODO: Pageable
             @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
             @RequestParam(value = "page", required = false) Integer page,
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getListDto(service.getAll(page, size)));
     }
 
@@ -138,6 +123,7 @@ public class RestUserController {
             @Parameter(description = "Данные пользователя", required = true,
                     content = @Content(schema = @Schema(implementation = UserDto.class)))
             @RequestBody @Valid UserDto dto) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromUser(service.update(converter.getUserFromDto(dto))));
     }
 
@@ -157,6 +143,7 @@ public class RestUserController {
             @Parameter(description = "Данные пользователя", required = true,
                     content = @Content(schema = @Schema(implementation = UserDto.class)))
             @RequestBody @Valid UserDto dto) {
+        // TODO: MapStruct
         service.delete(converter.getUserFromDto(dto));
         return ResponseEntity.ok("Deleted user with username: " + dto.getUsername());
     }
@@ -183,6 +170,7 @@ public class RestUserController {
             @Parameter(description = "Данные смены пароля", required = true,
                     content = @Content(schema = @Schema(implementation = ChangePasswordRequest.class)))
             @RequestBody @Valid ChangePasswordRequest request) {
+        // TODO: MapStruct
         return ResponseEntity.ok(converter.getDtoFromUser(service.updatePassword(
                 request.getUsername(), request.getOldPassword(), request.getNewPassword())));
     }
@@ -216,7 +204,18 @@ public class RestUserController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<String> setBoosted() {
-        return ResponseEntity.ok("User " + service.setBoosted().getUsername() + " has received a boost");
+    public ResponseEntity<String> setBoosted(@AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok("User " + service.setBoosted(user).getUsername() + " has received a boost");
+    }
+
+    // TODO: java and swagger docs
+    @PostMapping("/rating")
+    public ResponseEntity<UserDto> addEvaluation(
+            @RequestParam(value = "username") String username,
+            @RequestParam(value = "rating") @Min(1) @Max(5) Integer rating,
+            @AuthenticationPrincipal UserDetails sender) {
+        // TODO: MapStruct
+        return ResponseEntity.ok(converter.getDtoFromUser(
+                service.addEvaluation(sender, username, rating)));
     }
 }
