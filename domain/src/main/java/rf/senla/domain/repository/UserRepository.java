@@ -14,6 +14,17 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     /**
+     * Сохранение пользователя без обновления его пароля, токена восстановления пароля и времени отправления токена
+     * восстановления пароля
+     * @param user пользователь
+     */
+    @Modifying
+    @Query("UPDATE User u SET u.username = :#{#user.username}, u.phoneNumber = :#{#user.phoneNumber}, " +
+            "u.email = :#{#user.email}, u.rating = :#{#user.rating}, u.boosted = :#{#user.boosted}, " +
+            "u.role = :#{#user.role} WHERE u.id = :#{#user.id}")
+    void saveWithoutPassword(User user);
+
+    /**
      * Найти пользователя по его имени пользователя.
      * @param username имя пользователя
      * @return объект Optional, содержащий пользователя, если найден, иначе пустой Optional
@@ -38,8 +49,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Удалить пользователя по его имени пользователя.
      * @param username имя пользователя
      */
-    @Modifying
-    @Query("DELETE FROM User u WHERE u.username = :username")
     void deleteByUsername(String username);
 
     /**

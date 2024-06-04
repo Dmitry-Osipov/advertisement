@@ -3,9 +3,8 @@ package rf.senla.domain.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,11 +12,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import rf.senla.domain.dto.UserDto;
 import rf.senla.domain.entity.Rating;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.domain.exception.ErrorMessage;
+import rf.senla.domain.exception.NoEntityException;
+import rf.senla.domain.repository.AdvertisementRepository;
+import rf.senla.domain.repository.CommentRepository;
+import rf.senla.domain.repository.MessageRepository;
 import rf.senla.domain.repository.RatingRepository;
 import rf.senla.domain.repository.UserRepository;
 
@@ -34,9 +38,13 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserRepository repository;
     private final RatingRepository ratingRepository;
+    private final MessageRepository messageRepository;
+    private final CommentRepository commentRepository;
+    private final AdvertisementRepository advertisementRepository;
+    private final ApplicationContext context;
 
-    @Transactional
     @Override
+    @Transactional
     public User save(User entity) {
         log.info("Сохранение пользователя {}", entity);
         User user = repository.save(entity);
@@ -44,57 +52,48 @@ public class UserService implements IUserService {
         return user;
     }
 
-    @Transactional
     @Override
-    public User update(User entity) {
-        log.info("Обновление пользователя {}", entity);
-
-        if (!repository.existsByUsername(entity.getUsername())) {
-            log.error("Не найден пользователь {}", entity);
-            throw new UsernameNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage());
-        }
-
-        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
-        entity.setRating(getRating(entity));
-        User user = save(entity);
+    @Transactional
+    public User update(UserDto dto) {
+        log.info("Обновление пользователя по его dto {}", dto);
+        User user = repository.findById(dto.getId())
+                .orElseThrow(() -> new NoEntityException(ErrorMessage.USER_NOT_FOUND.getMessage()));
+        user.setUsername(dto.getUsername());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        user.setEmail(dto.getEmail());
+        user.setBoosted(dto.getBoosted());
+        user.setRole(dto.getRole());
+        user.setRating(getRating(user));
+        saveWithoutPassword(user);
         log.info("Пользователь успешно обновлён {}", user);
         return user;
     }
 
-    @Transactional
     @Override
-    public void delete(User entity) {
-        log.info("Удаление пользователя {}", entity);
-        String username = entity.getUsername();
-        if (!repository.existsByUsername(username)) {
-            throw new UsernameNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage());
-        }
-
-        repository.deleteByUsername(username);
-        log.info("Пользователь {} удалён успешно", entity);
+    public void deleteByUsername(String username) {
+        UserService service = context.getBean(UserService.class);
+        User user = service.getByUsername(username);
+        log.info("Начало процесса удаления пользователя {}", user);
+        Long id = user.getId();
+        service.deleteMessagesByUserId(id);
+        service.deleteCommentsByUserId(id);
+        service.deleteAdvertisementsByUserId(id);
+        service.deleteRatingsByUserId(id);
+        service.delete(username);
+        log.info("Процесс удаления пользователя {} завершён успешно", user);
     }
 
-    // TODO: remove
-    @Transactional
     @Override
-    public List<User> getAll() {
-        log.info("Получение списка 10 топовых пользователей");
-        List<User> list = correctRating(repository.findAll(getPageable(0, 10)).getContent());
-        successfullyListLog(list);
+    @Transactional
+    public List<User> getAll(Pageable pageable) {
+        log.info("Получение списка пользователей с пагинацией {}", pageable);
+        List<User> list = correctRating(repository.findAll(pageable).getContent());
+        log.info("Получен список из {} объявлений: {}", list.size(), list);
         return list;
     }
 
-    @Transactional
     @Override
-    public List<User> getAll(Integer page, Integer size) {
-        log.info("Получение списка пользователей с номером страницы {} и размером страницы {}", page, size);
-        List<User> list = correctRating(repository.findAll(getPageable(page, size)).getContent());
-        successfullyListLog(list);
-        return list;
-    }
-
     @Transactional
-    @Override
     public User getByUsername(String username) {
         try {
             log.info("Получение пользователя по логину {}", username);
@@ -110,8 +109,8 @@ public class UserService implements IUserService {
         }
     }
 
-    @Transactional
     @Override
+    @Transactional
     public User updatePassword(String username, String oldPassword, String newPassword) {
         log.info("Обновление пароля для пользователя {}", username);
         User user = getByUsername(username);
@@ -127,8 +126,8 @@ public class UserService implements IUserService {
         return entity;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void setAdminRole(String username) {
         log.info("Установление роли админа для пользователя {}", username);
         User user = getByUsername(username);
@@ -137,8 +136,8 @@ public class UserService implements IUserService {
         log.info("Удалось установить роль админа для пользователя {}", username);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void create(User user) {
         log.info("Создание нового пользователя {}", user.getUsername());
         if (repository.existsByUsername(user.getUsername())) {
@@ -155,15 +154,15 @@ public class UserService implements IUserService {
         log.info("Удалось создать нового пользователя {}", user.getUsername());
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public UserDetailsService userDetailsService() {
         log.info("Вызов метода userDetailsService");
         return this::getByUsername;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public User setBoosted(UserDetails userDetails) {
         User user = (User) userDetails;
         log.info("Установка продвижения для пользователя {}", user);
@@ -173,8 +172,8 @@ public class UserService implements IUserService {
         return user;
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public User getByResetPasswordToken(String token) {
         try {
             log.info("Получение пользователя по токену восстановления пароля {}", token);
@@ -188,8 +187,8 @@ public class UserService implements IUserService {
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public Double getUserRating(User user) {
         log.error("Получение рейтинга для пользователя {}", user);
         Double rating = ratingRepository.findByAverageRatingByRecipient(user);
@@ -201,8 +200,8 @@ public class UserService implements IUserService {
         return rating;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public User addEvaluation(UserDetails sender, String username, Integer evaluation) {
         User currentUser = getByUsername(sender.getUsername());
         User recipient = getByUsername(username);
@@ -221,8 +220,67 @@ public class UserService implements IUserService {
         ratingRepository.save(rating);
         recipient.setRating(getUserRating(recipient));
 
+        saveWithoutPassword(recipient);
         log.info("Пользователю {} удалось поставить оценку {} для пользователя {}", currentUser, evaluation, recipient);
-        return update(recipient);
+        return recipient;
+    }
+
+    /**
+     * Метод удаляет сообщения, в которых пользователь был отправителем или получателем
+     * @param id ID пользователя
+     */
+    @Transactional
+    public void deleteMessagesByUserId(Long id) {
+        log.info("Удаление сообщений, в которых получатель или отправитель пользователь с ID {}", id);
+        messageRepository.deleteBySender_IdOrRecipient_Id(id, id);
+        log.info("Успешно удалены сообщения, в которых получатель или отправитель пользователь с ID {}", id);
+    }
+
+    /**
+     * Метод удаляет комментарии пользователя и комментарии к объявлениям, которыми владел пользователь
+     * @param id ID пользователя
+     */
+    @Transactional
+    public void deleteCommentsByUserId(Long id) {
+        log.info("Удаление комментариев пользователя с ID {}", id);
+        commentRepository.deleteByUser_Id(id);
+        log.info("Успешно удалены комментарии пользователя с ID {}", id);
+        log.info("Удаление комментариев к объявлениям, у которых пользователь имеет ID {}", id);
+        commentRepository.deleteByAdvertisement_User_Id(id);
+        log.info("Успешно удалены комментарии к объявлениям, у которых пользователь имеет ID {}", id);
+    }
+
+    /**
+     * Метод удаляет объявления пользователя
+     * @param id ID пользователя
+     */
+    @Transactional
+    public void deleteAdvertisementsByUserId(Long id) {
+        log.info("Удаление объявлений пользователя с ID {}", id);
+        advertisementRepository.deleteByUser_Id(id);
+        log.info("Успешно удалены объявления пользователя с ID {}", id);
+    }
+
+    /**
+     * Метод удаляет рейтинги, в которых пользователь был отправителем или получателем
+     * @param id ID пользователя
+     */
+    @Transactional
+    public void deleteRatingsByUserId(Long id) {
+        log.info("Удаление рейтингов пользователя с ID {}", id);
+        ratingRepository.deleteBySender_IdOrRecipient_Id(id, id);
+        log.info("Успешно удалены рейтинги пользователя с ID {}", id);
+    }
+
+    /**
+     * Метод удаляет пользователя по его логину
+     * @param username логин пользователя
+     */
+    @Transactional
+    public void delete(String username) {
+        log.info("Удаление пользователя {}", username);
+        repository.deleteByUsername(username);
+        log.info("Пользователь {} удалён успешно", username);
     }
 
     /**
@@ -259,33 +317,13 @@ public class UserService implements IUserService {
         return rating;
     }
 
-    // TODO: remove
     /**
-     * Служебный метод возвращает пагинацию топовых пользователей.
-     * @param page Порядковый номер страницы.
-     * @param size Размер страницы.
-     * @return Пагинация
+     * Служебный метод сохраняет пользователя без обновления пароля
+     * @param user пользователь
      */
-    private Pageable getPageable(Integer page, Integer size) {
-        log.info("Вызван метод формирования пагинации для номера страницы - {} и размера страницы - {}", page, size);
-        if (page == null) {
-            page = 0;
-            log.info("Для номера страницы присвоено дефолтное значение - {}", page);
-        }
-
-        if (size == null) {
-            size = 10;
-            log.info("Для размера страницы присвоено дефолтное значение - {}", size);
-        }
-
-        return PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "boosted", "rating"));
-    }
-
-    /**
-     * Служебный метод логирует данные списка
-     * @param list список
-     */
-    private static void successfullyListLog(List<User> list) {
-        log.info("Получен список из {} объявлений: {}", list.size(), list);
+    private void saveWithoutPassword(User user) {
+        log.info("Происходит сохранение пользователя {} без обновления пароля", user);
+        repository.saveWithoutPassword(user);
+        log.info("Произошло сохранение пользователя {} без обновления пароля", user);
     }
 }

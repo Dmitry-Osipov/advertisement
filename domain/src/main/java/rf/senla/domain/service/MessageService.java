@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,18 +69,6 @@ public class MessageService implements IMessageService {
 
         repository.delete(entity);
         log.info("Удалось удалить сообщение {}", entity);
-    }
-
-    // TODO: remove
-    @Transactional(readOnly = true)
-    @Override
-    public List<Message> getAll() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("Получение списка сообщений от/для пользователя {}", user);
-        Pageable pageable = getPageable(0, 10);
-        List<Message> list = repository.findAllByUserId(user.getId(), pageable);
-        successfullyListLog(list);
-        return list;
     }
 
     @Transactional(readOnly = true)

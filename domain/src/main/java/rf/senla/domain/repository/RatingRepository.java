@@ -26,4 +26,11 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
      * @return {@code true}, если пара есть, иначе {@code false}
      */
     boolean existsBySenderAndRecipient(User sender, User recipient);
+
+    /**
+     * Удаление рейтингов по отправителю или получателю
+     * @param sender ID отправителя
+     * @param recipient ID получателя
+     */
+    void deleteBySender_IdOrRecipient_Id(Long sender, Long recipient);
 }

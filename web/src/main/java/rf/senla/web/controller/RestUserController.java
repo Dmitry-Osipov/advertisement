@@ -12,7 +12,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,12 +33,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.ChangePasswordRequest;
+import rf.senla.domain.dto.DeleteByUsernameRequest;
 import rf.senla.domain.dto.UserDto;
 import rf.senla.domain.service.IUserService;
-import rf.senla.web.utils.DtoConverter;
+import rf.senla.web.utils.UserMapper;
 
 import java.util.List;
 
+// TODO: swagger docs update description for user
 /**
  * Контроллер для обработки запросов пользователей через REST API.
  */
@@ -44,7 +51,7 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/users")
 public class RestUserController {
     private final IUserService service;
-    private final DtoConverter converter;
+    private final UserMapper mapper;
 
     /**
      * Получить пользователя по его имени пользователя (логину).
@@ -63,17 +70,15 @@ public class RestUserController {
                                     "\"role\": \"ROLE_USER\"}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<UserDto> getUserByUsername(
+    public ResponseEntity<UserDto> getByUsername(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
-            @PathVariable String username) {
-        // TODO: MapStruct
-        return ResponseEntity.ok(converter.getDtoFromUser(service.getByUsername(username)));
+            @PathVariable @NotBlank @Size(min = 5, max = 50) String username) {
+        return ResponseEntity.ok(mapper.toDto(service.getByUsername(username)));
     }
 
     /**
      * Получить список пользователей с пагинацией.
-     * @param page Порядковый номер страницы.
-     * @param size Размер страницы.
+     * @param pageable пагинация
      * @return ответ со списком пользователей
      */
     @GetMapping
@@ -91,14 +96,9 @@ public class RestUserController {
                                     "\"role\": \"ROLE_ADMIN\"} ]"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<List<UserDto>> getUsersBySearch(
-            // TODO: Pageable
-            @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
-            @RequestParam(value = "page", required = false) Integer page,
-            @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
-            @RequestParam(value = "size", required = false) Integer size) {
-        // TODO: MapStruct
-        return ResponseEntity.ok(converter.getListDto(service.getAll(page, size)));
+    public ResponseEntity<List<UserDto>> getAll(
+            @PageableDefault(sort = {"boosted", "rating"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(mapper.toDtos(service.getAll(pageable)));
     }
 
     /**
@@ -107,8 +107,8 @@ public class RestUserController {
      * @return ответ с обновленным пользователем
      */
     @PutMapping
-    @PreAuthorize("#dto.username == authentication.principal.username or hasRole('ADMIN')")
     @Operation(summary = "Обновить информацию о пользователе")
+    @PreAuthorize("#dto.username == authentication.principal.username or hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -119,33 +119,31 @@ public class RestUserController {
                                     "\"role\": \"ROLE_USER\"}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<UserDto> updateUser(
+    public ResponseEntity<UserDto> update(
             @Parameter(description = "Данные пользователя", required = true,
                     content = @Content(schema = @Schema(implementation = UserDto.class)))
             @RequestBody @Valid UserDto dto) {
-        // TODO: MapStruct
-        return ResponseEntity.ok(converter.getDtoFromUser(service.update(converter.getUserFromDto(dto))));
+        return ResponseEntity.ok(mapper.toDto(service.update(dto)));
     }
 
     /**
      * Удалить пользователя.
-     * @param dto данные пользователя
+     * @param request запрос с именем пользователя
      * @return ответ об успешном удалении
      */
     @DeleteMapping
-    @PreAuthorize("#dto.username == authentication.principal.username or hasRole('ADMIN')")
     @Operation(summary = "Удалить пользователя")
+    @PreAuthorize("#request.username == authentication.principal.username or hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<String> deleteUser(
+    public ResponseEntity<String> delete(
             @Parameter(description = "Данные пользователя", required = true,
                     content = @Content(schema = @Schema(implementation = UserDto.class)))
-            @RequestBody @Valid UserDto dto) {
-        // TODO: MapStruct
-        service.delete(converter.getUserFromDto(dto));
-        return ResponseEntity.ok("Deleted user with username: " + dto.getUsername());
+            @RequestBody @Valid DeleteByUsernameRequest request) {
+        service.deleteByUsername(request.getUsername());
+        return ResponseEntity.ok("Deleted user with username: " + request.getUsername());
     }
 
     /**
@@ -154,25 +152,18 @@ public class RestUserController {
      * @return обновлённый пользователь
      */
     @PutMapping("/password")
-    @PreAuthorize("#request.username == authentication.principal.username")
     @Operation(summary = "Метод обновления пароля у пользователя")
+    @PreAuthorize("#request.username == authentication.principal.username")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"username\": \"John Doe\"," +
-                                    "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
-                                    "\"rating\": 100,\"email\": \"jondoe@gmail.com\",\"boosted\": false," +
-                                    "\"role\": \"ROLE_USER\"}"))),
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<UserDto> updatePassword(
+    public ResponseEntity<String> updatePassword(
             @Parameter(description = "Данные смены пароля", required = true,
                     content = @Content(schema = @Schema(implementation = ChangePasswordRequest.class)))
             @RequestBody @Valid ChangePasswordRequest request) {
-        // TODO: MapStruct
-        return ResponseEntity.ok(converter.getDtoFromUser(service.updatePassword(
-                request.getUsername(), request.getOldPassword(), request.getNewPassword())));
+        service.updatePassword(request.getUsername(), request.getOldPassword(), request.getNewPassword());
+        return ResponseEntity.ok("Password updated successfully");
     }
 
     /**
@@ -180,8 +171,8 @@ public class RestUserController {
      * @param username логин пользователя
      * @return строку с сообщением об успешной установке роли администратора
      */
-    @PutMapping("${spring.data.rest.admin-path}/role-admin/{username}")
     @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("${spring.data.rest.admin-path}/role-admin/{username}")
     @Operation(summary = "Метод для установки роли администратора для пользователя")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
@@ -189,7 +180,7 @@ public class RestUserController {
     })
     public ResponseEntity<String> setRoleAdmin(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
-            @PathVariable String username) {
+            @PathVariable @NotBlank @Size(min = 5, max = 50) String username) {
         service.setAdminRole(username);
         return ResponseEntity.ok("The admin role is set to " + username);
     }
@@ -208,14 +199,31 @@ public class RestUserController {
         return ResponseEntity.ok("User " + service.setBoosted(user).getUsername() + " has received a boost");
     }
 
-    // TODO: java and swagger docs
+    /**
+     * Метод добавляет оценку пользователю
+     * @param username логин пользователя, которому требуется добавить оценку
+     * @param rating оценка пользователя
+     * @param sender отправитель оценки
+     * @return Обновлённый пользователь, которому поставили оценку
+     */
     @PostMapping("/rating")
+    @Operation(summary = "Добавить оценку пользователю")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDto.class),
+                            examples = @ExampleObject(value = "{\"id\": 1,\"username\": \"John Doe\"," +
+                                    "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
+                                    "\"rating\": 300,\"email\": \"jondoe@gmail.com\",\"boosted\": false," +
+                                    "\"role\": \"ROLE_USER\"}"))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    })
     public ResponseEntity<UserDto> addEvaluation(
-            @RequestParam(value = "username") String username,
+            @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
+            @RequestParam(value = "username") @NotBlank @Size(min = 5, max = 50) String username,
+            @Parameter(description = "Рейтинг пользователя", example = "4", required = true, in = ParameterIn.PATH)
             @RequestParam(value = "rating") @Min(1) @Max(5) Integer rating,
             @AuthenticationPrincipal UserDetails sender) {
-        // TODO: MapStruct
-        return ResponseEntity.ok(converter.getDtoFromUser(
-                service.addEvaluation(sender, username, rating)));
+        return ResponseEntity.ok(mapper.toDto(service.addEvaluation(sender, username, rating)));
     }
 }

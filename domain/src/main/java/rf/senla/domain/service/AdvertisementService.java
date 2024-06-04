@@ -25,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdvertisementService implements IAdvertisementService {
     private final AdvertisementRepository repository;
-    private final IUserService userService;
+    private final UserService userService;
 
     @Transactional
     @Override
@@ -36,6 +36,7 @@ public class AdvertisementService implements IAdvertisementService {
             throw new EntityContainedException(ErrorMessage.ADVERTISEMENT_ALREADY_EXISTS.getMessage());
         }
 
+        entity.setUser(userService.getByUsername(entity.getUser().getUsername()));
         Advertisement advertisement = repository.save(entity);
         log.info("Удалось сохранить объявление {}", advertisement);
         return advertisement;
@@ -68,13 +69,11 @@ public class AdvertisementService implements IAdvertisementService {
         log.info("Удалось удалить объявление {}", entity);
     }
 
-    // TODO: remove
     @Transactional(readOnly = true)
     @Override
-    public List<Advertisement> getAll() {
+    public List<Advertisement> getAll(Pageable  pageable) {
         log.info("Получение списка объявлений");
-        List<Advertisement> list = repository.findAllInOrderByUserRating(
-                getPageable("rating", 0, 10));
+        List<Advertisement> list = repository.findAllInOrderByUserRating(pageable);
         successfullyListLog(list);
         return list;
     }

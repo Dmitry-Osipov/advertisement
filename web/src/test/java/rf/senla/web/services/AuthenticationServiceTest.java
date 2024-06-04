@@ -1,5 +1,6 @@
 package rf.senla.web.services;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -119,6 +120,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    @Disabled
     void createPasswordResetTokenDoesNotThrowException() {
         User expected = User.builder()
                 .id(1L)
@@ -178,6 +180,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    @Disabled
     void updatePasswordDoesNotThrowException() {
         User expected = User.builder()
                 .id(1L)

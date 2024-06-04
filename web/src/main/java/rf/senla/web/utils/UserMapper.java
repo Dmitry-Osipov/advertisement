@@ -1,0 +1,16 @@
+package rf.senla.web.utils;
+
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import rf.senla.domain.dto.UserDto;
+import rf.senla.domain.entity.User;
+
+import java.util.List;
+
+// TODO: javadoc
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+public interface UserMapper {
+    UserDto toDto(User user);
+    User toEntity(UserDto dto);
+    List<UserDto> toDtos(List<User> users);
+}

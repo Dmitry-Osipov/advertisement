@@ -4,7 +4,25 @@ import rf.senla.domain.entity.Comment;
 
 import java.util.List;
 
-public interface ICommentService extends IService<Comment> {
+public interface ICommentService {
+    /**
+     * Сохранение комментария
+     * @param comment комментарий
+     * @return сохранённый комментарий
+     */
+    Comment save(Comment comment);
+
+    /** Обновление комментария
+     * @param comment сущность
+     * @return обновлённый комментарий
+     */
+    Comment update(Comment comment);
+
+    /** Удаление комментария
+     * @param comment комментарий
+     */
+    void delete(Comment comment);
+
     /**
      * Получение всех комментариев объявления с пагинацией.
      * @param advertisementId ID объявления

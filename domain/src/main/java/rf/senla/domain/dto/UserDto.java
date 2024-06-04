@@ -32,11 +32,6 @@ public class UserDto {
     @NotBlank(message = "Имя пользователя не может быть пустым")
     private String username;
 
-    @Schema(description = "Пароль", example = "my_1secret1_password")
-    @Size(min = 8, max = 255, message = "Длина пароля должна быть от 8 до 255 символов")
-    @NotBlank(message = "Пароль не может быть пустыми")
-    private String password;
-
     @Schema(description = "Номер телефона", example = "+7(777)777-77-77")
     @Pattern(regexp = "\\+7\\(\\d{3}\\)\\d{3}-\\d{2}-\\d{2}", message = "Please use pattern +7(XXX)XXX-XX-XX")
     private String phoneNumber;

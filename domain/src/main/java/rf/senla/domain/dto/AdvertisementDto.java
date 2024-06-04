@@ -2,6 +2,7 @@ package rf.senla.domain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -23,10 +24,9 @@ public class AdvertisementDto {
     @Schema(description = "ID объявления", example = "1")
     private Long id;
 
-    @Schema(description = "Имя пользователя", example = "John Doe")
-    @Size(min = 5, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")
-    @NotBlank(message = "Имя пользователя не может быть пустым")
-    private String userName;
+    @Schema(description = "DTO пользователя")
+    @NotNull
+    private UserDto user;
 
     @Schema(description = "Стоимость", example = "2000")
     @PositiveOrZero(message = "Цена не может быть отрицательной")

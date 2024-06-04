@@ -2,6 +2,7 @@ package rf.senla.domain.repository;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -71,4 +72,10 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
      */
     @Query("SELECT a FROM Advertisement a WHERE a.user = :user AND a.status = 'ACTIVE'")
     List<Advertisement> findByUserInOrder(@Param("user") User user, Pageable pageable);
+
+    /**
+     * Удаление объявления по владельцу
+     * @param id ID пользователя
+     */
+    void deleteByUser_Id(Long id);
 }

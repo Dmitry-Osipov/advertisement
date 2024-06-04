@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rf.senla.domain.entity.Advertisement;
 import rf.senla.domain.entity.Comment;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.ErrorMessage;
@@ -21,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentService implements ICommentService {
     private final CommentRepository repository;
-    private final IAdvertisementService advertisementService;
 
     @Transactional
     @Override
@@ -67,23 +65,12 @@ public class CommentService implements ICommentService {
         log.error("Удалось обновить комментарий {}", entity);
     }
 
-    // TODO: remove
-    @Transactional(readOnly = true)
-    @Override
-    public List<Comment> getAll() {
-        log.info("Получение списка комментариев");
-        List<Comment> list = repository.findAll(getPageable(0, 10)).getContent();
-        successfullyListLog(list);
-        return list;
-    }
-
     @Transactional(readOnly = true)
     @Override
     public List<Comment> getAll(Long advertisementId, Integer page, Integer size) {
-        Advertisement advertisement = advertisementService.getById(advertisementId);
         log.info("Получение списка комментариев по объявлению - {}, с номером страницы - {}, с разером страницы - {}",
-                advertisement, page, size);
-        List<Comment> list = repository.findByAdvertisement(advertisement, getPageable(page, size));
+                advertisementId, page, size);
+        List<Comment> list = repository.findByAdvertisement_Id(advertisementId, getPageable(page, size));
         successfullyListLog(list);
         return list;
     }

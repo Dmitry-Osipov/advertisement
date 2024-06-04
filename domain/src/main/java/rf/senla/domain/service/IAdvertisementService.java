@@ -1,5 +1,6 @@
 package rf.senla.domain.service;
 
+import org.springframework.data.domain.Pageable;
 import rf.senla.domain.entity.Advertisement;
 import rf.senla.domain.entity.User;
 
@@ -8,7 +9,31 @@ import java.util.List;
 /**
  * Сервис для работы с объявлениями.
  */
-public interface IAdvertisementService extends IService<Advertisement> {
+public interface IAdvertisementService {
+    /**
+     * Сохранение объявления
+     * @param advertisement объявление
+     * @return сохранённое объявление
+     */
+    Advertisement save(Advertisement advertisement);
+
+    /** Обновление объявления
+     * @param advertisement объявление
+     * @return обновлённое объявление
+     */
+    Advertisement update(Advertisement advertisement);
+
+    /** Удаление объявления
+     * @param advertisement объявление
+     */
+    void delete(Advertisement advertisement);
+
+    /**
+     * Получение списка объявлений
+     * @return список объявлений
+     */
+    List<Advertisement> getAll(Pageable pageable);
+
     /**
      * Получить объявления по пользователю с пагинацией.
      * @param user пользователь

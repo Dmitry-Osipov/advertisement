@@ -1,7 +1,9 @@
 package rf.senla.domain.service;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import rf.senla.domain.dto.UserDto;
 import rf.senla.domain.entity.User;
 
 import java.util.List;
@@ -9,7 +11,25 @@ import java.util.List;
 /**
  * Сервис для работы с пользователями.
  */
-public interface IUserService extends IService<User> {
+public interface IUserService {
+    /**
+     * Сохранение пользователя
+     * @param user пользователь
+     * @return сохранённый пользователь
+     */
+    User save(User user);
+
+    /** Обновление пользователя по его dto
+     * @param dto dto пользователя
+     * @return обновлённый пользователь
+     */
+    User update(UserDto dto);
+
+    /** Удаление пользователя
+     * @param username имя пользователя
+     */
+    void deleteByUsername(String username);
+
     /**
      * Получение пользователя по имени пользователя
      * @return пользователь
@@ -52,11 +72,10 @@ public interface IUserService extends IService<User> {
 
     /**
      * Получить список пользователей с пагинацией.
-     * @param page Порядковый номер страницы.
-     * @param size Размер страницы.
+     * @param pageable пагинация
      * @return Список пользователей.
      */
-    List<User> getAll(Integer page, Integer size);
+    List<User> getAll(Pageable pageable);
 
     /**
      * Метод получения пользователя по токену восстановления пароля
