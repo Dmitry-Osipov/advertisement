@@ -26,17 +26,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findMessagesBetweenUsers(Long firstId, Long secondId, Pageable pageable);
 
     /**
-     * Получает список всех сообщений, в которых указанный пользователь является отправителем или получателем
-     * с пагинацией.
-     * @param userId Идентификатор пользователя, для которого нужно получить сообщения.
-     * @param pageable Пагинация.
-     * @return Список всех сообщений, в которых указанный пользователь является отправителем или получателем.
-     */
-    @Query("SELECT m FROM Message m " +
-            "WHERE m.sender.id = :userId OR m.recipient.id = :userId")
-    List<Message> findAllByUserId(Long userId, Pageable pageable);
-
-    /**
      * Удаление сообщений по отправителю или получателю
      * @param sender ID отправителя
      * @param recipient ID получателя

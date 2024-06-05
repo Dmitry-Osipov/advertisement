@@ -25,7 +25,7 @@ public class AdvertisementDto {
     private Long id;
 
     @Schema(description = "DTO пользователя")
-    @NotNull
+    @NotNull(message = "Пользователь не может быть null")
     private UserDto user;
 
     @Schema(description = "Стоимость", example = "2000")

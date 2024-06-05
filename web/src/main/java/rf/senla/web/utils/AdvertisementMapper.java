@@ -14,5 +14,5 @@ public interface AdvertisementMapper {
     AdvertisementDto toDto(Advertisement advertisement);
     Advertisement toEntity(CreateAdvertisementRequest request);
     Advertisement toEntity(AdvertisementDto dto);
-    List<AdvertisementDto> toDtos(List<Advertisement> users);
+    List<AdvertisementDto> toDtos(List<Advertisement> advertisements);
 }

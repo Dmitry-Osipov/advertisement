@@ -82,7 +82,7 @@ public class JwtService implements IJwtService {
         log.info("Генерация токена с дополнительными параметрами {}", extraClaims);
         String token = Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 100000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + 100_000 * 60 * 24 * 10))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
         log.info("Генерация токена с дополнительными параметрами прошла успешно - {}", token);
         return token;

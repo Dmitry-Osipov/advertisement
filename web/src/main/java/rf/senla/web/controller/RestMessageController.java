@@ -10,9 +10,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
@@ -24,11 +28,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import rf.senla.domain.dto.CreateMessageRequest;
+import rf.senla.domain.dto.DeleteMessageRequest;
 import rf.senla.domain.dto.MessageDto;
+import rf.senla.domain.dto.UpdateMessageRequest;
 import rf.senla.domain.service.IMessageService;
+import rf.senla.web.utils.MessageMapper;
 
 import java.util.List;
 
+// TODO: swagger doc
 /**
  * Контроллер для обработки запросов сообщений через REST API.
  */
@@ -39,12 +48,12 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/messages")
 public class RestMessageController {
     private final IMessageService service;
+    private final MessageMapper mapper;
 
     /**
      * Получает переписку между текущим пользователем и пользователем с указанным именем.
      * @param username Имя пользователя, с которым нужно получить переписку.
-     * @param page Порядковый номер страницы.
-     * @param size Размер страницы.
+     * @param pageable пагинация
      * @return {@link ResponseEntity} со списком сообщений в формате {@link MessageDto} между текущим пользователем и
      * пользователем с указанным именем.
      */
@@ -64,25 +73,18 @@ public class RestMessageController {
     })
     public ResponseEntity<List<MessageDto>> getUserCorrespondence(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.QUERY)
-            @RequestParam(value = "username") String username,
-            // TODO: Pageable
-            @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
-            @RequestParam(value = "page", required = false) Integer page,
-            @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
-            @RequestParam(value = "size", required = false) Integer size,
+            @RequestParam(value = "username") @NotBlank @Size(min = 5, max = 50) String username,
+            @PageableDefault(sort = {"sentAt"}, direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal UserDetails sender) {
-        // TODO: MapStruct
-        return ResponseEntity.ok(null);//converter.getListMessageDto(
-                //service.getAll(sender, username, page, size)));
+        return ResponseEntity.ok(mapper.toDtos(service.getAll(sender, username, pageable)));
     }
 
     /**
      * Создает новое сообщение.
-     * @param dto Сообщение в формате {@link MessageDto} для создания.
+     * @param request Сообщение в формате {@link CreateMessageRequest} для создания.
      * @return {@link ResponseEntity} с созданным сообщением в формате {@link MessageDto}.
      */
     @PostMapping
-    @PreAuthorize("#dto.senderName == authentication.principal.username")
     @Operation(summary = "Создать новое сообщение")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -93,22 +95,20 @@ public class RestMessageController {
                                     "\"sentAt\": \"2024-05-09T14:55:46.765819\",\"read\": true}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<MessageDto> createMessage(
+    public ResponseEntity<MessageDto> create(
             @Parameter(description = "Данные сообщения", required = true,
-                    content = @Content(schema = @Schema(implementation = MessageDto.class)))
-            @Valid @RequestBody MessageDto dto) {
-        // TODO: MapStruct
-        // TODO: создание по текущему пользователю
-        return ResponseEntity.ok(null);//converter.getDtoFromMessage(service.save(converter.getMessageFromDto(dto))));
+                    content = @Content(schema = @Schema(implementation = CreateMessageRequest.class)))
+            @Valid @RequestBody CreateMessageRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(mapper.toDto(service.create(mapper.toEntity(request), user)));
     }
 
     /**
      * Обновляет существующее сообщение.
-     * @param dto Сообщение в формате {@link MessageDto} для обновления.
+     * @param request Сообщение в формате {@link UpdateMessageRequest} для обновления.
      * @return {@link ResponseEntity} с обновленным сообщением в формате {@link MessageDto}.
      */
     @PutMapping
-    @PreAuthorize("#dto.senderName == authentication.principal.username")
     @Operation(summary = "Обновить сообщение")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -119,34 +119,31 @@ public class RestMessageController {
                                     "\"sentAt\": \"2024-05-09T14:55:46.765819\",\"read\": false}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<MessageDto> updateMessage(
+    public ResponseEntity<MessageDto> update(
             @Parameter(description = "Данные сообщения", required = true,
-                    content = @Content(schema = @Schema(implementation = MessageDto.class)))
-            @Valid @RequestBody MessageDto dto) {
-        // TODO: MapStruct
-        // TODO: обновление по текущему пользователю
-        return ResponseEntity.ok(null);//converter.getDtoFromMessage(service.update(converter.getMessageFromDto(dto))));
+                    content = @Content(schema = @Schema(implementation = UpdateMessageRequest.class)))
+            @Valid @RequestBody UpdateMessageRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(mapper.toDto(service.update(mapper.toEntity(request), user)));
     }
 
     /**
      * Удаляет сообщение.
-     * @param dto Сообщение в формате {@link MessageDto} для удаления.
+     * @param dto Сообщение в формате {@link DeleteMessageRequest} для удаления.
      * @return {@link ResponseEntity} с информацией об удаленном сообщении.
      */
     @DeleteMapping
-    @PreAuthorize("#dto.senderName == authentication.principal.username")
     @Operation(summary = "Удалить сообщение")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<String> deleteMessage(
+    public ResponseEntity<String> delete(
             @Parameter(description = "Данные сообщения", required = true,
-                    content = @Content(schema = @Schema(implementation = MessageDto.class)))
-            @Valid @RequestBody MessageDto dto) {
-        // TODO: MapStruct
-        // TODO: Удаление по текущему пользователю
-        //service.delete(converter.getMessageFromDto(dto));
-        return ResponseEntity.ok("Deleted message with text: " + dto.getText());
+                    content = @Content(schema = @Schema(implementation = DeleteMessageRequest.class)))
+            @Valid @RequestBody DeleteMessageRequest dto,
+            @AuthenticationPrincipal UserDetails user) {
+        service.delete(mapper.toEntity(dto), user);
+        return ResponseEntity.ok("Deleted message with id: " + dto.getId());
     }
 }

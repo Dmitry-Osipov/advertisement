@@ -13,10 +13,10 @@ public interface IAdvertisementService {
     /**
      * Сохранение объявления
      * @param advertisement объявление
-     * @param userDetails данные пользователя
+     * @param sender данные пользователя
      * @return сохранённое объявление
      */
-    Advertisement create(Advertisement advertisement, UserDetails userDetails);
+    Advertisement create(Advertisement advertisement, UserDetails sender);
 
     /** Обновление объявления
      * @param advertisement объявление

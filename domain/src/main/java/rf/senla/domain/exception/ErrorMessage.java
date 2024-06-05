@@ -23,7 +23,8 @@ public enum ErrorMessage {
     EMAIL_ALREADY_EXISTS("Email already exists"),
     TOKEN_EXPIRED("Token expired"),
     INCORRECT_HTTP_METHOD_SELECTED("Incorrect http method selected"),
-    SENDER_ALREADY_VOTED("The sender and receiver pair is already in place");
+    SENDER_ALREADY_VOTED("The sender and receiver pair is already in place"),
+    SENDER_MISMATCH("The sender and current user does not match");
 
     private final String message;
 }

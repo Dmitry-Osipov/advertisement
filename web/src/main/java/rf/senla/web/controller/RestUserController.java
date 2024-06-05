@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.ChangePasswordRequest;
 import rf.senla.domain.dto.DeleteByUsernameRequest;
+import rf.senla.domain.dto.UpdateUserRequest;
 import rf.senla.domain.dto.UserDto;
 import rf.senla.domain.service.IUserService;
 import rf.senla.web.utils.UserMapper;
@@ -103,12 +104,12 @@ public class RestUserController {
 
     /**
      * Обновить информацию о пользователе.
-     * @param dto данные пользователя
+     * @param request данные пользователя
      * @return ответ с обновленным пользователем
      */
     @PutMapping
     @Operation(summary = "Обновить информацию о пользователе")
-    @PreAuthorize("#dto.username == authentication.principal.username or hasRole('ADMIN')")
+    @PreAuthorize("#request.id == authentication.principal.id or hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -121,9 +122,9 @@ public class RestUserController {
     })
     public ResponseEntity<UserDto> update(
             @Parameter(description = "Данные пользователя", required = true,
-                    content = @Content(schema = @Schema(implementation = UserDto.class)))
-            @RequestBody @Valid UserDto dto) {
-        return ResponseEntity.ok(mapper.toDto(service.update(dto)));
+                    content = @Content(schema = @Schema(implementation = UpdateUserRequest.class)))
+            @RequestBody @Valid UpdateUserRequest request) {
+        return ResponseEntity.ok(mapper.toDto(service.update(mapper.toEntity(request))));
     }
 
     /**
@@ -221,8 +222,10 @@ public class RestUserController {
     public ResponseEntity<UserDto> addEvaluation(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
             @RequestParam(value = "username") @NotBlank @Size(min = 5, max = 50) String username,
-            @Parameter(description = "Рейтинг пользователя", example = "4", required = true, in = ParameterIn.PATH)
+
+            @Parameter(description = "Рейтинг пользователя", example = "5", required = true, in = ParameterIn.PATH)
             @RequestParam(value = "rating") @Min(1) @Max(5) Integer rating,
+
             @AuthenticationPrincipal UserDetails sender) {
         return ResponseEntity.ok(mapper.toDto(service.addEvaluation(sender, username, rating)));
     }

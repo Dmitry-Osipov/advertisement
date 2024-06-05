@@ -27,14 +27,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @SuppressWarnings("java:S6809")
 public class AuthenticationService implements IAuthenticationService {
-    private final IUserService userService;
     private final IJwtService jwtService;
+    private final IUserService userService;
+    private final IEmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final IEmailService emailService;
 
-    @Transactional
     @Override
+    @Transactional
     public JwtAuthenticationResponse signUp(SignUpRequest request) {
         log.info("Регистрация пользователя {}", request.getUsername());
         User user = User.builder()
@@ -52,8 +52,8 @@ public class AuthenticationService implements IAuthenticationService {
         return new JwtAuthenticationResponse(token);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public JwtAuthenticationResponse signIn(SignInRequest request) {
         log.info("Авторизация пользователя {}", request.getUsername());
         authenticationManager.authenticate(
@@ -65,8 +65,8 @@ public class AuthenticationService implements IAuthenticationService {
         return new JwtAuthenticationResponse(token);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void sendResetPasswordEmail(String email, String username) {
         log.info("Вызван метод отправки восстановления пароля для пользователя с логином {} на почту {}",
                 username, email);
@@ -75,8 +75,8 @@ public class AuthenticationService implements IAuthenticationService {
         log.info("Удачно отправлен токен восстановления на почту {} для пользователя {}", email, username);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public User getByResetPasswordToken(String token) {
         log.info("Получение пользователя по токену восстановления пароля {}", token);
         User user = userService.getByResetPasswordToken(token);
@@ -84,8 +84,8 @@ public class AuthenticationService implements IAuthenticationService {
         return validateResetPasswordToken(user);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void updatePassword(String token, String newPassword) {
         User user = userService.getByResetPasswordToken(token);
         log.info("Обновления пароля пользователю {}", user.getUsername());

@@ -9,28 +9,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
-
 /**
- * DTO, представляющее сущность сообщения.
+ * Запрос на сохранение сообщения.
  */
 @Data
 @Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO сущности сообщения")
-public class MessageDto {
-    @Schema(description = "ID сообщения", example = "1")
-    private Long id;
-
+@Schema(description = "Запрос на сохранение сообщения")
+public class CreateMessageRequest {
     @Schema(description = "Объявление")
     @NotNull(message = "Объявление не может быть null")
     private AdvertisementDto advertisement;
-
-    @Schema(description = "Отправитель")
-    @NotNull(message = "Отправитель не может быть null")
-    private UserDto sender;
 
     @Schema(description = "Получатель")
     @NotNull(message = "Получатель не может быть null")
@@ -39,10 +30,4 @@ public class MessageDto {
     @Schema(description = "Текст сообщения", example = "Hello!")
     @NotBlank(message = "Сообщение не может быть пустым")
     private String text;
-
-    @Schema(description = "Время создания", example = "2024-05-09T14:55:46.765819", nullable = true)
-    private LocalDateTime sentAt;
-
-    @Schema(description = "Статус прочтения", example = "true", nullable = true)
-    private Boolean read;
 }

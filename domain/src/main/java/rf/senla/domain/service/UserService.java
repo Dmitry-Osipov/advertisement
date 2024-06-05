@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rf.senla.domain.dto.UserDto;
 import rf.senla.domain.entity.Rating;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.entity.Role;
@@ -52,19 +51,17 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public User update(UserDto dto) {
-        log.info("Обновление пользователя по его dto {}", dto);
-        User user = repository.findById(dto.getId())
+    public User update(User user) {
+        log.info("Обновление пользователя по его dto {}", user);
+        User entity = repository.findById(user.getId())
                 .orElseThrow(() -> new NoEntityException(ErrorMessage.USER_NOT_FOUND.getMessage()));
-        user.setUsername(dto.getUsername());
-        user.setPhoneNumber(dto.getPhoneNumber());
-        user.setEmail(dto.getEmail());
-        user.setBoosted(dto.getBoosted());
-        user.setRole(dto.getRole());
-        user.setRating(getRating(user));
-        saveWithoutPassword(user);
-        log.info("Пользователь успешно обновлён {}", user);
-        return user;
+        entity.setUsername(user.getUsername());
+        entity.setPhoneNumber(user.getPhoneNumber());
+        entity.setEmail(user.getEmail());
+        entity.setRating(getRating(entity));
+        entity = save(entity);
+        log.info("Пользователь успешно обновлён {}", entity);
+        return entity;
     }
 
     @Override
@@ -219,8 +216,8 @@ public class UserService implements IUserService {
         ratingRepository.save(rating);
         recipient.setRating(getUserRating(recipient));
 
-        saveWithoutPassword(recipient);
-        log.info("Пользователю {} удалось поставить оценку {} для пользователя {}", currentUser, evaluation, recipient);
+        recipient = save(recipient);
+        log.info("Пользователю {} удалось добавить рейтинг {} для пользователя {}", currentUser, rating, recipient);
         return recipient;
     }
 
@@ -256,15 +253,5 @@ public class UserService implements IUserService {
 
         log.info("Пользователю {} установлен рейтинг {}", user, rating);
         return rating;
-    }
-
-    /**
-     * Служебный метод сохраняет пользователя без обновления пароля
-     * @param user пользователь
-     */
-    private void saveWithoutPassword(User user) {
-        log.info("Происходит сохранение пользователя {} без обновления пароля", user);
-        repository.saveWithoutPassword(user);
-        log.info("Произошло сохранение пользователя {} без обновления пароля", user);
     }
 }

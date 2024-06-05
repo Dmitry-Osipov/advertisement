@@ -3,7 +3,6 @@ package rf.senla.domain.service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import rf.senla.domain.dto.UserDto;
 import rf.senla.domain.entity.User;
 
 import java.util.List;
@@ -19,11 +18,11 @@ public interface IUserService {
      */
     User save(User user);
 
-    /** Обновление пользователя по его dto
-     * @param dto dto пользователя
+    /** Обновление пользователя
+     * @param user пользователь
      * @return обновлённый пользователь
      */
-    User update(UserDto dto);
+    User update(User user);
 
     /** Удаление пользователя
      * @param username имя пользователя

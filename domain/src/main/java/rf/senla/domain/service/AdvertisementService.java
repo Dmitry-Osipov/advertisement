@@ -33,14 +33,14 @@ public class AdvertisementService implements IAdvertisementService {
 
     @Override
     @Transactional
-    public Advertisement create(Advertisement entity, UserDetails userDetails) {
+    public Advertisement create(Advertisement entity, UserDetails sender) {
         log.info("Сохранение объявления {}", entity);
         if (entity.getId() != null && repository.existsById(entity.getId())) {
             log.error("Не удалось сохранить объявление {}", entity);
             throw new EntityContainedException(ErrorMessage.ADVERTISEMENT_ALREADY_EXISTS.getMessage());
         }
 
-        entity.setUser(userService.getByUsername(userDetails.getUsername()));
+        entity.setUser(userService.getByUsername(sender.getUsername()));
         entity.setStatus(AdvertisementStatus.REVIEW);
         Advertisement advertisement = repository.save(entity);
         log.info("Удалось сохранить объявление {}", advertisement);
@@ -51,11 +51,7 @@ public class AdvertisementService implements IAdvertisementService {
     @Transactional
     public Advertisement update(Advertisement entity) {
         log.info("Обновление объявления {}", entity);
-        if (!repository.existsById(entity.getId())) {
-            log.error("Не удалось обновить объявление {}", entity);
-            throw new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage());
-        }
-
+        checkExistsById(entity, "Не удалось обновить объявление {}");
         Advertisement advertisement = repository.save(entity);
         log.info("Удалось обновить объявление {}", advertisement);
         return advertisement;
@@ -65,13 +61,8 @@ public class AdvertisementService implements IAdvertisementService {
     @Transactional
     public void delete(Advertisement entity) {
         log.info("Удаление объявления {}", entity);
+        checkExistsById(entity, "Не удалось удалить объявление {}");
         Long id = entity.getId();
-
-        if (!repository.existsById(id)) {
-            log.error("Не удалось удалить объявление {}", entity);
-            throw new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage());
-        }
-
         commentRepository.deleteByAdvertisement_Id(id);
         messageRepository.deleteByAdvertisement_Id(id);
         repository.deleteById(id);
@@ -148,5 +139,17 @@ public class AdvertisementService implements IAdvertisementService {
      */
     private static void successfullyListLog(List<Advertisement> list) {
         log.info("Получен список из {} объявлений: {}", list.size(), list);
+    }
+
+    /**
+     * Служебный метод проверяет содержание объявления в БД
+     * @param entity объявление
+     * @param s строка для записи лога
+     */
+    private void checkExistsById(Advertisement entity, String s) {
+        if (!repository.existsById(entity.getId())) {
+            log.error(s, entity);
+            throw new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage());
+        }
     }
 }
