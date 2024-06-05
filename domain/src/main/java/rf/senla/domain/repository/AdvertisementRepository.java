@@ -2,7 +2,6 @@ package rf.senla.domain.repository;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,7 +21,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
      * @return Список объявлений, отсортированный по рейтингу пользователя.
      */
     @Query("SELECT a FROM Advertisement a WHERE a.status = 'ACTIVE'")
-    List<Advertisement> findAllInOrderByUserRating(Pageable pageable);
+    List<Advertisement> findAllWithActiveStatus(Pageable pageable);
 
     /**
      * Получает объявления с ценой в указанном диапазоне, отсортированные по цене.
@@ -34,9 +33,8 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
     @Query("SELECT a FROM Advertisement a " +
             "WHERE a.price BETWEEN :min AND :max " +
             "AND a.status = 'ACTIVE'")
-    List<Advertisement> findByPriceBetweenInOrder(@Param("min") Integer min,
-                                                  @Param("max") Integer max,
-                                                  Pageable pageable);
+    List<Advertisement> findByPriceBetweenWithActiveStatus(@Param("min") Integer min, @Param("max") Integer max,
+                                                           Pageable pageable);
 
     /**
      * Получает объявления с ценой в указанном диапазоне и с указанным заголовком,
@@ -50,10 +48,10 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
     @Query("SELECT a FROM Advertisement a " +
             "WHERE a.price BETWEEN :min AND :max AND LOWER(a.headline) = LOWER(:headline) " +
             "AND a.status = 'ACTIVE'")
-    List<Advertisement> findByPriceBetweenAndHeadlineIgnoreCaseInOrder(@Param("min") Integer min,
-                                                                       @Param("max") Integer max,
-                                                                       @Param("headline") String headline,
-                                                                       Pageable pageable);
+    List<Advertisement> findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(@Param("min") Integer min,
+                                                                                @Param("max") Integer max,
+                                                                                @Param("headline") String headline,
+                                                                                Pageable pageable);
 
     /**
      * Получает объявления для указанного пользователя, отсортированные с учетом любого статуса.
@@ -61,8 +59,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
      * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
      * @return Страница объявлений для указанного пользователя, отсортированных с учетом любого статуса.
      */
-    @Query("SELECT a FROM Advertisement a WHERE a.user = :user ")
-    List<Advertisement> findByUserInOrderWithAnyStatus(@Param("user") User user, Pageable pageable);
+    List<Advertisement> findByUser(User user, Pageable pageable);
 
     /**
      * Получает активные объявления для указанного пользователя, отсортированные по рейтингу пользователя.
@@ -71,7 +68,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
      * @return Страница активных объявлений для указанного пользователя, отсортированных по рейтингу пользователя.
      */
     @Query("SELECT a FROM Advertisement a WHERE a.user = :user AND a.status = 'ACTIVE'")
-    List<Advertisement> findByUserInOrder(@Param("user") User user, Pageable pageable);
+    List<Advertisement> findByUserWithActiveStatus(@Param("user") User user, Pageable pageable);
 
     /**
      * Удаление объявления по владельцу

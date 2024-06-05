@@ -2,12 +2,12 @@ package rf.senla.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rf.senla.domain.entity.Advertisement;
+import rf.senla.domain.entity.AdvertisementStatus;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.ErrorMessage;
 import rf.senla.domain.exception.NoEntityException;
@@ -27,23 +27,24 @@ public class AdvertisementService implements IAdvertisementService {
     private final AdvertisementRepository repository;
     private final UserService userService;
 
-    @Transactional
     @Override
-    public Advertisement save(Advertisement entity) {
+    @Transactional
+    public Advertisement create(Advertisement entity, UserDetails userDetails) {
         log.info("Сохранение объявления {}", entity);
         if (entity.getId() != null && repository.existsById(entity.getId())) {
             log.error("Не удалось сохранить объявление {}", entity);
             throw new EntityContainedException(ErrorMessage.ADVERTISEMENT_ALREADY_EXISTS.getMessage());
         }
 
-        entity.setUser(userService.getByUsername(entity.getUser().getUsername()));
+        entity.setUser(userService.getByUsername(userDetails.getUsername()));
+        entity.setStatus(AdvertisementStatus.REVIEW);
         Advertisement advertisement = repository.save(entity);
         log.info("Удалось сохранить объявление {}", advertisement);
         return advertisement;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public Advertisement update(Advertisement entity) {
         log.info("Обновление объявления {}", entity);
         if (!repository.existsById(entity.getId())) {
@@ -56,8 +57,8 @@ public class AdvertisementService implements IAdvertisementService {
         return advertisement;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void delete(Advertisement entity) {
         log.info("Удаление объявления {}", entity);
         if (!repository.existsById(entity.getId())) {
@@ -69,67 +70,57 @@ public class AdvertisementService implements IAdvertisementService {
         log.info("Удалось удалить объявление {}", entity);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public List<Advertisement> getAll(Pageable  pageable) {
         log.info("Получение списка объявлений");
-        List<Advertisement> list = repository.findAllInOrderByUserRating(pageable);
+        List<Advertisement> list = repository.findAllWithActiveStatus(pageable);
         successfullyListLog(list);
         return list;
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public List<Advertisement> getAll(Integer min, Integer max, String headline, String sortBy,
-                                      Integer page, Integer size) {
-        log.info("Получение списка объявлений по заголовку {}, с сортировкой {}, в промежутке цен {} и {}, с " +
-                "номером страницы {} и размером страницы {}", headline, sortBy, min, max, page, size);
+    @Transactional(readOnly = true)
+    public List<Advertisement> getAll(Integer min, Integer max, String headline, Pageable pageable) {
+        log.info("Получение списка объявлений по заголовку {}, в промежутке цен {} и {}, с пагинацией {}",
+                headline, min, max, pageable);
 
-        if (min == null) {
-            min = 0;
-            log.info("Задано дефолтное минимальное значение цены {}", min);
+        if (min > max) {
+            log.error("Максимальная цена меньше минимальной");
+            throw new TechnicalException(ErrorMessage.MIN_PRICE_IS_HIGHEST.getMessage());
         }
-
-        if (max == null) {
-            max = Integer.MAX_VALUE;
-            log.info("Задано дефолтное максимальное значение цены {}", max);
-        }
-
-        checkPrices(min, max);
-
-        Pageable pageable = getPageable(sortBy, page, size);
 
         List<Advertisement> list;
         if (headline == null) {
-            list = repository.findByPriceBetweenInOrder(min, max, pageable);
+            list = repository.findByPriceBetweenWithActiveStatus(min, max, pageable);
         } else {
-            list = repository.findByPriceBetweenAndHeadlineIgnoreCaseInOrder(min, max, headline, pageable);
+            list = repository.findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(min, max, headline, pageable);
         }
         successfullyListLog(list);
 
         return list;
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public List<Advertisement> getAll(User user, String sortBy, Boolean active, Integer page, Integer size) {
-        log.info("Получение списка объявлений пользователя - {}, с сортировкой - {}, флаг только активных " +
-                "объявлений - {}, с номером страницы - {}, с размером страницы - {}", user, sortBy, active, page, size);
-        Pageable pageable = getPageable(sortBy, page, size);
+    @Transactional
+    public List<Advertisement> getAll(String username, Boolean active, Pageable pageable) {
+        log.info("Получение списка объявлений пользователя - {}, флаг только активных объявлений - {}, " +
+                "с пагинацией - {}", username, active, pageable);
+        User user = userService.getByUsername(username);
 
         List<Advertisement> list;
         if (Boolean.FALSE.equals(active) || active == null) {
-            list = repository.findByUserInOrderWithAnyStatus(user, pageable);
+            list = repository.findByUser(user, pageable);
         } else {
-            list = repository.findByUserInOrder(user, pageable);
+            list = repository.findByUserWithActiveStatus(user, pageable);
         }
         successfullyListLog(list);
 
         return list;
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public Advertisement getById(Long id) {
         try {
             log.info("Получение объявления с ID {}", id);
@@ -141,61 +132,6 @@ public class AdvertisementService implements IAdvertisementService {
             log.error("Не удалось получить объявление с ID {}", id);
             throw e;
         }
-    }
-
-    /**
-     * Служебный метод проводит проверку цен.
-     * @param min минимальная цена
-     * @param max максимальная цена
-     * @throws TechnicalException если минимальная цена больше максимальной или какая-либо цена меньше 0
-     */
-    private static void checkPrices(Integer min, Integer max) {
-        log.info("Вызван метод проверки для цен {} и {}", min, max);
-
-        if (min < 0) {
-            log.error("Минимальная цена меньше 0");
-            throw new TechnicalException(ErrorMessage.PRICE_IS_NEGATIVE.getMessage());
-        }
-
-        if (min > max) {
-            log.error("Максимальная цена меньше минимальной");
-            throw new TechnicalException(ErrorMessage.MIN_PRICE_IS_HIGHEST.getMessage());
-        }
-
-        log.info("Проверка для цен {} и {} пройдена успешно", min, max);
-    }
-
-    // TODO: remove
-    /**
-     * Служебный метод на основе переданного типа сортировки формирует пагинацию.
-     * @param sortBy способ сортировки
-     * @param page порядковый номер страницы
-     * @param size размер страницы
-     * @return пагинация
-     */
-    private static Pageable getPageable(String sortBy, Integer page, Integer size) {
-        log.info("Вызван метод формирования пагинации для номера страницы - {}, размера страницы - {}, " +
-                "с сортировкой - {}", page, size, sortBy);
-
-        if (page == null) {
-            page = 0;
-            log.info("Для номера страницы присвоено дефолтное значение - {}", page);
-        }
-
-        if (size == null) {
-            size = 10;
-            log.info("Для размера страницы присвоено дефолтное значение - {}", size);
-        }
-
-        Sort sort;
-        switch (sortBy) {
-            case "asc" -> sort = Sort.by(Sort.Direction.ASC, "price");
-            case "desc" -> sort = Sort.by(Sort.Direction.DESC, "price");
-            case null, default -> sort = Sort.by(Sort.Direction.DESC, "user.boosted", "user.rating");
-        }
-        log.info("Для типа сортировки присвоено значение - {}", sort);
-
-        return PageRequest.of(page, size, sort);
     }
 
     /**

@@ -1,8 +1,8 @@
 package rf.senla.domain.service;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import rf.senla.domain.entity.Advertisement;
-import rf.senla.domain.entity.User;
 
 import java.util.List;
 
@@ -13,9 +13,10 @@ public interface IAdvertisementService {
     /**
      * Сохранение объявления
      * @param advertisement объявление
+     * @param userDetails данные пользователя
      * @return сохранённое объявление
      */
-    Advertisement save(Advertisement advertisement);
+    Advertisement create(Advertisement advertisement, UserDetails userDetails);
 
     /** Обновление объявления
      * @param advertisement объявление
@@ -29,21 +30,20 @@ public interface IAdvertisementService {
     void delete(Advertisement advertisement);
 
     /**
-     * Получение списка объявлений
+     * Получение списка объявлений с пагинацией
+     * @param pageable пагинация
      * @return список объявлений
      */
     List<Advertisement> getAll(Pageable pageable);
 
     /**
      * Получить объявления по пользователю с пагинацией.
-     * @param user пользователь
-     * @param sortBy условие сортировки
+     * @param username логин пользователя
      * @param active выводить только активные заказы
-     * @param page порядковый номер страницы
-     * @param size размер страницы
+     * @param pageable пагинация
      * @return список объявлений
      */
-    List<Advertisement> getAll(User user, String sortBy, Boolean active, Integer page, Integer size);
+    List<Advertisement> getAll(String username, Boolean active, Pageable pageable);
 
     /**
      * Получить объявление по его id.
@@ -57,10 +57,8 @@ public interface IAdvertisementService {
      * @param min минимальная цена
      * @param max максимальная цена
      * @param headline заголовок
-     * @param sortBy условие сортировки
-     * @param page порядковый номер страницы
-     * @param size размер страницы
+     * @param pageable пагинация
      * @return список объявлений
      */
-    List<Advertisement> getAll(Integer min, Integer max, String headline, String sortBy, Integer page, Integer size);
+    List<Advertisement> getAll(Integer min, Integer max, String headline, Pageable pageable);
 }

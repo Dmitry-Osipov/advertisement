@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.CommentDto;
-import rf.senla.domain.service.IAdvertisementService;
 import rf.senla.domain.service.ICommentService;
 import rf.senla.web.utils.DtoConverter;
 
@@ -40,7 +39,6 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/comments")
 public class RestCommentController {
     private final ICommentService service;
-    private final IAdvertisementService advertisementService;
     private final DtoConverter converter;
 
     /**
@@ -93,6 +91,7 @@ public class RestCommentController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
         // TODO: MapStruct
+        // TODO: создание по текущему пользователю
         return ResponseEntity.ok(converter.getDtoFromComment(service.save(converter.getCommentFromDto(dto))));
     }
 
@@ -118,6 +117,7 @@ public class RestCommentController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
         // TODO: MapStruct
+        // TODO: обновление по текущему пользователю
         return ResponseEntity.ok(converter.getDtoFromComment(service.update(converter.getCommentFromDto(dto))));
     }
 

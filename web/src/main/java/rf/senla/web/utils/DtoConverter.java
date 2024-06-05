@@ -2,15 +2,10 @@ package rf.senla.web.utils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import rf.senla.domain.dto.AdvertisementDto;
 import rf.senla.domain.dto.CommentDto;
 import rf.senla.domain.dto.MessageDto;
-import rf.senla.domain.dto.UserDto;
-import rf.senla.domain.entity.Advertisement;
-import rf.senla.domain.entity.AdvertisementStatus;
 import rf.senla.domain.entity.Comment;
 import rf.senla.domain.entity.Message;
-import rf.senla.domain.entity.User;
 import rf.senla.domain.service.IAdvertisementService;
 import rf.senla.domain.service.IUserService;
 

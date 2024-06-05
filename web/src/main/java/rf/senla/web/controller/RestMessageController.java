@@ -100,6 +100,7 @@ public class RestMessageController {
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
         // TODO: MapStruct
+        // TODO: создание по текущему пользователю
         return ResponseEntity.ok(converter.getDtoFromMessage(service.save(converter.getMessageFromDto(dto))));
     }
 
@@ -125,6 +126,7 @@ public class RestMessageController {
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
         // TODO: MapStruct
+        // TODO: обновление по текущему пользователю
         return ResponseEntity.ok(converter.getDtoFromMessage(service.update(converter.getMessageFromDto(dto))));
     }
 
@@ -145,6 +147,7 @@ public class RestMessageController {
                     content = @Content(schema = @Schema(implementation = MessageDto.class)))
             @Valid @RequestBody MessageDto dto) {
         // TODO: MapStruct
+        // TODO: Удаление по текущему пользователю
         service.delete(converter.getMessageFromDto(dto));
         return ResponseEntity.ok("Deleted message with text: " + dto.getText());
     }

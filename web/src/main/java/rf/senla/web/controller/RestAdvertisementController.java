@@ -10,12 +10,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.AdvertisementDto;
+import rf.senla.domain.dto.CreateAdvertisementRequest;
 import rf.senla.domain.service.IAdvertisementService;
 import rf.senla.web.utils.AdvertisementMapper;
-import rf.senla.domain.service.IUserService;
 
 import java.util.List;
 
@@ -44,7 +50,6 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/advertisements")
 public class RestAdvertisementController {
     private final IAdvertisementService service;
-    private final IUserService userService;
     private final AdvertisementMapper mapper;
 
     /**
@@ -53,7 +58,7 @@ public class RestAdvertisementController {
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
     @GetMapping
-    @Operation(summary = "Получить 10 топовых объявлений")
+    @Operation(summary = "Получить список объявлений с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -67,7 +72,7 @@ public class RestAdvertisementController {
                                     "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<List<AdvertisementDto>> getAdvertisements(
+    public ResponseEntity<List<AdvertisementDto>> getAll(
             @PageableDefault(sort = {"user.boosted", "user.rating"}, direction = Sort.Direction.DESC)
             Pageable pageable) {
         return ResponseEntity.ok(mapper.toDtos(service.getAll(pageable)));
@@ -78,13 +83,11 @@ public class RestAdvertisementController {
      * @param minPrice минимальная цена
      * @param maxPrice максимальная цена
      * @param headline заголовок
-     * @param sortBy условие сортировки
-     * @param page страница
-     * @param size размер страницы
+     * @param pageable пагинация
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
     @GetMapping("/all")
-    @Operation(summary = "Получить список объявлений по заголовку в промежутке цен с условием сортировки и пагинацией")
+    @Operation(summary = "Получить список объявлений по заголовку в промежутке цен с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -99,29 +102,25 @@ public class RestAdvertisementController {
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<List<AdvertisementDto>> getAllByPriceAndHeadline(
-            @Parameter(description = "Минимальная стоимость", example = "500", in = ParameterIn.QUERY)
-            @RequestParam(value = "min", required = false) Integer minPrice,
-            @Parameter(description = "Максимальная стоимость", example = "20000", in = ParameterIn.QUERY)
-            @RequestParam(value = "max", required = false) Integer maxPrice,
+            @Parameter(description = "Минимальная стоимость", example = "500", required = true, in = ParameterIn.QUERY)
+            @RequestParam(value = "min") @Min(0) @Max(Integer.MAX_VALUE) Integer minPrice,
+
+            @Parameter(description = "Максимальная стоимость", example = "20000", required = true, in = ParameterIn.QUERY)
+            @RequestParam(value = "max") @Min(0) @Max(Integer.MAX_VALUE) Integer maxPrice,
+
             @Parameter(description = "Заголовок", example = "smartphone", in = ParameterIn.QUERY)
             @RequestParam(value = "headline", required = false) String headline,
-            @Parameter(description = "Условие сортировки", example = "asc", in = ParameterIn.QUERY)
-            @RequestParam(value = "sort", required = false) String sortBy,
-            @PageableDefault(value = 2, page = 0) Pageable pageable,  // TODO: доработать
-            @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
-            @RequestParam(value = "page", required = false) Integer page,
-            @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
-            @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(mapper.toDtos(service.getAll(minPrice, maxPrice, headline, sortBy, page, size)));
+
+            @PageableDefault(sort = {"user.boosted", "user.rating"}, direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(mapper.toDtos(service.getAll(minPrice, maxPrice, headline, pageable)));
     }
 
     /**
      * Получить список объявлений по пользователю с пагинацией.
      * @param username имя пользователя (логин)
-     * @param sortBy условие сортировки
      * @param active требуется выводить только активные объявления
-     * @param page порядковый номер страницы
-     * @param size размер страницы
+     * @param pageable пагинация
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
     @GetMapping("/{username}")
@@ -139,24 +138,21 @@ public class RestAdvertisementController {
                                     "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<List<AdvertisementDto>> getAllByUser(  // TODO: Pageable
+    public ResponseEntity<List<AdvertisementDto>> getAllByUser(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
-            @PathVariable("username") String username,
-            @Parameter(description = "Условие сортировки", example = "asc", in = ParameterIn.QUERY)
-            @RequestParam(value = "sort", required = false) String sortBy,
+            @PathVariable("username") @NotBlank @Size(min = 5, max = 50) String username,
+
             @Parameter(description = "Статус объявления", example = "true", in = ParameterIn.QUERY)
             @RequestParam(value = "active", required = false) Boolean active,
-            @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
-            @RequestParam(value = "page", required = false) Integer page,
-            @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
-            @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(mapper.toDtos(
-                service.getAll(userService.getByUsername(username), sortBy, active, page, size)));
+
+            @PageableDefault(sort = {"user.boosted", "user.rating"}, direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(mapper.toDtos(service.getAll(username, active, pageable)));
     }
 
     /**
      * Создать новое объявление.
-     * @param dto объект {@link AdvertisementDto} с данными нового объявления
+     * @param request объект {@link CreateAdvertisementRequest} с данными нового объявления
      * @return объект {@link ResponseEntity} с созданным объявлением и кодом 200 OK в случае успеха
      */
     @PostMapping
@@ -171,11 +167,12 @@ public class RestAdvertisementController {
                                     "\"status\": \"ACTIVE\"}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<AdvertisementDto> createAdvertisement(
+    public ResponseEntity<AdvertisementDto> create(
             @Parameter(description = "Данные объявления", required = true,
-                    content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
-            @RequestBody @Valid AdvertisementDto dto) {
-        return ResponseEntity.ok(mapper.toDto(service.save(mapper.toEntity(dto))));
+                    content = @Content(schema = @Schema(implementation = CreateAdvertisementRequest.class)))
+            @RequestBody @Valid CreateAdvertisementRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(mapper.toDto(service.create(mapper.toEntity(request), user)));
     }
 
     /**
@@ -196,7 +193,7 @@ public class RestAdvertisementController {
                                     "\"status\": \"REVIEW\"}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<AdvertisementDto> updateAdvertisement(
+    public ResponseEntity<AdvertisementDto> update(
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
@@ -215,7 +212,7 @@ public class RestAdvertisementController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<String> deleteAdvertisement(
+    public ResponseEntity<String> delete(
             @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
