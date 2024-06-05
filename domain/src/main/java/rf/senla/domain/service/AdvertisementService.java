@@ -14,6 +14,8 @@ import rf.senla.domain.exception.NoEntityException;
 import rf.senla.domain.exception.TechnicalException;
 import rf.senla.domain.repository.AdvertisementRepository;
 import rf.senla.domain.entity.User;
+import rf.senla.domain.repository.CommentRepository;
+import rf.senla.domain.repository.MessageRepository;
 
 import java.util.List;
 
@@ -24,8 +26,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdvertisementService implements IAdvertisementService {
-    private final AdvertisementRepository repository;
     private final UserService userService;
+    private final AdvertisementRepository repository;
+    private final CommentRepository commentRepository;
+    private final MessageRepository messageRepository;
 
     @Override
     @Transactional
@@ -61,12 +65,16 @@ public class AdvertisementService implements IAdvertisementService {
     @Transactional
     public void delete(Advertisement entity) {
         log.info("Удаление объявления {}", entity);
-        if (!repository.existsById(entity.getId())) {
+        Long id = entity.getId();
+
+        if (!repository.existsById(id)) {
             log.error("Не удалось удалить объявление {}", entity);
             throw new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage());
         }
 
-        repository.delete(entity);
+        commentRepository.deleteByAdvertisement_Id(id);
+        messageRepository.deleteByAdvertisement_Id(id);
+        repository.deleteById(id);
         log.info("Удалось удалить объявление {}", entity);
     }
 

@@ -31,4 +31,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
      * @param id ID пользователя
      */
     void deleteByAdvertisement_User_Id(Long id);
+
+    /**
+     * Удаление комментариев по объявлению
+     * @param id ID объявления
+     */
+    void deleteByAdvertisement_Id(Long id);
 }

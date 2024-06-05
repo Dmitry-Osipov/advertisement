@@ -42,4 +42,10 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
      * @param recipient ID получателя
      */
     void deleteBySender_IdOrRecipient_Id(Long sender, Long recipient);
+
+    /**
+     * Удаление сообщений по привязанному объявлению
+     * @param id ID объявления
+     */
+    void deleteByAdvertisement_Id(Long id);
 }

@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.CommentDto;
 import rf.senla.domain.service.ICommentService;
-import rf.senla.web.utils.DtoConverter;
 
 import java.util.List;
 
@@ -39,7 +38,6 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/comments")
 public class RestCommentController {
     private final ICommentService service;
-    private final DtoConverter converter;
 
     /**
      * Получить список всех комментариев по ID объявления.
@@ -67,7 +65,7 @@ public class RestCommentController {
             @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value = "size", required = false) Integer size) {
         // TODO: MapStruct
-        return ResponseEntity.ok(converter.getListCommentDto(service.getAll(advertisementId, page, size)));
+        return ResponseEntity.ok(null);//converter.getListCommentDto(service.getAll(advertisementId, page, size)));
     }
 
     /**
@@ -92,7 +90,7 @@ public class RestCommentController {
             @Valid @RequestBody CommentDto dto) {
         // TODO: MapStruct
         // TODO: создание по текущему пользователю
-        return ResponseEntity.ok(converter.getDtoFromComment(service.save(converter.getCommentFromDto(dto))));
+        return ResponseEntity.ok(null);//converter.getDtoFromComment(service.save(converter.getCommentFromDto(dto))));
     }
 
     /**
@@ -118,7 +116,7 @@ public class RestCommentController {
             @Valid @RequestBody CommentDto dto) {
         // TODO: MapStruct
         // TODO: обновление по текущему пользователю
-        return ResponseEntity.ok(converter.getDtoFromComment(service.update(converter.getCommentFromDto(dto))));
+        return ResponseEntity.ok(null);//converter.getDtoFromComment(service.update(converter.getCommentFromDto(dto))));
     }
 
     /**
@@ -138,7 +136,7 @@ public class RestCommentController {
                     content = @Content(schema = @Schema(implementation = CommentDto.class)))
             @Valid @RequestBody CommentDto dto) {
         // TODO: MapStruct
-        service.delete(converter.getCommentFromDto(dto));
+        //service.delete(converter.getCommentFromDto(dto));
         return ResponseEntity.ok("Deleted comment with id " + dto.getId());
     }
 }

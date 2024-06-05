@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.MessageDto;
 import rf.senla.domain.service.IMessageService;
-import rf.senla.web.utils.DtoConverter;
 
 import java.util.List;
 
@@ -40,7 +39,6 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/messages")
 public class RestMessageController {
     private final IMessageService service;
-    private final DtoConverter converter;
 
     /**
      * Получает переписку между текущим пользователем и пользователем с указанным именем.
@@ -74,8 +72,8 @@ public class RestMessageController {
             @RequestParam(value = "size", required = false) Integer size,
             @AuthenticationPrincipal UserDetails sender) {
         // TODO: MapStruct
-        return ResponseEntity.ok(converter.getListMessageDto(
-                service.getAll(sender, username, page, size)));
+        return ResponseEntity.ok(null);//converter.getListMessageDto(
+                //service.getAll(sender, username, page, size)));
     }
 
     /**
@@ -101,7 +99,7 @@ public class RestMessageController {
             @Valid @RequestBody MessageDto dto) {
         // TODO: MapStruct
         // TODO: создание по текущему пользователю
-        return ResponseEntity.ok(converter.getDtoFromMessage(service.save(converter.getMessageFromDto(dto))));
+        return ResponseEntity.ok(null);//converter.getDtoFromMessage(service.save(converter.getMessageFromDto(dto))));
     }
 
     /**
@@ -127,7 +125,7 @@ public class RestMessageController {
             @Valid @RequestBody MessageDto dto) {
         // TODO: MapStruct
         // TODO: обновление по текущему пользователю
-        return ResponseEntity.ok(converter.getDtoFromMessage(service.update(converter.getMessageFromDto(dto))));
+        return ResponseEntity.ok(null);//converter.getDtoFromMessage(service.update(converter.getMessageFromDto(dto))));
     }
 
     /**
@@ -148,7 +146,7 @@ public class RestMessageController {
             @Valid @RequestBody MessageDto dto) {
         // TODO: MapStruct
         // TODO: Удаление по текущему пользователю
-        service.delete(converter.getMessageFromDto(dto));
+        //service.delete(converter.getMessageFromDto(dto));
         return ResponseEntity.ok("Deleted message with text: " + dto.getText());
     }
 }

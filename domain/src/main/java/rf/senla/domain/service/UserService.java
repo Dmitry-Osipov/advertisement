@@ -3,7 +3,6 @@ package rf.senla.domain.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,13 +34,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @SuppressWarnings("java:S6809")
 public class UserService implements IUserService {
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserRepository repository;
     private final RatingRepository ratingRepository;
     private final MessageRepository messageRepository;
     private final CommentRepository commentRepository;
     private final AdvertisementRepository advertisementRepository;
-    private final ApplicationContext context;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     @Transactional
@@ -70,16 +68,17 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public void deleteByUsername(String username) {
-        UserService service = context.getBean(UserService.class);
-        User user = service.getByUsername(username);
+        User user = getByUsername(username);
         log.info("Начало процесса удаления пользователя {}", user);
         Long id = user.getId();
-        service.deleteMessagesByUserId(id);
-        service.deleteCommentsByUserId(id);
-        service.deleteAdvertisementsByUserId(id);
-        service.deleteRatingsByUserId(id);
-        service.delete(username);
+        messageRepository.deleteBySender_IdOrRecipient_Id(id, id);
+        commentRepository.deleteByUser_Id(id);
+        commentRepository.deleteByAdvertisement_User_Id(id);
+        advertisementRepository.deleteByUser_Id(id);
+        ratingRepository.deleteBySender_IdOrRecipient_Id(id, id);
+        repository.deleteByUsername(username);
         log.info("Процесс удаления пользователя {} завершён успешно", user);
     }
 
@@ -223,64 +222,6 @@ public class UserService implements IUserService {
         saveWithoutPassword(recipient);
         log.info("Пользователю {} удалось поставить оценку {} для пользователя {}", currentUser, evaluation, recipient);
         return recipient;
-    }
-
-    /**
-     * Метод удаляет сообщения, в которых пользователь был отправителем или получателем
-     * @param id ID пользователя
-     */
-    @Transactional
-    public void deleteMessagesByUserId(Long id) {
-        log.info("Удаление сообщений, в которых получатель или отправитель пользователь с ID {}", id);
-        messageRepository.deleteBySender_IdOrRecipient_Id(id, id);
-        log.info("Успешно удалены сообщения, в которых получатель или отправитель пользователь с ID {}", id);
-    }
-
-    /**
-     * Метод удаляет комментарии пользователя и комментарии к объявлениям, которыми владел пользователь
-     * @param id ID пользователя
-     */
-    @Transactional
-    public void deleteCommentsByUserId(Long id) {
-        log.info("Удаление комментариев пользователя с ID {}", id);
-        commentRepository.deleteByUser_Id(id);
-        log.info("Успешно удалены комментарии пользователя с ID {}", id);
-        log.info("Удаление комментариев к объявлениям, у которых пользователь имеет ID {}", id);
-        commentRepository.deleteByAdvertisement_User_Id(id);
-        log.info("Успешно удалены комментарии к объявлениям, у которых пользователь имеет ID {}", id);
-    }
-
-    /**
-     * Метод удаляет объявления пользователя
-     * @param id ID пользователя
-     */
-    @Transactional
-    public void deleteAdvertisementsByUserId(Long id) {
-        log.info("Удаление объявлений пользователя с ID {}", id);
-        advertisementRepository.deleteByUser_Id(id);
-        log.info("Успешно удалены объявления пользователя с ID {}", id);
-    }
-
-    /**
-     * Метод удаляет рейтинги, в которых пользователь был отправителем или получателем
-     * @param id ID пользователя
-     */
-    @Transactional
-    public void deleteRatingsByUserId(Long id) {
-        log.info("Удаление рейтингов пользователя с ID {}", id);
-        ratingRepository.deleteBySender_IdOrRecipient_Id(id, id);
-        log.info("Успешно удалены рейтинги пользователя с ID {}", id);
-    }
-
-    /**
-     * Метод удаляет пользователя по его логину
-     * @param username логин пользователя
-     */
-    @Transactional
-    public void delete(String username) {
-        log.info("Удаление пользователя {}", username);
-        repository.deleteByUsername(username);
-        log.info("Пользователь {} удалён успешно", username);
     }
 
     /**
