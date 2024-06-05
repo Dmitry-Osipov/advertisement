@@ -3,7 +3,7 @@ package rf.senla.web.utils;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import rf.senla.domain.dto.CreateMessageRequest;
-import rf.senla.domain.dto.DeleteMessageRequest;
+import rf.senla.domain.dto.DeleteByIdRequest;
 import rf.senla.domain.dto.MessageDto;
 import rf.senla.domain.dto.UpdateMessageRequest;
 import rf.senla.domain.entity.Message;
@@ -17,6 +17,6 @@ public interface MessageMapper {
     MessageDto toDto(Message message);
     Message toEntity(CreateMessageRequest request);
     Message toEntity(UpdateMessageRequest request);
-    Message toEntity(DeleteMessageRequest request);
+    Message toEntity(DeleteByIdRequest request);
     List<MessageDto> toDtos(List<Message> messages);
 }

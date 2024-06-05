@@ -16,8 +16,8 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Запрос на удаление сообщения")
-public class DeleteMessageRequest {
+@Schema(description = "Запрос на удаление через ID")
+public class DeleteByIdRequest {
     @Schema(description = "ID сообщения", example = "1")
     @Positive(message = "ID не может быть ниже 1")
     private Long id;

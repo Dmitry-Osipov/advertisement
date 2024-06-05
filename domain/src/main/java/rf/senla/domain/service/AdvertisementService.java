@@ -3,6 +3,7 @@ package rf.senla.domain.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("java:S6809")
 public class AdvertisementService implements IAdvertisementService {
     private final UserService userService;
     private final AdvertisementRepository repository;
@@ -35,6 +37,7 @@ public class AdvertisementService implements IAdvertisementService {
     @Transactional
     public Advertisement create(Advertisement entity, UserDetails sender) {
         log.info("Сохранение объявления {}", entity);
+
         if (entity.getId() != null && repository.existsById(entity.getId())) {
             log.error("Не удалось сохранить объявление {}", entity);
             throw new EntityContainedException(ErrorMessage.ADVERTISEMENT_ALREADY_EXISTS.getMessage());
@@ -49,24 +52,46 @@ public class AdvertisementService implements IAdvertisementService {
 
     @Override
     @Transactional
-    public Advertisement update(Advertisement entity) {
+    public Advertisement update(Advertisement entity, UserDetails sender) {
         log.info("Обновление объявления {}", entity);
-        checkExistsById(entity, "Не удалось обновить объявление {}");
-        Advertisement advertisement = repository.save(entity);
+        Advertisement advertisement = getById(entity.getId());
+        checkSenderAndCurrentUser(sender, advertisement.getUser());
+        advertisement.setPrice(entity.getPrice());
+        advertisement.setHeadline(entity.getHeadline());
+        advertisement.setDescription(entity.getDescription());
+        advertisement = repository.save(advertisement);
         log.info("Удалось обновить объявление {}", advertisement);
         return advertisement;
     }
 
     @Override
     @Transactional
-    public void delete(Advertisement entity) {
+    public Advertisement update(Advertisement advertisement) {
+        log.info("Обновление объявления {} админом", advertisement);
+        checkExistsById(advertisement);
+        advertisement = repository.save(advertisement);
+        log.info("Удалось обновить объявление {} админом", advertisement);
+        return advertisement;
+    }
+
+    @Override
+    @Transactional
+    public void delete(Advertisement entity, UserDetails sender) {
         log.info("Удаление объявления {}", entity);
-        checkExistsById(entity, "Не удалось удалить объявление {}");
-        Long id = entity.getId();
-        commentRepository.deleteByAdvertisement_Id(id);
-        messageRepository.deleteByAdvertisement_Id(id);
-        repository.deleteById(id);
+        checkExistsById(entity);
+        Advertisement advertisement = getById(entity.getId());
+        checkSenderAndCurrentUser(sender, advertisement.getUser());
+        deleteAdvertisement(entity);
         log.info("Удалось удалить объявление {}", entity);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Advertisement advertisement) {
+        log.info("Удаление объявления {} админом", advertisement);
+        checkExistsById(advertisement);
+        deleteAdvertisement(advertisement);
+        log.info("Удалось удалить объявление {} админом", advertisement);
     }
 
     @Override
@@ -134,6 +159,20 @@ public class AdvertisementService implements IAdvertisementService {
     }
 
     /**
+     * Служебный метод проверяет совпадение переданного пользователя и пользователя из объявления
+     * @param currentUser переданный пользователь
+     * @param sender пользователь объявления
+     */
+    private static void checkSenderAndCurrentUser(UserDetails currentUser, User sender) {
+        String expectedUsername = currentUser.getUsername();
+        if (!sender.getUsername().equals(expectedUsername)) {
+            log.error("Переданный пользователь {} и пользователь объявления {} не совпали",
+                    expectedUsername, sender);
+            throw new AccessDeniedException(ErrorMessage.SENDER_MISMATCH.getMessage());
+        }
+    }
+
+    /**
      * Служебный метод логирует данные списка
      * @param list список
      */
@@ -144,12 +183,22 @@ public class AdvertisementService implements IAdvertisementService {
     /**
      * Служебный метод проверяет содержание объявления в БД
      * @param entity объявление
-     * @param s строка для записи лога
      */
-    private void checkExistsById(Advertisement entity, String s) {
+    private void checkExistsById(Advertisement entity) {
         if (!repository.existsById(entity.getId())) {
-            log.error(s, entity);
+            log.error("Отсутствует объявление {}", entity);
             throw new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage());
         }
+    }
+
+    /**
+     * Служебный метод удаляет объявление в репозиториях комментариев, сообщений и объявлений
+     * @param advertisement объявление
+     */
+    private void deleteAdvertisement(Advertisement advertisement) {
+        Long id = advertisement.getId();
+        commentRepository.deleteByAdvertisement_Id(id);
+        messageRepository.deleteByAdvertisement_Id(id);
+        repository.deleteById(id);
     }
 }

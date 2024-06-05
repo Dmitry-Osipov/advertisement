@@ -18,11 +18,24 @@ public interface IAdvertisementService {
      */
     Advertisement create(Advertisement advertisement, UserDetails sender);
 
+    /** Обновление объявления с переданным пользователем
+     * @param advertisement объявление
+     * @param sender данные пользователя
+     * @return обновлённое объявление
+     */
+    Advertisement update(Advertisement advertisement, UserDetails sender);
+
     /** Обновление объявления
      * @param advertisement объявление
      * @return обновлённое объявление
      */
     Advertisement update(Advertisement advertisement);
+
+    /** Удаление объявления с переданным пользователем
+     * @param advertisement объявление
+     * @param sender данные пользователя
+     */
+    void delete(Advertisement advertisement, UserDetails sender);
 
     /** Удаление объявления
      * @param advertisement объявление

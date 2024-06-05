@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.AdvertisementDto;
 import rf.senla.domain.dto.CreateAdvertisementRequest;
 import rf.senla.domain.service.IAdvertisementService;
+import rf.senla.domain.dto.DeleteByIdRequest;
+import rf.senla.domain.dto.UpdateAdvertisementRequest;
 import rf.senla.web.utils.AdvertisementMapper;
 
 import java.util.List;
@@ -86,7 +88,7 @@ public class RestAdvertisementController {
      * @param pageable пагинация
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
-    @GetMapping("/all")
+    @GetMapping("/filter")
     @Operation(summary = "Получить список объявлений по заголовку в промежутке цен с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -152,7 +154,8 @@ public class RestAdvertisementController {
 
     /**
      * Создать новое объявление.
-     * @param request объект {@link CreateAdvertisementRequest} с данными нового объявления
+     * @param request объект {@link CreateAdvertisementRequest} с данными нового объявления,
+     * @param user текущий пользователь
      * @return объект {@link ResponseEntity} с созданным объявлением и кодом 200 OK в случае успеха
      */
     @PostMapping
@@ -177,11 +180,11 @@ public class RestAdvertisementController {
 
     /**
      * Обновить существующее объявление.
-     * @param dto объект {@link AdvertisementDto} с обновленными данными объявления
+     * @param request объект {@link AdvertisementDto} с обновленными данными объявления,
+     * @param user текущий пользователь
      * @return объект {@link ResponseEntity} с обновленным объявлением и кодом 200 OK в случае успеха
      */
     @PutMapping
-    @PreAuthorize("#dto.user.username == authentication.principal.username or hasRole('ADMIN')")
     @Operation(summary = "Обновить существующее объявление")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
@@ -195,18 +198,19 @@ public class RestAdvertisementController {
     })
     public ResponseEntity<AdvertisementDto> update(
             @Parameter(description = "Данные объявления", required = true,
-                    content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
-            @RequestBody @Valid AdvertisementDto dto) {
-        return ResponseEntity.ok(mapper.toDto(service.update(mapper.toEntity(dto))));
+                    content = @Content(schema = @Schema(implementation = UpdateAdvertisementRequest.class)))
+            @RequestBody @Valid UpdateAdvertisementRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(mapper.toDto(service.update(mapper.toEntity(request), user)));
     }
 
     /**
      * Удалить объявление.
-     * @param dto объект {@link AdvertisementDto} с данными объявления для удаления
+     * @param request объект {@link DeleteByIdRequest} с данными объявления для удаления
+     * @param user текущий пользователь
      * @return объект {@link ResponseEntity} с сообщением об успешном удалении и кодом 200 OK в случае успеха
      */
     @DeleteMapping
-    @PreAuthorize("#dto.user.username == authentication.principal.username or hasRole('ADMIN')")
     @Operation(summary = "Удалить объявление")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
@@ -214,9 +218,55 @@ public class RestAdvertisementController {
     })
     public ResponseEntity<String> delete(
             @Parameter(description = "Данные объявления", required = true,
+                    content = @Content(schema = @Schema(implementation = DeleteByIdRequest.class)))
+            @RequestBody @Valid DeleteByIdRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        service.delete(mapper.toEntity(request), user);
+        return ResponseEntity.ok("Deleted advertisement with ID: " + request.getId());
+    }
+
+    /**
+     * Обновить существующее объявление.
+     * @param dto объект {@link AdvertisementDto} с обновленными данными объявления
+     * @return объект {@link ResponseEntity} с обновленным объявлением и кодом 200 OK в случае успеха
+     */
+    @PutMapping("${spring.data.rest.admin-path}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Обновить существующее объявление")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AdvertisementDto.class),
+                            examples = @ExampleObject(value = "{\"id\": 1,\"userName\": \"John Doe\",\"price\": 2000," +
+                                    "\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
+                                    "device that combines the functions of a cell phone and a personal computer\"," +
+                                    "\"status\": \"REVIEW\"}"))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    })
+    public ResponseEntity<AdvertisementDto> updateByAdmin(
+            @Parameter(description = "Данные объявления", required = true,
                     content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
             @RequestBody @Valid AdvertisementDto dto) {
-        service.delete(mapper.toEntity(dto));
-        return ResponseEntity.ok("Deleted advertisement with headline " + dto.getHeadline());
+        return ResponseEntity.ok(mapper.toDto(service.update(mapper.toEntity(dto))));
+    }
+
+    /**
+     * Удалить объявление.
+     * @param request объект {@link AdvertisementDto} с данными объявления для удаления
+     * @return объект {@link ResponseEntity} с сообщением об успешном удалении и кодом 200 OK в случае успеха
+     */
+    @DeleteMapping("${spring.data.rest.admin-path}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Удалить объявление")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    })
+    public ResponseEntity<String> deleteByAdmin(
+            @Parameter(description = "Данные объявления", required = true,
+                    content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
+            @RequestBody @Valid DeleteByIdRequest request) {
+        service.delete(mapper.toEntity(request));
+        return ResponseEntity.ok("Deleted advertisement with ID: " + request.getId());
     }
 }

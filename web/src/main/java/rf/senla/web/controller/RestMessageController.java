@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.CreateMessageRequest;
-import rf.senla.domain.dto.DeleteMessageRequest;
+import rf.senla.domain.dto.DeleteByIdRequest;
 import rf.senla.domain.dto.MessageDto;
 import rf.senla.domain.dto.UpdateMessageRequest;
 import rf.senla.domain.service.IMessageService;
@@ -129,7 +129,7 @@ public class RestMessageController {
 
     /**
      * Удаляет сообщение.
-     * @param dto Сообщение в формате {@link DeleteMessageRequest} для удаления.
+     * @param request Сообщение в формате {@link DeleteByIdRequest} для удаления.
      * @return {@link ResponseEntity} с информацией об удаленном сообщении.
      */
     @DeleteMapping
@@ -140,10 +140,10 @@ public class RestMessageController {
     })
     public ResponseEntity<String> delete(
             @Parameter(description = "Данные сообщения", required = true,
-                    content = @Content(schema = @Schema(implementation = DeleteMessageRequest.class)))
-            @Valid @RequestBody DeleteMessageRequest dto,
+                    content = @Content(schema = @Schema(implementation = DeleteByIdRequest.class)))
+            @Valid @RequestBody DeleteByIdRequest request,
             @AuthenticationPrincipal UserDetails user) {
-        service.delete(mapper.toEntity(dto), user);
-        return ResponseEntity.ok("Deleted message with id: " + dto.getId());
+        service.delete(mapper.toEntity(request), user);
+        return ResponseEntity.ok("Deleted message with id: " + request.getId());
     }
 }
