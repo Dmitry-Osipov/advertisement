@@ -24,6 +24,7 @@ import java.util.List;
 public class CommentService implements ICommentService {
     private final UserService userService;
     private final CommentRepository repository;
+    private final AdvertisementService advertisementService;
 
     @Override
     @Transactional
@@ -35,6 +36,7 @@ public class CommentService implements ICommentService {
             throw new EntityContainedException(ErrorMessage.COMMENT_ALREADY_EXISTS.getMessage());
         }
 
+        comment.setAdvertisement(advertisementService.getById(comment.getAdvertisement().getId()));
         comment.setUser(userService.getByUsername(sender.getUsername()));
         comment.setCreatedAt(LocalDateTime.now());
         comment = repository.save(comment);

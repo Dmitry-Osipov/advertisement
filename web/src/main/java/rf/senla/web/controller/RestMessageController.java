@@ -74,6 +74,7 @@ public class RestMessageController {
     public ResponseEntity<List<MessageDto>> getUserCorrespondence(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "username") @NotBlank @Size(min = 5, max = 50) String username,
+
             @PageableDefault(sort = {"sentAt"}, direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal UserDetails sender) {
         return ResponseEntity.ok(mapper.toDtos(service.getAll(sender, username, pageable)));

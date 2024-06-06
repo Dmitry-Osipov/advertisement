@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.JwtAuthenticationResponse;
+import rf.senla.web.dto.ForgotPasswordRequest;
 import rf.senla.web.dto.ResetPasswordRequest;
 import rf.senla.domain.dto.SignInRequest;
 import rf.senla.domain.dto.SignUpRequest;
@@ -81,8 +82,7 @@ public class RestAuthController {
 
     /**
      * Метод для отправки пользователю ссылку на восстановление пароля
-     * @param username имя пользователя, которому требуется восстановить пароль
-     * @param email актуальная почта пользователя, которому требуется восстановить пароль
+     * @param request запрос на сброс пароля
      * @return сообщение об успешном выполнении операции
      */
     @PostMapping("/forgot-password")
@@ -92,13 +92,10 @@ public class RestAuthController {
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
     public ResponseEntity<String> forgotPassword(
-            @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.QUERY)
-            @RequestParam(value = "username") String username,
-
-            @Parameter(description = "Адрес электронной почты", example = "jondoe@gmail.com",
-                    required = true, in = ParameterIn.QUERY)
-            @RequestParam(value = "email") String email) {
-        authenticationService.sendResetPasswordEmail(email, username);
+            @Parameter(description = "Новый пароль", required = true,
+                    content = @Content(schema = @Schema(implementation = ForgotPasswordRequest.class)))
+            @RequestBody @Valid ForgotPasswordRequest request) {
+        authenticationService.sendResetPasswordEmail(request.getEmail(), request.getUsername());
         return ResponseEntity.ok("Reset password email has been sent");
     }
 
@@ -116,7 +113,7 @@ public class RestAuthController {
     })
     public ResponseEntity<String> resetPassword(
             @Parameter(description = "Токен восстановления пароля", required = true, in = ParameterIn.QUERY,
-                    example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...")
+                    example = "fd651122-4d99-4da6-8c47-c74829f241a5")
             @RequestParam(value = "token") String token,
 
             @Parameter(description = "Новый пароль", required = true,

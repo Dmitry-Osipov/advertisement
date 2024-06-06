@@ -126,7 +126,7 @@ public class RestAdvertisementController {
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
     @GetMapping("/{username}")
-    @Operation(summary = "Получить список объявлений по пользователю с пагинацией")
+    @Operation(summary = "Получить список объявлений (активные или неактивные) по пользователю с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -185,7 +185,7 @@ public class RestAdvertisementController {
      * @return объект {@link ResponseEntity} с обновленным объявлением и кодом 200 OK в случае успеха
      */
     @PutMapping
-    @Operation(summary = "Обновить существующее объявление")
+    @Operation(summary = "Обновить объявление")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -245,7 +245,7 @@ public class RestAdvertisementController {
      */
     @PutMapping("${spring.data.rest.admin-path}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Обновить существующее объявление")
+    @Operation(summary = "Обновить объявление админом")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -270,7 +270,7 @@ public class RestAdvertisementController {
      */
     @DeleteMapping("${spring.data.rest.admin-path}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Удалить объявление")
+    @Operation(summary = "Удалить объявление админом")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)

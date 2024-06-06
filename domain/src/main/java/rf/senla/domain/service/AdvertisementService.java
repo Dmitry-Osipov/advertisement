@@ -69,6 +69,7 @@ public class AdvertisementService implements IAdvertisementService {
     public Advertisement update(Advertisement advertisement) {
         log.info("Обновление объявления {} админом", advertisement);
         checkExistsById(advertisement);
+        advertisement.setUser(userService.getByUsername(advertisement.getUser().getUsername()));
         advertisement = repository.save(advertisement);
         log.info("Удалось обновить объявление {} админом", advertisement);
         return advertisement;
@@ -155,6 +156,21 @@ public class AdvertisementService implements IAdvertisementService {
         return list;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Advertisement getById(Long id) {
+        try {
+            log.info("Получение объявления с ID {}", id);
+            Advertisement advertisement = repository.findById(id)
+                    .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage()));
+            log.info("Получено объявление {}", advertisement);
+            return advertisement;
+        } catch (NoEntityException e) {
+            log.error("Не удалось получить объявление с ID {}", id);
+            throw e;
+        }
+    }
+
     /**
      * Служебный метод проверяет совпадение переданного пользователя и пользователя из объявления
      * @param currentUser переданный пользователь
@@ -175,25 +191,6 @@ public class AdvertisementService implements IAdvertisementService {
      */
     private static void successfullyListLog(List<Advertisement> list) {
         log.info("Получен список из {} объявлений: {}", list.size(), list);
-    }
-
-    /**
-     * Получить объявление по его id.
-     * @param id уникальный идентификатор объявления
-     * @return объявление
-     * @throws NoEntityException если объявление не было найдено
-     */
-    private Advertisement getById(Long id) {
-        try {
-            log.info("Получение объявления с ID {}", id);
-            Advertisement advertisement = repository.findById(id)
-                    .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage()));
-            log.info("Получено объявление {}", advertisement);
-            return advertisement;
-        } catch (NoEntityException e) {
-            log.error("Не удалось получить объявление с ID {}", id);
-            throw e;
-        }
     }
 
     /**

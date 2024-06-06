@@ -27,47 +27,49 @@ import java.util.List;
 public class MessageService implements IMessageService {
     private final IUserService userService;
     private final MessageRepository repository;
+    private final AdvertisementService advertisementService;
 
     @Override
     @Transactional
-    public Message create(Message entity, UserDetails sender) {
-        log.info("Сохранение сообщения {}", entity);
+    public Message create(Message message, UserDetails sender) {
+        log.info("Сохранение сообщения {}", message);
 
-        User user = userService.getByUsername(sender.getUsername());
-        if (entity.getId() != null && repository.existsById(entity.getId())) {
-            log.error("Не удалось сохранить сообщение {}", entity);
+        if (message.getId() != null && repository.existsById(message.getId())) {
+            log.error("Не удалось сохранить сообщение {}", message);
             throw new EntityContainedException(ErrorMessage.MESSAGE_ALREADY_EXISTS.getMessage());
         }
 
-        entity.setRead(Boolean.FALSE);
-        entity.setSender(user);
-        entity.setSentAt(LocalDateTime.now());
-        Message message = repository.save(entity);
+        message.setSender(userService.getByUsername(sender.getUsername()));
+        message.setRecipient(userService.getByUsername(message.getRecipient().getUsername()));
+        message.setAdvertisement(advertisementService.getById(message.getAdvertisement().getId()));
+        message.setSentAt(LocalDateTime.now());
+        message.setRead(Boolean.FALSE);
+        message = repository.save(message);
         log.info("Сохранено сообщение {}", message);
         return message;
     }
 
     @Override
     @Transactional
-    public Message update(Message entity, UserDetails sender) {
-        log.info("Обновление сообщения {}", entity);
-        Message message = getById(entity.getId());
-        checkSenderAndCurrentUser(sender, message.getSender());
-        message.setRead(entity.getRead() == null ? Boolean.FALSE : entity.getRead());
-        message.setText(entity.getText());
-        message = repository.save(message);
-        log.info("Удалось обновить сообщение {}", message);
-        return message;
+    public Message update(Message message, UserDetails sender) {
+        log.info("Обновление сообщения {}", message);
+        Message entity = getById(message.getId());
+        checkSenderAndCurrentUser(sender, entity.getSender());
+        entity.setRead(message.getRead() == null ? Boolean.FALSE : message.getRead());
+        entity.setText(message.getText());
+        entity = repository.save(entity);
+        log.info("Удалось обновить сообщение {}", entity);
+        return entity;
     }
 
     @Override
     @Transactional
-    public void delete(Message entity, UserDetails sender) {
-        log.info("Удаление сообщения {}", entity);
-        Message message = getById(entity.getId());
-        checkSenderAndCurrentUser(sender, message.getSender());
-        repository.delete(message);
-        log.info("Удалось удалить сообщение {}", entity);
+    public void delete(Message message, UserDetails sender) {
+        log.info("Удаление сообщения {}", message);
+        Message entity = getById(message.getId());
+        checkSenderAndCurrentUser(sender, entity.getSender());
+        repository.delete(entity);
+        log.info("Удалось удалить сообщение {}", message);
     }
 
     @Override
