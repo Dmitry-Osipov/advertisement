@@ -26,15 +26,13 @@ public class CommentDto {
     @Schema(description = "ID комментария", example = "1")
     private Long id;
 
-    @Schema(description = "ID объявления", example = "1")
-    @Positive(message = "ID объявления не может быть отрицательным или 0")
-    @NotNull(message = "ID объявления не может быть пустым")
-    private Long advertisementId;
+    @Schema(description = "Объявление")
+    @NotNull(message = "Объявление не может быть пустым")
+    private AdvertisementDto advertisement;
 
-    @Schema(description = "Имя пользователя", example = "John Doe")
-    @Size(min = 5, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")
-    @NotBlank(message = "Имя пользователя не может быть пустым")
-    private String userName;
+    @Schema(description = "Пользователь")
+    @NotBlank(message = "Пользователь не может быть пустым")
+    private UserDto user;
 
     @Schema(description = "Текст сообщения", example = "Hello!")
     @NotBlank(message = "Сообщение не может быть пустым")

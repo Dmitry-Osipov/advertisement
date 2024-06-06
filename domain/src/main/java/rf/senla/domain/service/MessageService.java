@@ -52,7 +52,7 @@ public class MessageService implements IMessageService {
     public Message update(Message entity, UserDetails sender) {
         log.info("Обновление сообщения {}", entity);
         Message message = getById(entity.getId());
-        checkSenderAndCurrentUser(sender, message);
+        checkSenderAndCurrentUser(sender, message.getSender());
         message.setRead(entity.getRead() == null ? Boolean.FALSE : entity.getRead());
         message.setText(entity.getText());
         message = repository.save(message);
@@ -65,7 +65,7 @@ public class MessageService implements IMessageService {
     public void delete(Message entity, UserDetails sender) {
         log.info("Удаление сообщения {}", entity);
         Message message = getById(entity.getId());
-        checkSenderAndCurrentUser(sender, message);
+        checkSenderAndCurrentUser(sender, message.getSender());
         repository.delete(message);
         log.info("Удалось удалить сообщение {}", entity);
     }
@@ -84,11 +84,11 @@ public class MessageService implements IMessageService {
     /**
      * Метод проверяет совпадение текущего пользователя и отправителя сообщения
      * @param currentUser текущий пользователь
-     * @param message сообщение
+     * @param sender отправитель
      * @throws AccessDeniedException если текущий пользователь не является отправителем
      */
-    private static void checkSenderAndCurrentUser(UserDetails currentUser, Message message) {
-        if (!message.getSender().getUsername().equals(currentUser.getUsername())) {
+    private static void checkSenderAndCurrentUser(UserDetails currentUser, UserDetails sender) {
+        if (!sender.getUsername().equals(currentUser.getUsername())) {
             log.error("Отправитель не является текущим пользователем");
             throw new AccessDeniedException(ErrorMessage.SENDER_MISMATCH.getMessage());
         }

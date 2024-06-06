@@ -10,9 +10,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,13 +28,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.web.dto.CommentDto;
 import rf.senla.domain.service.ICommentService;
+import rf.senla.web.dto.CreateCommentRequest;
+import rf.senla.web.dto.DeleteByIdRequest;
+import rf.senla.web.dto.UpdateCommentRequest;
+import rf.senla.web.utils.CommentMapper;
 
 import java.util.List;
 
+// TODO: swagger doc
 /**
  * Контроллер для обработки запросов комментариев через REST API.
  */
@@ -38,10 +49,12 @@ import java.util.List;
 @RequestMapping("${spring.data.rest.base-path}/comments")
 public class RestCommentController {
     private final ICommentService service;
+    private final CommentMapper mapper;
 
     /**
      * Получить список всех комментариев по ID объявления.
      * @param advertisementId id объявления
+     * @param pageable пагинация
      * @return ответ с кодом 200 (OK) и списком всех комментариев объявления в формате JSON
      */
     @GetMapping("/{advertisementId}")
@@ -58,19 +71,17 @@ public class RestCommentController {
     })
     public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(
             @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
-            @PathVariable Long advertisementId,
-            // TODO: Pageable
-            @Parameter(description = "Номер страницы", example = "0", in = ParameterIn.QUERY)
-            @RequestParam(value = "page", required = false) Integer page,
-            @Parameter(description = "Размер страницы", example = "1", in = ParameterIn.QUERY)
-            @RequestParam(value = "size", required = false) Integer size) {
-        // TODO: MapStruct
-        return ResponseEntity.ok(null);//converter.getListCommentDto(service.getAll(advertisementId, page, size)));
+            @PathVariable @Min(1) @Max(Long.MAX_VALUE) Long advertisementId,
+
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(mapper.toDtos(service.getAll(advertisementId, pageable)));
     }
 
     /**
      * Создать новый комментарий.
      * @param dto данные нового комментария в формате JSON
+     * @param user текущий пользователь
      * @return ответ с кодом 200 (OK) и данными нового комментария в формате JSON
      */
     @PostMapping
@@ -84,23 +95,23 @@ public class RestCommentController {
                                     "\"2024-05-09T14:55:46.765819\"}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<CommentDto> createComment(
+    public ResponseEntity<CommentDto> create(
             @Parameter(description = "Данные комментария", required = true,
-                    content = @Content(schema = @Schema(implementation = CommentDto.class)))
-            @Valid @RequestBody CommentDto dto) {
-        // TODO: MapStruct
-        // TODO: создание по текущему пользователю
-        return ResponseEntity.ok(null);//converter.getDtoFromComment(service.save(converter.getCommentFromDto(dto))));
+                    content = @Content(schema = @Schema(implementation = CreateCommentRequest.class)))
+            @Valid @RequestBody CreateCommentRequest dto,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(mapper.toDto(service.create(mapper.toEntity(dto), user)));
     }
 
     /**
      * Обновить существующий комментарий.
      * @param dto данные обновляемого комментария в формате JSON
+     * @param user текущий пользователь
      * @return ответ с кодом 200 (OK) и обновленными данными комментария в формате JSON
      */
     @PutMapping
-    @PreAuthorize("#dto.userName == authentication.principal.username")
     @Operation(summary = "Обновить комментарий")
+    @PreAuthorize("#user.username == authentication.principal.username")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -110,33 +121,32 @@ public class RestCommentController {
                                     "\"2024-05-09T14:55:46.765819\"}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<CommentDto> updateComment(
+    public ResponseEntity<CommentDto> update(
             @Parameter(description = "Данные комментария", required = true,
-                    content = @Content(schema = @Schema(implementation = CommentDto.class)))
-            @Valid @RequestBody CommentDto dto) {
-        // TODO: MapStruct
-        // TODO: обновление по текущему пользователю
-        return ResponseEntity.ok(null);//converter.getDtoFromComment(service.update(converter.getCommentFromDto(dto))));
+                    content = @Content(schema = @Schema(implementation = UpdateCommentRequest.class)))
+            @Valid @RequestBody UpdateCommentRequest dto,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(mapper.toDto(service.update(mapper.toEntity(dto), user)));
     }
 
     /**
      * Удалить комментарий.
-     * @param dto данные удаляемого комментария в формате JSON
+     * @param request данные удаляемого комментария в формате JSON
+     * @param user текущий пользователь
      * @return ответ с кодом 200 (OK) и сообщением об успешном удалении
      */
     @DeleteMapping
-    @PreAuthorize("#dto.userName == authentication.principal.username or hasRole('ADMIN')")
     @Operation(summary = "Удалить комментарий")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<String> deleteComment(
-            @Parameter(description = "Данные комментария", required = true,
-                    content = @Content(schema = @Schema(implementation = CommentDto.class)))
-            @Valid @RequestBody CommentDto dto) {
-        // TODO: MapStruct
-        //service.delete(converter.getCommentFromDto(dto));
-        return ResponseEntity.ok("Deleted comment with id " + dto.getId());
+    public ResponseEntity<String> delete(
+            @Parameter(description = "Данные объявления", required = true,
+                    content = @Content(schema = @Schema(implementation = DeleteByIdRequest.class)))
+            @Valid @RequestBody DeleteByIdRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        service.delete(request.getId(), user);
+        return ResponseEntity.ok("Deleted comment with id: " + request.getId());
     }
 }

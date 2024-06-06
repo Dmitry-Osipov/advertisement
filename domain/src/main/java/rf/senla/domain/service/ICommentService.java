@@ -1,5 +1,7 @@
 package rf.senla.domain.service;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import rf.senla.domain.entity.Comment;
 
 import java.util.List;
@@ -8,27 +10,29 @@ public interface ICommentService {
     /**
      * Сохранение комментария
      * @param comment комментарий
+     * @param sender отправитель сообщения
      * @return сохранённый комментарий
      */
-    Comment save(Comment comment);
+    Comment create(Comment comment, UserDetails sender);
 
     /** Обновление комментария
      * @param comment сущность
+     * @param user отправитель сообщения
      * @return обновлённый комментарий
      */
-    Comment update(Comment comment);
+    Comment update(Comment comment, UserDetails user);
 
     /** Удаление комментария
-     * @param comment комментарий
+     * @param id ID комментария
+     * @param user текущий пользователь
      */
-    void delete(Comment comment);
+    void delete(Long id, UserDetails user);
 
     /**
      * Получение всех комментариев объявления с пагинацией.
      * @param advertisementId ID объявления
-     * @param page порядковый номер страницы
-     * @param size размер страницы
+     * @param pageable пагинация
      * @return список комментариев
      */
-    List<Comment> getAll(Long advertisementId, Integer page, Integer size);
+    List<Comment> getAll(Long advertisementId, Pageable pageable);
 }
