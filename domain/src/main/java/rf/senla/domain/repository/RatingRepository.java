@@ -17,7 +17,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
      * @return рейтинг пользователя
      */
     @Query("SELECT AVG(r.evaluation) FROM Rating r WHERE r.recipient = :recipient")
-    Double findByAverageRatingByRecipient(User recipient);
+    Double getAverageRatingByRecipient(User recipient);
 
     /**
      * Проверка содержания в БД пары отправителя и получателя рейтинга

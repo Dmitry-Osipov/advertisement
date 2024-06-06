@@ -187,7 +187,7 @@ public class UserService implements IUserService {
     @Transactional(readOnly = true)
     public Double getUserRating(User user) {
         log.error("Получение рейтинга для пользователя {}", user);
-        Double rating = ratingRepository.findByAverageRatingByRecipient(user);
+        Double rating = ratingRepository.getAverageRatingByRecipient(user);
         if (rating != null) {
             log.info("Для пользователя {} получен рейтинг {}", user, rating);
         } else {
