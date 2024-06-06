@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import rf.senla.domain.dto.CommentDto;
+import rf.senla.web.dto.CommentDto;
 import rf.senla.domain.service.ICommentService;
 
 import java.util.List;

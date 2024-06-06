@@ -1,8 +1,7 @@
-package rf.senla.domain.dto;
+package rf.senla.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,22 +11,15 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * DTO, представляющее сущность объявления.
+ * Запрос на сохранение объявления
  */
 @Data
 @Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO сущности объявления")
-public class AdvertisementDto {
-    @Schema(description = "ID объявления", example = "1")
-    private Long id;
-
-    @Schema(description = "DTO пользователя")
-    @NotNull(message = "Пользователь не может быть null")
-    private UserDto user;
-
+@Schema(description = "Запрос на сохранение объявления")
+public class CreateAdvertisementRequest {
     @Schema(description = "Стоимость", example = "2000")
     @PositiveOrZero(message = "Цена не может быть отрицательной")
     private Integer price;
@@ -42,9 +34,4 @@ public class AdvertisementDto {
     @Size(min = 3, message = "Длина описания должна быть от 3 символов")
     @NotBlank(message = "Описание не может быть пустым")
     private String description;
-
-    @Schema(description = "Статус", example = "ACTIVE")
-    @Size(min = 4, max = 50, message = "Длина статуса должна быть от 4 до 50 символов")
-    @NotBlank(message = "Статус не может быть пустым")
-    private String status;
 }

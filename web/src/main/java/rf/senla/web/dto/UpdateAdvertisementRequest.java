@@ -1,7 +1,8 @@
-package rf.senla.domain.dto;
+package rf.senla.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -11,15 +12,19 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * Запрос на сохранение объявления
+ * Запрос на обновление объявления.
  */
 @Data
 @Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Запрос на сохранение объявления")
-public class CreateAdvertisementRequest {
+@Schema(description = "Запрос на обновление объявления")
+public class UpdateAdvertisementRequest {
+    @Schema(description = "ID объявления", example = "1")
+    @Positive(message = "ID не может быть меньше 1")
+    private Long id;
+
     @Schema(description = "Стоимость", example = "2000")
     @PositiveOrZero(message = "Цена не может быть отрицательной")
     private Integer price;

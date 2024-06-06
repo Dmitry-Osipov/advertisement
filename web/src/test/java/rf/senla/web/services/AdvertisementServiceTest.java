@@ -357,24 +357,6 @@ class AdvertisementServiceTest {
     }
 
     @Test
-    void getByIdDoesNotThrowException() {
-        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(advertisements.getFirst()));
-
-        assertDoesNotThrow(() -> sut.getById(anyLong()));
-
-        verify(advertisementRepository, times(1)).findById(anyLong());
-    }
-
-    @Test
-    void getByIdThrowsNoEntityException() {
-        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(NoEntityException.class, () -> sut.getById(anyLong()));
-
-        verify(advertisementRepository, times(1)).findById(anyLong());
-    }
-
-    @Test
     @Disabled
     void createDoestNotThrowException() {
         Advertisement expected = Advertisement.builder()

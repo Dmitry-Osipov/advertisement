@@ -2,11 +2,11 @@ package rf.senla.web.utils;
 
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
-import rf.senla.domain.dto.AdvertisementDto;
-import rf.senla.domain.dto.CreateAdvertisementRequest;
-import rf.senla.domain.dto.DeleteByIdRequest;
+import rf.senla.web.dto.AdvertisementDto;
+import rf.senla.web.dto.CreateAdvertisementRequest;
+import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.domain.entity.Advertisement;
-import rf.senla.domain.dto.UpdateAdvertisementRequest;
+import rf.senla.web.dto.UpdateAdvertisementRequest;
 
 import java.util.List;
 

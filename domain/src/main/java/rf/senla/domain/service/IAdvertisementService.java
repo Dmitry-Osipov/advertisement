@@ -59,13 +59,6 @@ public interface IAdvertisementService {
     List<Advertisement> getAll(String username, Boolean active, Pageable pageable);
 
     /**
-     * Получить объявление по его id.
-     * @param id уникальный идентификатор объявления
-     * @return объявление
-     */
-    Advertisement getById(Long id);
-
-    /**
      * Получить объявления по заголовку в промежутке цен с пагинацией.
      * @param min минимальная цена
      * @param max максимальная цена
@@ -74,4 +67,7 @@ public interface IAdvertisementService {
      * @return список объявлений
      */
     List<Advertisement> getAll(Integer min, Integer max, String headline, Pageable pageable);
+
+    // TODO: javadoc
+    Advertisement sell(Long id, UserDetails sender);
 }

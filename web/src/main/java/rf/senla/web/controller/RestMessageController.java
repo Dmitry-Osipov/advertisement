@@ -28,10 +28,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import rf.senla.domain.dto.CreateMessageRequest;
-import rf.senla.domain.dto.DeleteByIdRequest;
-import rf.senla.domain.dto.MessageDto;
-import rf.senla.domain.dto.UpdateMessageRequest;
+import rf.senla.web.dto.CreateMessageRequest;
+import rf.senla.web.dto.DeleteByIdRequest;
+import rf.senla.web.dto.MessageDto;
+import rf.senla.web.dto.UpdateMessageRequest;
 import rf.senla.domain.service.IMessageService;
 import rf.senla.web.utils.MessageMapper;
 

@@ -2,10 +2,10 @@ package rf.senla.web.utils;
 
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
-import rf.senla.domain.dto.CreateMessageRequest;
-import rf.senla.domain.dto.DeleteByIdRequest;
-import rf.senla.domain.dto.MessageDto;
-import rf.senla.domain.dto.UpdateMessageRequest;
+import rf.senla.web.dto.CreateMessageRequest;
+import rf.senla.web.dto.DeleteByIdRequest;
+import rf.senla.web.dto.MessageDto;
+import rf.senla.web.dto.UpdateMessageRequest;
 import rf.senla.domain.entity.Message;
 
 import java.util.List;

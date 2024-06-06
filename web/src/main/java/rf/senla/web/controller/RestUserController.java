@@ -32,10 +32,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import rf.senla.domain.dto.ChangePasswordRequest;
-import rf.senla.domain.dto.DeleteByUsernameRequest;
-import rf.senla.domain.dto.UpdateUserRequest;
-import rf.senla.domain.dto.UserDto;
+import rf.senla.web.dto.ChangePasswordRequest;
+import rf.senla.web.dto.DeleteByUsernameRequest;
+import rf.senla.web.dto.UpdateUserRequest;
+import rf.senla.web.dto.UserDto;
 import rf.senla.domain.service.IUserService;
 import rf.senla.web.utils.UserMapper;
 

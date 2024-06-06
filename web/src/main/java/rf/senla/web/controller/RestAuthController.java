@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.domain.dto.JwtAuthenticationResponse;
-import rf.senla.domain.dto.ResetPasswordRequest;
+import rf.senla.web.dto.ResetPasswordRequest;
 import rf.senla.domain.dto.SignInRequest;
 import rf.senla.domain.dto.SignUpRequest;
 import rf.senla.domain.service.IAuthenticationService;
@@ -94,6 +94,7 @@ public class RestAuthController {
     public ResponseEntity<String> forgotPassword(
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "username") String username,
+
             @Parameter(description = "Адрес электронной почты", example = "jondoe@gmail.com",
                     required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "email") String email) {
@@ -117,6 +118,7 @@ public class RestAuthController {
             @Parameter(description = "Токен восстановления пароля", required = true, in = ParameterIn.QUERY,
                     example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...")
             @RequestParam(value = "token") String token,
+
             @Parameter(description = "Новый пароль", required = true,
                     content = @Content(schema = @Schema(implementation = ResetPasswordRequest.class)))
             @RequestBody @Valid ResetPasswordRequest request) {

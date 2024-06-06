@@ -127,6 +127,18 @@ public class AdvertisementService implements IAdvertisementService {
 
     @Override
     @Transactional
+    public Advertisement sell(Long id, UserDetails sender) {
+        log.info("Вызван метод продажи объявления с ID {} пользователем {}", id, sender.getUsername());
+        Advertisement advertisement = getById(id);
+        checkSenderAndCurrentUser(sender, advertisement.getUser());
+        advertisement.setStatus(AdvertisementStatus.SOLD);
+        advertisement = repository.save(advertisement);
+        log.info("Удалось продать объявление {}", advertisement);
+        return advertisement;
+    }
+
+    @Override
+    @Transactional
     public List<Advertisement> getAll(String username, Boolean active, Pageable pageable) {
         log.info("Получение списка объявлений пользователя - {}, флаг только активных объявлений - {}, " +
                 "с пагинацией - {}", username, active, pageable);
@@ -143,27 +155,12 @@ public class AdvertisementService implements IAdvertisementService {
         return list;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Advertisement getById(Long id) {
-        try {
-            log.info("Получение объявления с ID {}", id);
-            Advertisement advertisement = repository.findById(id)
-                    .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage()));
-            log.info("Получено объявление {}", advertisement);
-            return advertisement;
-        } catch (NoEntityException e) {
-            log.error("Не удалось получить объявление с ID {}", id);
-            throw e;
-        }
-    }
-
     /**
      * Служебный метод проверяет совпадение переданного пользователя и пользователя из объявления
      * @param currentUser переданный пользователь
      * @param sender пользователь объявления
      */
-    private static void checkSenderAndCurrentUser(UserDetails currentUser, User sender) {
+    private static void checkSenderAndCurrentUser(UserDetails currentUser, UserDetails sender) {
         String expectedUsername = currentUser.getUsername();
         if (!sender.getUsername().equals(expectedUsername)) {
             log.error("Переданный пользователь {} и пользователь объявления {} не совпали",
@@ -178,6 +175,25 @@ public class AdvertisementService implements IAdvertisementService {
      */
     private static void successfullyListLog(List<Advertisement> list) {
         log.info("Получен список из {} объявлений: {}", list.size(), list);
+    }
+
+    /**
+     * Получить объявление по его id.
+     * @param id уникальный идентификатор объявления
+     * @return объявление
+     * @throws NoEntityException если объявление не было найдено
+     */
+    private Advertisement getById(Long id) {
+        try {
+            log.info("Получение объявления с ID {}", id);
+            Advertisement advertisement = repository.findById(id)
+                    .orElseThrow(() -> new NoEntityException(ErrorMessage.NO_ADVERTISEMENT_FOUND.getMessage()));
+            log.info("Получено объявление {}", advertisement);
+            return advertisement;
+        } catch (NoEntityException e) {
+            log.error("Не удалось получить объявление с ID {}", id);
+            throw e;
+        }
     }
 
     /**

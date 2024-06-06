@@ -32,11 +32,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import rf.senla.domain.dto.AdvertisementDto;
-import rf.senla.domain.dto.CreateAdvertisementRequest;
+import rf.senla.web.dto.AdvertisementDto;
+import rf.senla.web.dto.CreateAdvertisementRequest;
 import rf.senla.domain.service.IAdvertisementService;
-import rf.senla.domain.dto.DeleteByIdRequest;
-import rf.senla.domain.dto.UpdateAdvertisementRequest;
+import rf.senla.web.dto.DeleteByIdRequest;
+import rf.senla.web.dto.UpdateAdvertisementRequest;
 import rf.senla.web.utils.AdvertisementMapper;
 
 import java.util.List;
@@ -223,6 +223,19 @@ public class RestAdvertisementController {
             @AuthenticationPrincipal UserDetails user) {
         service.delete(mapper.toEntity(request), user);
         return ResponseEntity.ok("Deleted advertisement with ID: " + request.getId());
+    }
+
+    /**
+     * Продажа объявления.
+     * @param id ID объявления
+     * @return объект {@link ResponseEntity} с обновленным объявлением и кодом 200 OK в случае успеха
+     */
+    @PutMapping("/sold/{id}")
+    public ResponseEntity<AdvertisementDto> sell(
+            @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(mapper.toDto(service.sell(id, user)));
     }
 
     /**
