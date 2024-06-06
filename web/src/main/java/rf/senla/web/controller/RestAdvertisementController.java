@@ -144,7 +144,7 @@ public class RestAdvertisementController {
             @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
             @PathVariable("username") @NotBlank @Size(min = 5, max = 50) String username,
 
-            @Parameter(description = "Статус объявления", example = "true", in = ParameterIn.QUERY)
+            @Parameter(description = "Флаг только активных объявлений", example = "true", in = ParameterIn.QUERY)
             @RequestParam(value = "active", required = false) Boolean active,
 
             @PageableDefault(sort = {"user.boosted", "user.rating"}, direction = Sort.Direction.DESC)
@@ -230,7 +230,7 @@ public class RestAdvertisementController {
      * @param id ID объявления
      * @return объект {@link ResponseEntity} с обновленным объявлением и кодом 200 OK в случае успеха
      */
-    @PutMapping("/sold/{id}")
+    @PutMapping("/{id}/sold")
     public ResponseEntity<AdvertisementDto> sell(
             @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
             @PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,

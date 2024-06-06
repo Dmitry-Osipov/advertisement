@@ -24,7 +24,7 @@ public class EmailService implements IEmailService {
         log.info("Отправка ссылки восстановления пароля на почту {}", email);
         String subject = "Reset Password";
         String content = "To reset your password, click the link below:\n" +
-                "http://localhost:8080/api/auth/reset-password?token=" + token;
+                "http://localhost:8080/api/auth/password/reset?token=" + token;
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
