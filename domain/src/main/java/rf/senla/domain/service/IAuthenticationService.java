@@ -1,9 +1,6 @@
 package rf.senla.domain.service;
 
-import rf.senla.domain.dto.SignInRequest;
-import rf.senla.domain.dto.SignUpRequest;
 import rf.senla.domain.entity.User;
-import rf.senla.domain.dto.JwtAuthenticationResponse;
 
 /**
  * Интерфейс сервиса для работы с аутентификацией и регистрацией пользователей.
@@ -11,17 +8,17 @@ import rf.senla.domain.dto.JwtAuthenticationResponse;
 public interface IAuthenticationService {
     /**
      * Регистрация пользователя
-     * @param request данные пользователя
+     * @param user данные пользователя
      * @return токен
      */
-    JwtAuthenticationResponse signUp(SignUpRequest request);
+    String signUp(User user);
 
     /**
      * Аутентификация пользователя
-     * @param request данные пользователя
+     * @param user данные пользователя
      * @return токен
      */
-    JwtAuthenticationResponse signIn(SignInRequest request);
+    String signIn(User user);
 
     /**
      * Отправка токена восстановления пароля на почту

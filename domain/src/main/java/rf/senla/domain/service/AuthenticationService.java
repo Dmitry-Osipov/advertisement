@@ -8,13 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rf.senla.domain.dto.SignInRequest;
-import rf.senla.domain.dto.SignUpRequest;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.domain.exception.ErrorMessage;
 import rf.senla.domain.exception.ResetPasswordTokenException;
-import rf.senla.domain.dto.JwtAuthenticationResponse;
 
 import java.util.Date;
 import java.util.UUID;
@@ -35,34 +32,29 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     @Transactional
-    public JwtAuthenticationResponse signUp(SignUpRequest request) {
-        log.info("Регистрация пользователя {}", request.getUsername());
-        User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
-                .rating(0.0)
-                .password(passwordEncoder.encode(request.getPassword()))
-                .boosted(false)
-                .role(Role.ROLE_USER)
-                .build();
+    public String signUp(User user) {
+        log.info("Регистрация пользователя {}", user.getUsername());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setBoosted(Boolean.FALSE);
+        user.setRole(Role.ROLE_USER);
+        user.setRating(0.0);
         userService.create(user);
         String token = jwtService.generateToken(user);
-        log.info("Удалось зарегистрировать пользователя {}", request.getUsername());
-        return new JwtAuthenticationResponse(token);
+        log.info("Удалось зарегистрировать пользователя {}", user.getUsername());
+        return token;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public JwtAuthenticationResponse signIn(SignInRequest request) {
-        log.info("Авторизация пользователя {}", request.getUsername());
+    public String signIn(User user) {
+        log.info("Авторизация пользователя {}", user.getUsername());
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
-        UserDetails user = userService.userDetailsService().loadUserByUsername(request.getUsername());
-        String token = jwtService.generateToken(user);
-        log.info("Удалось авторизовать пользователя {}", request.getUsername());
-        return new JwtAuthenticationResponse(token);
+        UserDetails currentUser = userService.userDetailsService().loadUserByUsername(user.getUsername());
+        String token = jwtService.generateToken(currentUser);
+        log.info("Удалось авторизовать пользователя {}", currentUser.getUsername());
+        return token;
     }
 
     @Override

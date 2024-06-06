@@ -18,12 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import rf.senla.domain.dto.JwtAuthenticationResponse;
+import rf.senla.web.dto.JwtAuthenticationResponse;
 import rf.senla.web.dto.ForgotPasswordRequest;
 import rf.senla.web.dto.ResetPasswordRequest;
-import rf.senla.domain.dto.SignInRequest;
-import rf.senla.domain.dto.SignUpRequest;
+import rf.senla.web.dto.SignInRequest;
+import rf.senla.web.dto.SignUpRequest;
 import rf.senla.domain.service.IAuthenticationService;
+import rf.senla.web.utils.UserMapper;
 
 // TODO: check swagger doc
 /**
@@ -35,6 +36,7 @@ import rf.senla.domain.service.IAuthenticationService;
 @Tag(name = "Аутентификация")
 @RequestMapping("${spring.data.rest.base-path}/auth")
 public class RestAuthController {
+    private final UserMapper mapper;
     private final IAuthenticationService authenticationService;
 
     /**
@@ -52,11 +54,11 @@ public class RestAuthController {
                                     "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...\"}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public JwtAuthenticationResponse signUp(
+    public ResponseEntity<JwtAuthenticationResponse> signUp(
             @Parameter(description = "Данные регистрации", required = true,
                     content = @Content(schema = @Schema(implementation = SignUpRequest.class)))
             @Valid @RequestBody SignUpRequest request) {
-        return authenticationService.signUp(request);
+        return ResponseEntity.ok(new JwtAuthenticationResponse(authenticationService.signUp(mapper.toEntity(request))));
     }
 
     /**
@@ -74,11 +76,11 @@ public class RestAuthController {
                                     "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...\"}"))),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public JwtAuthenticationResponse signIn(
+    public ResponseEntity<JwtAuthenticationResponse> signIn(
             @Parameter(description = "Данные авторизации", required = true,
                     content = @Content(schema = @Schema(implementation = SignInRequest.class)))
             @Valid @RequestBody SignInRequest request) {
-        return authenticationService.signIn(request);
+        return ResponseEntity.ok(new JwtAuthenticationResponse(authenticationService.signIn(mapper.toEntity(request))));
     }
 
     /**
