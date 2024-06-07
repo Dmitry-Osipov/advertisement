@@ -79,7 +79,6 @@ public class AdvertisementService implements IAdvertisementService {
     @Transactional
     public void delete(Advertisement entity, UserDetails sender) {
         log.info("Удаление объявления {}", entity);
-        checkExistsById(entity);
         Advertisement advertisement = getById(entity.getId());
         checkSenderAndCurrentUser(sender, advertisement.getUser());
         deleteAdvertisement(entity);
@@ -128,18 +127,6 @@ public class AdvertisementService implements IAdvertisementService {
 
     @Override
     @Transactional
-    public Advertisement sell(Long id, UserDetails sender) {
-        log.info("Вызван метод продажи объявления с ID {} пользователем {}", id, sender.getUsername());
-        Advertisement advertisement = getById(id);
-        checkSenderAndCurrentUser(sender, advertisement.getUser());
-        advertisement.setStatus(AdvertisementStatus.SOLD);
-        advertisement = repository.save(advertisement);
-        log.info("Удалось продать объявление {}", advertisement);
-        return advertisement;
-    }
-
-    @Override
-    @Transactional
     public List<Advertisement> getAll(String username, Boolean active, Pageable pageable) {
         log.info("Получение списка объявлений пользователя - {}, флаг только активных объявлений - {}, " +
                 "с пагинацией - {}", username, active, pageable);
@@ -169,6 +156,18 @@ public class AdvertisementService implements IAdvertisementService {
             log.error("Не удалось получить объявление с ID {}", id);
             throw e;
         }
+    }
+
+    @Override
+    @Transactional
+    public Advertisement sell(Long id, UserDetails sender) {
+        log.info("Вызван метод продажи объявления с ID {} пользователем {}", id, sender.getUsername());
+        Advertisement advertisement = getById(id);
+        checkSenderAndCurrentUser(sender, advertisement.getUser());
+        advertisement.setStatus(AdvertisementStatus.SOLD);
+        advertisement = repository.save(advertisement);
+        log.info("Удалось продать объявление {}", advertisement);
+        return advertisement;
     }
 
     /**

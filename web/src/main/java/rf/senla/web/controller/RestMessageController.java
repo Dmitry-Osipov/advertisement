@@ -76,6 +76,7 @@ public class RestMessageController {
             @RequestParam(value = "username") @NotBlank @Size(min = 5, max = 50) String username,
 
             @PageableDefault(sort = {"sentAt"}, direction = Sort.Direction.DESC) Pageable pageable,
+
             @AuthenticationPrincipal UserDetails sender) {
         return ResponseEntity.ok(mapper.toDtos(service.getAll(sender, username, pageable)));
     }

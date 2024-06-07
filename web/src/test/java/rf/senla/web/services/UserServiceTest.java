@@ -3,21 +3,22 @@ package rf.senla.web.services;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import rf.senla.domain.entity.Rating;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
+import rf.senla.domain.exception.NoEntityException;
+import rf.senla.domain.repository.AdvertisementRepository;
+import rf.senla.domain.repository.CommentRepository;
+import rf.senla.domain.repository.MessageRepository;
 import rf.senla.domain.repository.RatingRepository;
 import rf.senla.domain.repository.UserRepository;
 import rf.senla.domain.service.UserService;
@@ -32,18 +33,23 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@SuppressWarnings("java:S5778")
 class UserServiceTest {
     private List<User> users;
     @Mock
-    private SecurityContext securityContext;
+    private MessageRepository messageRepository;
     @Mock
-    private Authentication authentication;
+    private CommentRepository commentRepository;
+    @Mock
+    private AdvertisementRepository advertisementRepository;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -244,40 +250,19 @@ class UserServiceTest {
     }
 
     @Test
-    @Disabled
     void getAllDoesNotThrowException() {
         when(userRepository.findAll((Pageable) any())).thenReturn(Page.empty());
 
-//        assertDoesNotThrow(() -> sut.getAll());
+        assertDoesNotThrow(() -> sut.getAll(Pageable.ofSize(20)));
 
         verify(userRepository, times(1)).findAll((Pageable) any());
-    }
-
-    @Test
-    @Disabled
-    void getAllWithCorrectPageAndSizeDoesNotThrowException() {
-        when(userRepository.findAll((Pageable) any())).thenReturn(Page.empty());
-
-//        assertDoesNotThrow(() -> sut.getAll(1, 5));
-
-        verify(userRepository, times(1)).findAll((Pageable) any());
-    }
-
-    @Test
-    @Disabled
-    void getAllWithIncorrectPageAndSizeThrowsIllegalArgumentException() {
-        when(userRepository.findAll((Pageable) any())).thenReturn(Page.empty());
-
-//        assertThrows(IllegalArgumentException.class, () -> sut.getAll(-1, -5));
-
-        verify(userRepository, times(0)).findAll((Pageable) any());
     }
 
     @Test
     void getByUsernameDoesNotThrowException() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(users.getFirst()));
 
-        assertDoesNotThrow(() -> sut.getByUsername("user123"));
+        assertDoesNotThrow(() -> sut.getByUsername(anyString()));
 
         verify(userRepository, times(1)).findByUsername(anyString());
     }
@@ -286,22 +271,22 @@ class UserServiceTest {
     void getByUsernameThrowsUsernameNotFoundException() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> sut.getByUsername("notFoundUser"));
+        assertThrows(UsernameNotFoundException.class, () -> sut.getByUsername(anyString()));
 
         verify(userRepository, times(1)).findByUsername(anyString());
     }
 
     @Test
     void updatePasswordDoesNotThrowException() {
-        User expected = users.getFirst();
-        String oldPassword = expected.getPassword();
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(expected));
-        when(userRepository.save(any())).thenReturn(expected);
+        User user = users.getFirst();
+        String expected = user.getPassword();
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
 
         User actual = assertDoesNotThrow(
-                () -> sut.updatePassword("user123", "password123", "secret_password"));
+                () -> sut.updatePassword(anyString(), "password123", "secret_password"));
 
-        assertNotEquals(oldPassword, actual.getPassword());
+        assertNotEquals(expected, actual.getPassword());
         assert new BCryptPasswordEncoder().matches("secret_password", actual.getPassword());
         verify(userRepository, times(1)).findByUsername(anyString());
         verify(userRepository, times(1)).save(any());
@@ -312,7 +297,7 @@ class UserServiceTest {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class,
-                () -> sut.updatePassword("user123", "password123", "secret_password"));
+                () -> sut.updatePassword(anyString(), "password123", "secret_password"));
 
         verify(userRepository, times(1)).findByUsername(anyString());
         verify(userRepository, times(0)).save(any());
@@ -323,7 +308,7 @@ class UserServiceTest {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(users.getFirst()));
 
         assertThrows(IllegalArgumentException.class,
-                () -> sut.updatePassword("user123", "secret_password", "password123"));
+                () -> sut.updatePassword(anyString(), "secret_password", "password123"));
 
         verify(userRepository, times(1)).findByUsername(anyString());
         verify(userRepository, times(0)).save(any());
@@ -335,7 +320,7 @@ class UserServiceTest {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(expected));
         when(userRepository.save(any())).thenReturn(expected);
 
-        assertDoesNotThrow(() -> sut.setAdminRole(expected.getUsername()));
+        assertDoesNotThrow(() -> sut.setAdminRole(anyString()));
 
         assertEquals(Role.ROLE_ADMIN, expected.getRole());
         verify(userRepository, times(1)).findByUsername(anyString());
@@ -346,7 +331,7 @@ class UserServiceTest {
     void setAdminRoleThrowsUsernameNotFoundException() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> sut.setAdminRole("notFoundUser"));
+        assertThrows(UsernameNotFoundException.class, () -> sut.setAdminRole(anyString()));
 
         verify(userRepository, times(1)).findByUsername(anyString());
         verify(userRepository, times(0)).save(any());
@@ -355,22 +340,32 @@ class UserServiceTest {
     @Test
     void setBoostedDoesNotThrowException() {
         User expected = users.getFirst();
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getPrincipal()).thenReturn(expected);
-        SecurityContextHolder.setContext(securityContext);
         when(userRepository.save(any())).thenReturn(expected);
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(expected));
 
         User actual = assertDoesNotThrow(() -> sut.setBoosted(expected));
 
         assertTrue(actual.getBoosted());
         verify(userRepository, times(1)).save(any());
+        verify(userRepository, times(1)).findByUsername(anyString());
+    }
+
+    @Test
+    void setBoostedThrowsUsernameNotFoundException() {
+        User expected = users.getFirst();
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> sut.setBoosted(expected));
+
+        verify(userRepository, times(0)).save(any());
+        verify(userRepository, times(1)).findByUsername(anyString());
     }
 
     @Test
     void getByResetPasswordTokenDoesNotThrowException() {
         when(userRepository.findByResetPasswordToken(anyString())).thenReturn(Optional.of(users.getFirst()));
 
-        assertDoesNotThrow(() -> sut.getByResetPasswordToken("token"));
+        assertDoesNotThrow(() -> sut.getByResetPasswordToken(anyString()));
 
         verify(userRepository, times(1)).findByResetPasswordToken(anyString());
     }
@@ -379,24 +374,67 @@ class UserServiceTest {
     void getByResetPasswordTokenThrowsEntityNotFoundException() {
         when(userRepository.findByResetPasswordToken(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> sut.getByResetPasswordToken("token"));
+        assertThrows(EntityNotFoundException.class, () -> sut.getByResetPasswordToken(anyString()));
 
         verify(userRepository, times(1)).findByResetPasswordToken(anyString());
     }
 
     @Test
+    void addEvaluationDoesNotThrowException() {
+        User user = users.getFirst();
+        when(ratingRepository.save(any())).thenReturn(new Rating());
+        when(ratingRepository.existsBySenderAndRecipient(any(), any())).thenReturn(false);
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+
+        assertDoesNotThrow(() -> sut.addEvaluation(user, user.getUsername(), anyInt()));
+
+        verify(ratingRepository, times(1)).save(any());
+        verify(ratingRepository, times(1)).existsBySenderAndRecipient(any(), any());
+        verify(userRepository, times(2)).findByUsername(anyString());
+        verify(userRepository, times(1)).save(any());
+    }
+
+    @Test
+    void addEvaluationThrowsEntityContainedException() {
+        User user = users.getFirst();
+        when(ratingRepository.existsBySenderAndRecipient(any(), any())).thenReturn(true);
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+
+        assertThrows(EntityContainedException.class, () -> sut.addEvaluation(user, user.getUsername(), anyInt()));
+
+        verify(ratingRepository, times(0)).save(any());
+        verify(ratingRepository, times(1)).existsBySenderAndRecipient(any(), any());
+        verify(userRepository, times(2)).findByUsername(anyString());
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void addEvaluationThrowsUsernameNotFoundException() {
+        User user = users.getFirst();
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> sut.addEvaluation(user, user.getUsername(), anyInt()));
+
+        verify(ratingRepository, times(0)).save(any());
+        verify(ratingRepository, times(0)).existsBySenderAndRecipient(any(), any());
+        verify(userRepository, times(1)).findByUsername(anyString());
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void saveDoesNotThrowsException() {
+        User user = users.getFirst();
+        when(userRepository.save(any())).thenReturn(user);
+
+        assertDoesNotThrow(() -> sut.save(user));
+
+        verify(userRepository, times(1)).save(any());
+    }
+
+    @Test
     void createDoesNotThrowException() {
-        User expected = User.builder()
-                .id(16L)
-                .username("new_user")
-                .password("new_password")
-                .email("new_email")
-                .phoneNumber("+7(777)777-77-77")
-                .rating(0.0)
-                .boosted(false)
-                .resetPasswordToken(null)
-                .resetPasswordTokenExpiryDate(null)
-                .build();
+        User expected = users.getFirst();
         when(userRepository.save(any())).thenReturn(expected);
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
@@ -420,33 +458,75 @@ class UserServiceTest {
     }
 
     @Test
-    void saveDoesNotThrowException() {
-        when(userRepository.save(any())).thenReturn(users.getFirst());
+    void updateDoesNotThrowException() {
+        User user = users.getFirst();
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
 
-        assertDoesNotThrow(() -> sut.save(users.getFirst()));
+        assertDoesNotThrow(() -> sut.update(user));
 
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
         verify(userRepository, times(1)).save(any());
+        verify(userRepository, times(1)).findById(anyLong());
     }
 
     @Test
-    @Disabled
-    void deleteDoesNotThrowException() {
+    void updateThrowsEntityContainedException() {
+        User user = users.getFirst();
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
-//        assertDoesNotThrow(() -> sut.deleteByUsername(users.getFirst()));
+        assertThrows(EntityContainedException.class, () -> sut.update(user));
 
         verify(userRepository, times(1)).existsByUsername(anyString());
-        verify(userRepository, times(1)).deleteByUsername(anyString());
+        verify(userRepository, times(0)).existsByEmail(anyString());
+        verify(userRepository, times(0)).save(any());
+        verify(userRepository, times(1)).findById(anyLong());
     }
 
     @Test
-    @Disabled
-    void deleteThrowsUsernameNotFoundException() {
-        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+    void updateThrowsNoEntityException() {
+        User user = users.getFirst();
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-//        assertThrows(UsernameNotFoundException.class, () -> sut.deleteByUsername(users.getFirst()));
+        assertThrows(NoEntityException.class, () -> sut.update(user));
 
-        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(0)).existsByUsername(anyString());
+        verify(userRepository, times(0)).existsByEmail(anyString());
+        verify(userRepository, times(0)).save(any());
+        verify(userRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
+    void deleteByUsernameDoesNotThrowException() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(users.getFirst()));
+
+        assertDoesNotThrow(() -> sut.deleteByUsername(anyString()));
+
+        verify(userRepository, times(1)).findByUsername(anyString());
+        verify(userRepository, times(1)).deleteByUsername(anyString());
+        verify(messageRepository, times(1)).deleteBySender_IdOrRecipient_Id(anyLong(), anyLong());
+        verify(commentRepository, times(1)).deleteByUser_Id(anyLong());
+        verify(commentRepository, times(1)).deleteByAdvertisement_User_Id(anyLong());
+        verify(advertisementRepository, times(1)).deleteByUser_Id(anyLong());
+        verify(ratingRepository, times(1)).deleteBySender_IdOrRecipient_Id(anyLong(), anyLong());
+    }
+
+    @Test
+    void deleteByUsernameThrowsUsernameNotFoundException() {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> sut.deleteByUsername(anyString()));
+
+        verify(userRepository, times(1)).findByUsername(anyString());
         verify(userRepository, times(0)).deleteByUsername(anyString());
+        verify(messageRepository, times(0)).deleteBySender_IdOrRecipient_Id(anyLong(), anyLong());
+        verify(commentRepository, times(0)).deleteByUser_Id(anyLong());
+        verify(commentRepository, times(0)).deleteByAdvertisement_User_Id(anyLong());
+        verify(advertisementRepository, times(0)).deleteByUser_Id(anyLong());
+        verify(ratingRepository, times(0)).deleteBySender_IdOrRecipient_Id(anyLong(), anyLong());
     }
 }

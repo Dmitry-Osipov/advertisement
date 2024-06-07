@@ -84,13 +84,6 @@ public interface IUserService {
     User getByResetPasswordToken(String token);
 
     /**
-     * Метод получения рейтинга пользователя
-     * @param user пользователь, для которого требуется получить его рейтинг
-     * @return рейтинг
-     */
-    Double getUserRating(User user);
-
-    /**
      * Метод добавления рейтинга пользователю
      * @param sender отправитель
      * @param username получатель

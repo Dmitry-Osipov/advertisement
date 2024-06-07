@@ -2,42 +2,50 @@ package rf.senla.web.services;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import rf.senla.domain.entity.Advertisement;
 import rf.senla.domain.entity.AdvertisementStatus;
 import rf.senla.domain.entity.Comment;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.NoEntityException;
 import rf.senla.domain.repository.CommentRepository;
+import rf.senla.domain.service.AdvertisementService;
 import rf.senla.domain.service.CommentService;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
+import rf.senla.domain.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@SuppressWarnings("java:S5778")
 class CommentServiceTest {
     private List<User> users;
     private List<Advertisement> advertisements;
     private List<Comment> comments;
     @Mock
     private CommentRepository commentRepository;
+    @Mock
+    private UserService userService;
+    @Mock
+    private AdvertisementService advertisementService;
     @InjectMocks
     private CommentService sut;
 
@@ -422,112 +430,129 @@ class CommentServiceTest {
     }
 
     @Test
-    @Disabled
     void getAllDoesNotThrowException() {
-        when(commentRepository.findAll((Pageable) any())).thenReturn(Page.empty());
+        when(commentRepository.findByAdvertisement_Id(anyLong(), any())).thenReturn(comments);
 
-//        assertDoesNotThrow(() -> sut.getAll());
+        assertDoesNotThrow(() -> sut.getAll(1L, Pageable.ofSize(20)));
 
-        verify(commentRepository, times(1)).findAll((Pageable) any());
+        verify(commentRepository, times(1)).findByAdvertisement_Id(anyLong(), any());
     }
 
     @Test
-    @Disabled
-    void getAllByAdvertisementDoesNotThrowException() {
-//        when(commentRepository.findByAdvertisement(any(), any())).thenReturn(comments);
-
-//        assertDoesNotThrow(() -> sut.getAll(advertisements.getFirst().getId(), 0, 1));
-
-//        verify(commentRepository, times(1)).findByAdvertisement(any(), any());
-    }
-
-    @Test
-    @Disabled
     void createDoesNotThrowException() {
-        Comment expected = Comment.builder()
-                .id(11L)
-                .advertisement(advertisements.getLast())
-                .user(users.get(11))
-                .text("No way")
-                .createdAt(LocalDateTime.now())
-                .build();
+        Comment expected = comments.getFirst();
+        User user = users.get(1);
         when(commentRepository.existsById(anyLong())).thenReturn(false);
         when(commentRepository.save(any())).thenReturn(expected);
+        when(advertisementService.getById(anyLong())).thenReturn(advertisements.getFirst());
+        when(userService.getByUsername(anyString())).thenReturn(user);
 
-//        assertDoesNotThrow(() -> sut.create(expected));
+        assertDoesNotThrow(() -> sut.create(expected, user));
 
         verify(commentRepository, times(1)).existsById(anyLong());
         verify(commentRepository, times(1)).save(any());
+        verify(advertisementService, times(1)).getById(anyLong());
+        verify(userService, times(1)).getByUsername(anyString());
     }
 
     @Test
-    @Disabled
     void createThrowsEntityContainedException() {
         when(commentRepository.existsById(anyLong())).thenReturn(true);
 
-//        assertThrows(EntityContainedException.class, () -> sut.create(comments.getLast()));
+        assertThrows(EntityContainedException.class, () -> sut.create(comments.getFirst(), users.get(1)));
 
         verify(commentRepository, times(1)).existsById(anyLong());
         verify(commentRepository, times(0)).save(any());
+        verify(advertisementService, times(0)).getById(anyLong());
+        verify(userService, times(0)).getByUsername(anyString());
     }
 
     @Test
-    @Disabled
     void updateDoesNotThrowException() {
-        Comment expected = comments.getLast();
-        when(commentRepository.existsById(anyLong())).thenReturn(true);
+        Comment expected = comments.getFirst();
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(expected));
         when(commentRepository.save(any())).thenReturn(expected);
 
-//        assertDoesNotThrow(() -> sut.update(expected));
+        assertDoesNotThrow(() -> sut.update(expected, users.get(1)));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
+        verify(commentRepository, times(1)).findById(anyLong());
         verify(commentRepository, times(1)).save(any());
     }
 
     @Test
-    @Disabled
     void updateThrowsNoEntityException() {
-        Comment expected = Comment.builder()
-                .id(11L)
-                .advertisement(advertisements.getLast())
-                .user(users.get(11))
-                .text("No way")
-                .createdAt(LocalDateTime.now())
-                .build();
-        when(commentRepository.existsById(anyLong())).thenReturn(false);
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-//        assertThrows(NoEntityException.class, () -> sut.update(expected));
+        assertThrows(NoEntityException.class, () -> sut.update(comments.getFirst(), users.get(1)));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
+        verify(commentRepository, times(1)).findById(anyLong());
         verify(commentRepository, times(0)).save(any());
     }
 
     @Test
-    @Disabled
-    void deleteDoesNotThrowException() {
-        when(commentRepository.existsById(anyLong())).thenReturn(true);
+    void updateThrowsAccessDeniedException() {
+        Comment expected = comments.getFirst();
+        User user = users.get(2);
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(userService.getByUsername(anyString())).thenReturn(user);
 
-//        assertDoesNotThrow(() -> sut.delete(comments.getLast()));
+        assertThrows(AccessDeniedException.class, () -> sut.update(expected, user));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
-        verify(commentRepository, times(1)).delete(any());
+        verify(commentRepository, times(1)).findById(anyLong());
+        verify(commentRepository, times(0)).save(any());
+        verify(userService, times(0)).getByUsername(anyString());
     }
 
     @Test
-    @Disabled
+    void deleteByUserDoesNotThrowException() {
+        Comment expected = comments.getFirst();
+        User user = users.get(1);
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(userService.getByUsername(anyString())).thenReturn(user);
+
+        assertDoesNotThrow(() -> sut.delete(expected.getId(), user));
+
+        verify(commentRepository, times(1)).findById(anyLong());
+        verify(commentRepository, times(1)).delete(any());
+        verify(userService, times(0)).getByUsername(anyString());
+    }
+
+    @Test
+    void deleteByAdminDoesNotThrowException() {
+        Comment expected = comments.getFirst();
+        User user = users.getLast();
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(userService.getByUsername(anyString())).thenReturn(user);
+
+        assertDoesNotThrow(() -> sut.delete(expected.getId(), user));
+
+        verify(commentRepository, times(1)).findById(anyLong());
+        verify(commentRepository, times(1)).delete(any());
+        verify(userService, times(1)).getByUsername(anyString());
+    }
+
+    @Test
     void deleteThrowsNoEntityException() {
-        Comment expected = Comment.builder()
-                .id(11L)
-                .advertisement(advertisements.getLast())
-                .user(users.get(11))
-                .text("No way")
-                .createdAt(LocalDateTime.now())
-                .build();
-//        when(commentRepository.existsById(anyLong())).thenReturn(false);
+        Comment expected = comments.getFirst();
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-//        assertThrows(NoEntityException.class, () -> sut.delete(expected));
+        assertThrows(NoEntityException.class, () -> sut.delete(expected.getId(), users.getFirst()));
 
-        verify(commentRepository, times(1)).existsById(anyLong());
+        verify(commentRepository, times(1)).findById(anyLong());
         verify(commentRepository, times(0)).delete(any());
+    }
+
+    @Test
+    void updateByUserThrowsAccessDeniedException() {
+        Comment expected = comments.getFirst();
+        User user = users.get(2);
+        when(commentRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(userService.getByUsername(anyString())).thenReturn(user);
+
+        assertThrows(AccessDeniedException.class, () -> sut.delete(expected.getId(), user));
+
+        verify(commentRepository, times(1)).findById(anyLong());
+        verify(commentRepository, times(0)).save(any());
+        verify(userService, times(1)).getByUsername(anyString());
     }
 }

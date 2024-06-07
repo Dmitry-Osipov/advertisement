@@ -2,31 +2,28 @@ package rf.senla.web.services;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import rf.senla.domain.entity.Advertisement;
 import rf.senla.domain.entity.AdvertisementStatus;
 import rf.senla.domain.entity.Message;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.NoEntityException;
 import rf.senla.domain.repository.MessageRepository;
-import rf.senla.domain.service.IUserService;
+import rf.senla.domain.service.AdvertisementService;
 import rf.senla.domain.service.MessageService;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
+import rf.senla.domain.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@SuppressWarnings("java:S5778")
 class MessageServiceTest {
     private List<User> users;
     private List<Advertisement> advertisements;
@@ -45,7 +43,9 @@ class MessageServiceTest {
     @Mock
     private MessageRepository messageRepository;
     @Mock
-    private IUserService userService;
+    private UserService userService;
+    @Mock
+    private AdvertisementService advertisementService;
     @InjectMocks
     private MessageService sut;
 
@@ -430,124 +430,120 @@ class MessageServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user123")
-    @Disabled
     void getAllDoesNotThrowException() {
-        User user = users.getFirst();
-        List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-//        when(messageRepository.findAllByUserId(anyLong(), any())).thenReturn(messages);
-
-//        assertDoesNotThrow(() -> sut.getAll());
-
-//        verify(messageRepository, times(1)).findAllByUserId(anyLong(), any());
-    }
-
-    @Test
-    @Disabled
-    void getAllBetweenUsersDoesNotThrowException() {
         User sender = users.getFirst();
         User recipient = users.getLast();
+        when(userService.getByUsername(anyString())).thenReturn(recipient);
         when(messageRepository.findMessagesBetweenUsers(anyLong(), anyLong(), any())).thenReturn(messages);
-        when(userService.getByUsername(sender.getUsername())).thenReturn(sender);
-        when(userService.getByUsername(recipient.getUsername())).thenReturn(recipient);
 
-//        assertDoesNotThrow(() -> sut.getAll(sender, recipient.getUsername(), 0, 1));
+        assertDoesNotThrow(() -> sut.getAll(sender, recipient.getUsername(), Pageable.ofSize(20)));
 
-        verify(messageRepository, times(1)).findMessagesBetweenUsers(anyLong(), anyLong(), any());
         verify(userService, times(1)).getByUsername(anyString());
+        verify(messageRepository, times(1))
+                .findMessagesBetweenUsers(anyLong(), anyLong(), any());
     }
 
     @Test
-    @Disabled
     void createDoesNotThrowException() {
-        Message expected = Message.builder()
-                .id(11L)
-                .advertisement(advertisements.getLast())
-                .sender(users.getFirst())
-                .recipient(users.getLast())
-                .text("Hello!")
-                .read(false)
-                .build();
+        Message expected = messages.getFirst();
+        User user = users.getFirst();
         when(messageRepository.existsById(anyLong())).thenReturn(false);
         when(messageRepository.save(any())).thenReturn(expected);
+        when(userService.getByUsername(anyString())).thenReturn(user);
+        when(advertisementService.getById(anyLong())).thenReturn(advertisements.getFirst());
 
-//        assertDoesNotThrow(() -> sut.create(expected));
+        assertDoesNotThrow(() -> sut.create(expected, user));
 
         verify(messageRepository, times(1)).existsById(anyLong());
         verify(messageRepository, times(1)).save(any());
+        verify(userService, times(2)).getByUsername(anyString());
+        verify(advertisementService, times(1)).getById(anyLong());
     }
 
     @Test
-    @Disabled
     void createThrowsEntityContainedException() {
         when(messageRepository.existsById(anyLong())).thenReturn(true);
 
-//        assertThrows(EntityContainedException.class, () -> sut.create(messages.getLast()));
+        assertThrows(EntityContainedException.class, () -> sut.create(messages.getFirst(), users.getFirst()));
 
         verify(messageRepository, times(1)).existsById(anyLong());
         verify(messageRepository, times(0)).save(any());
+        verify(userService, times(0)).getByUsername(anyString());
+        verify(advertisementService, times(0)).getById(anyLong());
     }
 
     @Test
-    @Disabled
     void updateDoesNotThrowException() {
-        when(messageRepository.existsById(anyLong())).thenReturn(true);
+        Message message = messages.getFirst();
+        User user = users.getFirst();
+        when(messageRepository.findById(anyLong())).thenReturn(Optional.of(message));
         when(messageRepository.save(any())).thenReturn(messages.getLast());
 
-//        assertDoesNotThrow(() -> sut.update(messages.getLast()));
+        assertDoesNotThrow(() -> sut.update(message, user));
 
-        verify(messageRepository, times(1)).existsById(anyLong());
+        verify(messageRepository, times(1)).findById(anyLong());
         verify(messageRepository, times(1)).save(any());
     }
 
     @Test
-    @Disabled
     void updateThrowsNoEntityException() {
-        Message expected = Message.builder()
-                .id(11L)
-                .advertisement(advertisements.getLast())
-                .sender(users.getFirst())
-                .recipient(users.getLast())
-                .text("Hello!")
-                .read(false)
-                .build();
-        when(messageRepository.existsById(anyLong())).thenReturn(false);
+        Message message = messages.getFirst();
+        User user = users.getFirst();
+        when(messageRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(messageRepository.save(any())).thenReturn(messages.getLast());
 
-//        assertThrows(NoEntityException.class, () -> sut.update(expected));
+        assertThrows(NoEntityException.class, () -> sut.update(message, user));
 
-        verify(messageRepository, times(1)).existsById(anyLong());
+        verify(messageRepository, times(1)).findById(anyLong());
         verify(messageRepository, times(0)).save(any());
     }
 
     @Test
-    @Disabled
-    void deleteDoesNotThrowException() {
-        when(messageRepository.existsById(anyLong())).thenReturn(true);
+    void updateThrowsAccessDeniedException() {
+        Message message = messages.getFirst();
+        User user = users.getLast();
+        when(messageRepository.findById(anyLong())).thenReturn(Optional.of(message));
+        when(messageRepository.save(any())).thenReturn(messages.getLast());
 
-//        assertDoesNotThrow(() -> sut.delete(messages.getLast()));
+        assertThrows(AccessDeniedException.class, () -> sut.update(message, user));
 
-        verify(messageRepository, times(1)).existsById(anyLong());
-        verify(messageRepository, times(1)).delete(any());
+        verify(messageRepository, times(1)).findById(anyLong());
+        verify(messageRepository, times(0)).save(any());
     }
 
     @Test
-    @Disabled
+    void deleteDoesNotThrowException() {
+        Message message = messages.getFirst();
+        User user = users.getFirst();
+        when(messageRepository.findById(anyLong())).thenReturn(Optional.of(message));
+
+        assertDoesNotThrow(() -> sut.delete(message, user));
+
+        verify(messageRepository, times(1)).delete(any());
+        verify(messageRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
     void deleteNoEntityException() {
-        Message expected = Message.builder()
-                .id(11L)
-                .advertisement(advertisements.getLast())
-                .sender(users.getFirst())
-                .recipient(users.getLast())
-                .text("Hello!")
-                .read(false)
-                .build();
-        when(messageRepository.existsById(anyLong())).thenReturn(false);
+        Message message = messages.getFirst();
+        User user = users.getFirst();
+        when(messageRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-//        assertThrows(NoEntityException.class, () -> sut.delete(expected));
+        assertThrows(NoEntityException.class, () -> sut.delete(message, user));
 
-        verify(messageRepository, times(1)).existsById(anyLong());
+        verify(messageRepository, times(1)).findById(anyLong());
+        verify(messageRepository, times(0)).delete(any());
+    }
+
+    @Test
+    void deleteThrowsAccessDeniedException() {
+        Message message = messages.getFirst();
+        User user = users.getLast();
+        when(messageRepository.findById(anyLong())).thenReturn(Optional.of(message));
+
+        assertThrows(AccessDeniedException.class, () -> sut.delete(message, user));
+
+        verify(messageRepository, times(1)).findById(anyLong());
         verify(messageRepository, times(0)).delete(any());
     }
 }

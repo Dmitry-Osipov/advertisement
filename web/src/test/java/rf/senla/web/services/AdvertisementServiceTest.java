@@ -2,21 +2,24 @@ package rf.senla.web.services;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import rf.senla.domain.entity.Advertisement;
 import rf.senla.domain.entity.AdvertisementStatus;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.NoEntityException;
+import rf.senla.domain.exception.TechnicalException;
 import rf.senla.domain.repository.AdvertisementRepository;
 import rf.senla.domain.repository.CommentRepository;
 import rf.senla.domain.repository.MessageRepository;
 import rf.senla.domain.service.AdvertisementService;
+import rf.senla.domain.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -32,9 +36,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@SuppressWarnings("java:S5778")
 class AdvertisementServiceTest {
     private List<User> users;
     private List<Advertisement> advertisements;
+    @Mock
+    private UserService userService;
     @Mock
     private AdvertisementRepository advertisementRepository;
     @Mock
@@ -331,124 +338,281 @@ class AdvertisementServiceTest {
     }
 
     @Test
-    @Disabled
     void getAllDoesNotThrowException() {
         when(advertisementRepository.findAllWithActiveStatus(any())).thenReturn(advertisements);
 
-//        assertDoesNotThrow(() -> sut.getAll());
+        assertDoesNotThrow(() -> sut.getAll(Pageable.ofSize(20)));
 
         verify(advertisementRepository, times(1)).findAllWithActiveStatus(any());
     }
 
     @Test
-    @Disabled
-    void getAllByUserWithAllStatusesDoesNotThrowException() {
+    void getAllByPriceWithoutHeadlineDoesNotThrowException() {
+        when(advertisementRepository.findByPriceBetweenWithActiveStatus(anyInt(), anyInt(), any()))
+                .thenReturn(advertisements);
 
-//        assertDoesNotThrow(() -> sut.getAll(any(), anyString(), null, 0, 1));
+        assertDoesNotThrow(() -> sut.getAll(0, 10_000, null, Pageable.ofSize(20)));
+
+        verify(advertisementRepository, times(1))
+                .findByPriceBetweenWithActiveStatus(anyInt(), anyInt(), any());
     }
 
     @Test
-    @Disabled
-    void getAllByUserWithActiveStatusesDoesNotThrowException() {
+    void getAllByPriceWithHeadlineDoesNotThrowException() {
+        when(advertisementRepository.findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(anyInt(), anyInt(),
+                anyString(), any())).thenReturn(advertisements);
 
-//        assertDoesNotThrow(() -> sut.getAll(any(), anyString(), true, 0, 1));
+        assertDoesNotThrow(() -> sut.getAll(0, 10_000, "Smartphone", Pageable.ofSize(20)));
 
+        verify(advertisementRepository, times(1))
+                .findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(anyInt(), anyInt(), anyString(), any());
+    }
+
+    @Test
+    void getAllByPriceWithIncorrectPriceThrowsTechnicalException() {
+        when(advertisementRepository.findByPriceBetweenWithActiveStatus(anyInt(), anyInt(), any()))
+                .thenReturn(advertisements);
+
+        assertThrows(TechnicalException.class,
+                () -> sut.getAll(1, 0, null, Pageable.ofSize(20)));
+
+        verify(advertisementRepository, times(0))
+                .findByPriceBetweenWithActiveStatus(anyInt(), anyInt(), any());
+    }
+
+    @Test
+    void getAllByUserWithActiveStatusDoesNotThrowException() {
+        when(userService.getByUsername(anyString())).thenReturn(users.getFirst());
+        when(advertisementRepository.findByUserWithActiveStatus(any(), any())).thenReturn(advertisements);
+
+        assertDoesNotThrow(() -> sut.getAll("user123", true, Pageable.ofSize(20)));
+
+        verify(userService, times(1)).getByUsername(anyString());
         verify(advertisementRepository, times(1)).findByUserWithActiveStatus(any(), any());
     }
 
     @Test
-    @Disabled
+    void getAllByUserWithAnyStatusDoesNotThrowException() {
+        when(userService.getByUsername(anyString())).thenReturn(users.getFirst());
+        when(advertisementRepository.findByUser(any(), any())).thenReturn(advertisements);
+
+        assertDoesNotThrow(() -> sut.getAll("user123", false, Pageable.ofSize(20)));
+
+        verify(userService, times(1)).getByUsername(anyString());
+        verify(advertisementRepository, times(1)).findByUser(any(), any());
+    }
+
+    @Test
     void createDoestNotThrowException() {
-        Advertisement expected = Advertisement.builder()
-                .id(11L)
-                .user(users.get(11))
-                .price(5000)
-                .headline("Glasses")
-                .description("No sale")
-                .status(AdvertisementStatus.REVIEW)
-                .build();
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getFirst();
+        when(userService.getByUsername(anyString())).thenReturn(user);
         when(advertisementRepository.existsById(anyLong())).thenReturn(false);
         when(advertisementRepository.save(any())).thenReturn(expected);
 
-//        assertDoesNotThrow(() -> sut.save(expected));
+        assertDoesNotThrow(() -> sut.create(expected, user));
 
         verify(advertisementRepository, times(1)).existsById(anyLong());
         verify(advertisementRepository, times(1)).save(any());
+        verify(userService, times(1)).getByUsername(anyString());
     }
 
     @Test
-    @Disabled
     void createThrowsEntityContainedException() {
-        Advertisement expected = advertisements.getLast();
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getFirst();
         when(advertisementRepository.existsById(anyLong())).thenReturn(true);
 
-//        assertThrows(EntityContainedException.class, () -> sut.save(expected));
+        assertThrows(EntityContainedException.class, () -> sut.create(expected, user));
 
         verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(0)).save(any());
+        verify(userService, times(0)).getByUsername(anyString());
+    }
+
+    @Test
+    void updateByUserDoesNotThrowException() {
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(advertisementRepository.save(any())).thenReturn(expected);
+
+        assertDoesNotThrow(() -> sut.update(expected, user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(1)).save(any());
+    }
+
+    @Test
+    void updateByUserThrowsNoEntityException() {
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NoEntityException.class, () -> sut.update(expected, user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).save(any());
     }
 
     @Test
-    @Disabled
-    void updateDoesNotThrowsException() {
-        Advertisement expected = advertisements.getLast();
-        expected.setStatus(AdvertisementStatus.SOLD);
+    void updateByUserThrowsAccessDeniedException() {
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getLast();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+
+        assertThrows(AccessDeniedException.class, () -> sut.update(expected, user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(0)).save(any());
+    }
+
+    @Test
+    void updateByAdminDoesNotThrowException() {
+        Advertisement expected = advertisements.getFirst();
+        when(userService.getByUsername(anyString())).thenReturn(users.getFirst());
         when(advertisementRepository.existsById(anyLong())).thenReturn(true);
         when(advertisementRepository.save(any())).thenReturn(expected);
 
-//        assertDoesNotThrow(() -> sut.update(expected));
+        assertDoesNotThrow(() -> sut.update(expected));
 
+        verify(userService, times(1)).getByUsername(anyString());
         verify(advertisementRepository, times(1)).existsById(anyLong());
         verify(advertisementRepository, times(1)).save(any());
     }
 
     @Test
-    @Disabled
-    void updateThrowsNoEntityException() {
-        Advertisement expected = Advertisement.builder()
-                .id(11L)
-                .user(users.get(11))
-                .price(5000)
-                .headline("Glasses")
-                .description("No sale")
-                .status(AdvertisementStatus.REVIEW)
-                .build();
+    void updateByAdminThrowsNoEntityException() {
+        Advertisement expected = advertisements.getFirst();
         when(advertisementRepository.existsById(anyLong())).thenReturn(false);
 
-//        assertThrows(NoEntityException.class, () -> sut.update(expected));
+        assertThrows(NoEntityException.class, () -> sut.update(expected));
 
+        verify(userService, times(0)).getByUsername(anyString());
         verify(advertisementRepository, times(1)).existsById(anyLong());
         verify(advertisementRepository, times(0)).save(any());
     }
 
     @Test
-    @Disabled
-    void deleteDoesNotThrowException() {
-        Advertisement expected = advertisements.getLast();
-        when(advertisementRepository.existsById(anyLong())).thenReturn(true);
+    void deleteByUserDoesNotThrowException() {
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
 
-//        assertDoesNotThrow(() -> sut.delete(expected));
+        assertDoesNotThrow(() -> sut.delete(expected, user));
 
-        verify(advertisementRepository, times(1)).existsById(anyLong());
-        verify(advertisementRepository, times(1)).delete(any());
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(1)).deleteById(anyLong());
+        verify(commentRepository, times(1)).deleteByAdvertisement_Id(anyLong());
+        verify(messageRepository, times(1)).deleteByAdvertisement_Id(anyLong());
     }
 
     @Test
-    @Disabled
-    void deleteThrowsNoEntityException() {
-        Advertisement expected = Advertisement.builder()
-                .id(11L)
-                .user(users.get(11))
-                .price(5000)
-                .headline("Glasses")
-                .description("No sale")
-                .status(AdvertisementStatus.REVIEW)
-                .build();
-        when(advertisementRepository.existsById(anyLong())).thenReturn(false);
+    void deleteByUserThrowsNoEntityException() {
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-//        assertThrows(NoEntityException.class, () -> sut.delete(expected));
+        assertThrows(NoEntityException.class, () -> sut.delete(expected, user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(0)).deleteById(anyLong());
+        verify(commentRepository, times(0)).deleteByAdvertisement_Id(anyLong());
+        verify(messageRepository, times(0)).deleteByAdvertisement_Id(anyLong());
+    }
+
+    @Test
+    void deleteByUserThrowsAccessDeniedException() {
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getLast();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+
+        assertThrows(AccessDeniedException.class, () -> sut.delete(expected, user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(0)).deleteById(anyLong());
+        verify(commentRepository, times(0)).deleteByAdvertisement_Id(anyLong());
+        verify(messageRepository, times(0)).deleteByAdvertisement_Id(anyLong());
+    }
+
+    @Test
+    void deleteByAdminDoesNotThrowException() {
+        Advertisement expected = advertisements.getFirst();
+        when(advertisementRepository.existsById(anyLong())).thenReturn(true);
+
+        assertDoesNotThrow(() -> sut.delete(expected));
 
         verify(advertisementRepository, times(1)).existsById(anyLong());
-        verify(advertisementRepository, times(0)).delete(any());
+        verify(advertisementRepository, times(1)).deleteById(anyLong());
+        verify(commentRepository, times(1)).deleteByAdvertisement_Id(anyLong());
+        verify(messageRepository, times(1)).deleteByAdvertisement_Id(anyLong());
+    }
+
+    @Test
+    void deleteByAdminThrowsNoEntityException() {
+        Advertisement expected = advertisements.getFirst();
+        when(advertisementRepository.existsById(anyLong())).thenReturn(false);
+
+        assertThrows(NoEntityException.class, () -> sut.delete(expected));
+
+        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(0)).deleteById(anyLong());
+        verify(commentRepository, times(0)).deleteByAdvertisement_Id(anyLong());
+        verify(messageRepository, times(0)).deleteByAdvertisement_Id(anyLong());
+    }
+
+    @Test
+    void getByIdDoesNotThrowException() {
+        Advertisement expected = advertisements.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+
+        assertDoesNotThrow(() -> sut.getById(1L));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
+    void getByIdThrowsNoEntityException() {
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NoEntityException.class, () -> sut.getById(1L));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
+    void sellDoesNotThrowException() {
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(advertisementRepository.save(any())).thenReturn(expected);
+
+        assertDoesNotThrow(() -> sut.sell(1L, user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(1)).save(any());
+    }
+
+    @Test
+    void sellThrowsNoEntityException() {
+        User user = users.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NoEntityException.class, () -> sut.sell(1L, user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(0)).save(any());
+    }
+
+    @Test
+    void sellThrowsAccessDeniedException() {
+        Advertisement expected = advertisements.getFirst();
+        User user = users.getLast();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+
+        assertThrows(AccessDeniedException.class, () -> sut.sell(1L, user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(0)).save(any());
     }
 }

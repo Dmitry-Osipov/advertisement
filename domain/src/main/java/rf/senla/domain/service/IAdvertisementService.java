@@ -70,18 +70,18 @@ public interface IAdvertisementService {
     List<Advertisement> getAll(Integer min, Integer max, String headline, Pageable pageable);
 
     /**
-     * Продажа объявления
-     * @param id ID объявления
-     * @param sender отправитель
-     * @return обновлённое объявление
-     */
-    Advertisement sell(Long id, UserDetails sender);
-
-    /**
      * Получить объявление по его id.
      * @param id уникальный идентификатор объявления
      * @return объявление
      * @throws NoEntityException если объявление не было найдено
      */
     Advertisement getById(Long id);
+
+    /**
+     * Продажа объявления
+     * @param id ID объявления
+     * @param sender отправитель
+     * @return обновлённое объявление
+     */
+    Advertisement sell(Long id, UserDetails sender);
 }

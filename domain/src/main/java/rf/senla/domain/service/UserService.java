@@ -51,13 +51,25 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
+    public void create(User user) {
+        log.info("Создание нового пользователя {}", user.getUsername());
+        checkUsernameAndEmail(user.getUsername(), user.getEmail());
+        save(user);
+        log.info("Удалось создать нового пользователя {}", user.getUsername());
+    }
+
+    @Override
+    @Transactional
     public User update(User user) {
         log.info("Обновление пользователя по его dto {}", user);
         User entity = repository.findById(user.getId())
                 .orElseThrow(() -> new NoEntityException(ErrorMessage.USER_NOT_FOUND.getMessage()));
-        entity.setUsername(user.getUsername());
+        String username = user.getUsername();
+        String email = user.getEmail();
+        checkUsernameAndEmail(username, email);
+        entity.setUsername(username);
         entity.setPhoneNumber(user.getPhoneNumber());
-        entity.setEmail(user.getEmail());
+        entity.setEmail(email);
         entity.setRating(getRating(entity));
         entity = save(entity);
         log.info("Пользователь успешно обновлён {}", entity);
@@ -133,24 +145,6 @@ public class UserService implements IUserService {
     }
 
     @Override
-    @Transactional
-    public void create(User user) {
-        log.info("Создание нового пользователя {}", user.getUsername());
-        if (repository.existsByUsername(user.getUsername())) {
-            log.error("Не удалось создать пользователя из-за дублирования имени для пользователя {}", user);
-            throw new EntityContainedException(ErrorMessage.USERNAME_ALREADY_EXISTS.getMessage());
-        }
-
-        if (repository.existsByEmail(user.getEmail())) {
-            log.error("Не удалось создать пользователя из-за дублирования почты для пользователя {}", user);
-            throw new EntityContainedException(ErrorMessage.EMAIL_ALREADY_EXISTS.getMessage());
-        }
-
-        save(user);
-        log.info("Удалось создать нового пользователя {}", user.getUsername());
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public UserDetailsService userDetailsService() {
         log.info("Вызов метода userDetailsService");
@@ -160,7 +154,7 @@ public class UserService implements IUserService {
     @Override
     @Transactional
     public User setBoosted(UserDetails userDetails) {
-        User user = (User) userDetails;
+        User user = getByUsername(userDetails.getUsername());
         log.info("Установка продвижения для пользователя {}", user);
         user.setBoosted(true);
         user = save(user);
@@ -184,19 +178,6 @@ public class UserService implements IUserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Double getUserRating(User user) {
-        log.error("Получение рейтинга для пользователя {}", user);
-        Double rating = ratingRepository.getAverageRatingByRecipient(user);
-        if (rating != null) {
-            log.info("Для пользователя {} получен рейтинг {}", user, rating);
-        } else {
-            log.warn("У пользователя {} нет рейтинга", user);
-        }
-        return rating;
-    }
-
-    @Override
     @Transactional
     public User addEvaluation(UserDetails sender, String username, Integer evaluation) {
         User currentUser = getByUsername(sender.getUsername());
@@ -214,7 +195,7 @@ public class UserService implements IUserService {
                 .evaluation(evaluation)
                 .build();
         ratingRepository.save(rating);
-        recipient.setRating(getUserRating(recipient));
+        recipient.setRating(getRating(recipient));
 
         recipient = save(recipient);
         log.info("Пользователю {} удалось добавить рейтинг {} для пользователя {}", currentUser, rating, recipient);
@@ -253,5 +234,39 @@ public class UserService implements IUserService {
 
         log.info("Пользователю {} установлен рейтинг {}", user, rating);
         return rating;
+    }
+
+    /**
+     * Служебный метод получения рейтинга пользователя
+     * @param user пользователь, для которого требуется получить его рейтинг
+     * @return рейтинг
+     */
+    private Double getUserRating(User user) {
+        log.error("Получение рейтинга для пользователя {}", user);
+        Double rating = ratingRepository.getAverageRatingByRecipient(user);
+        if (rating != null) {
+            log.info("Для пользователя {} получен рейтинг {}", user, rating);
+        } else {
+            log.warn("У пользователя {} нет рейтинга", user);
+        }
+        return rating;
+    }
+
+    /**
+     * Служебный метод проверяет уникальность переданных логина и почты
+     * @param username логин
+     * @param email почта
+     * @throws EntityContainedException если логин или почта уже есть в БД
+     */
+    private void checkUsernameAndEmail(String username, String email) {
+        if (repository.existsByUsername(username)) {
+            log.error("Логин {} уже существует в БД", username);
+            throw new EntityContainedException(ErrorMessage.USERNAME_ALREADY_EXISTS.getMessage());
+        }
+
+        if (repository.existsByEmail(email)) {
+            log.error("Почта {} уже существует в БД", email);
+            throw new EntityContainedException(ErrorMessage.EMAIL_ALREADY_EXISTS.getMessage());
+        }
     }
 }
