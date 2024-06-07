@@ -160,6 +160,18 @@ public class RestExceptionHandler {
         log.error("Ошибка анкетных данны {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
     }
+    /**
+     * Метод возвращает информацию об ошибке типа {@link IllegalArgumentException}
+     * @param ex ошибка
+     * @param request запрос
+     * @return информация об ошибке
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDto illegalArgumentException(Exception ex, WebRequest request) {
+        log.error("Ошибка поступивших аргументов - {}", ex.getMessage());
+        return getErrorDto(ex.getMessage(), request);
+    }
 
     /**
      * Метод возвращает информацию об ошибке типа {@link EmailException}
@@ -169,10 +181,11 @@ public class RestExceptionHandler {
      */
     @ExceptionHandler(EmailException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorDto emailException(EmailException ex, WebRequest request) {
+    public ErrorDto emailException(Exception ex, WebRequest request) {
         log.error("Ошибка при работе с почтой - {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
     }
+
 
     /**
      * Метод возвращает информацию о любой непредвиденной ошибке
