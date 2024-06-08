@@ -160,7 +160,7 @@ class RestCommentControllerTest {
                         .contentType("application/json")
                         .content(request))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted comment with id: " + comment.getId()));
+                .andExpect(jsonPath("$").value("Deleted comment with ID: " + comment.getId()));
     }
 
     @Test
@@ -174,7 +174,7 @@ class RestCommentControllerTest {
                         .contentType("application/json")
                         .content(request))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted comment with id: " + comment.getId()));
+                .andExpect(jsonPath("$").value("Deleted comment with ID: " + comment.getId()));
     }
 
     @Test

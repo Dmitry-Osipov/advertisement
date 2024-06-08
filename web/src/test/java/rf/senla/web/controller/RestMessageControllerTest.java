@@ -197,7 +197,7 @@ class RestMessageControllerTest {
                         .contentType("application/json")
                         .content(request))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted message with id: " + message.getId()));
+                .andExpect(jsonPath("$").value("Deleted message with ID: " + message.getId()));
     }
 
     @Test
