@@ -96,8 +96,7 @@ class RestMessageControllerTest {
                 new UsernamePasswordAuthenticationToken(currentUser, null, new ArrayList<>()));
 
         sut.perform(get("/api/messages")
-                        .param("username", "cool_guy")
-                        .contentType("application/json"))
+                        .param("username", "cool_guy"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
     }
@@ -110,8 +109,7 @@ class RestMessageControllerTest {
                 new UsernamePasswordAuthenticationToken(currentUser, null, new ArrayList<>()));
 
         sut.perform(get("/api/messages")
-                        .param("username", "testuser")
-                        .contentType("application/json"))
+                        .param("username", "testuser"))
                 .andExpect(status().isBadRequest());
     }
 

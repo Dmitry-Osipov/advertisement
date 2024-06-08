@@ -1,5 +1,6 @@
 package rf.senla.web.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -9,6 +10,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -62,7 +64,7 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler({NoEntityException.class, UsernameNotFoundException.class})
+    @ExceptionHandler({NoEntityException.class, UsernameNotFoundException.class, EntityNotFoundException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDto entityNotFoundException(Exception ex, WebRequest request) {
         log.error("Ошибка отсутствия сущности - {}", ex.getMessage());
@@ -102,7 +104,7 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class, MissingServletRequestParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDto methodArgumentNotValidException(Exception ex, WebRequest request) {
         log.error("Ошибка валидации аргумента - {}", ex.getMessage());

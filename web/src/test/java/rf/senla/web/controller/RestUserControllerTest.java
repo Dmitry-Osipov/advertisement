@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
+@SuppressWarnings("java:S4144")
 class RestUserControllerTest {
     private User user;
     @Autowired
@@ -62,8 +63,7 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void getByUsernameReturnsCorrectData() {
-        sut.perform(get("/api/users/" + user.getUsername())
-                        .contentType("application/json"))
+        sut.perform(get("/api/users/" + user.getUsername()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(userMapper.toDto(user)));
     }
@@ -72,8 +72,7 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void getByUsernameThrowsException() {
-        sut.perform(get("/api/users/test")
-                        .contentType("application/json"))
+        sut.perform(get("/api/users/test"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -81,8 +80,7 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void getAllReturnsCorrectData() {
-        sut.perform(get("/api/users")
-                        .contentType("application/json"))
+        sut.perform(get("/api/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(10));
     }
@@ -223,8 +221,7 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser(value = "admin", roles = "ADMIN")
     void setRoleAdminDoesNotThrowException() {
-        sut.perform(put("/api/users/admin/role-admin/user123")
-                        .contentType("application/json"))
+        sut.perform(put("/api/users/admin/role-admin/user123"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value("The admin role is set to " + user.getUsername()));
     }
@@ -233,8 +230,7 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser(value = "admin", roles = "ADMIN")
     void setRoleAdminWithIncorrectDataThrowsException() {
-        sut.perform(put("/api/users/admin/role-admin/test")
-                        .contentType("application/json"))
+        sut.perform(put("/api/users/admin/role-admin/test"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -242,8 +238,7 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void setRoleAdminWithRoleUserThrowsException() {
-        sut.perform(put("/api/users/admin/role-admin/user123")
-                        .contentType("application/json"))
+        sut.perform(put("/api/users/admin/role-admin/user123"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -251,8 +246,7 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void setBoostedDoesNotThrowException() {
-        sut.perform(put("/api/users/boosted")
-                        .contentType("application/json"))
+        sut.perform(put("/api/users/boosted"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value("User " + user.getUsername() +
                         " has received a boost"));
@@ -260,12 +254,11 @@ class RestUserControllerTest {
 
     @Test
     @SneakyThrows
-    @WithMockUser("user123")
+    @WithMockUser("foodie")
     void addEvaluationReturnsCorrectData() {
         sut.perform(post("/api/users/rating")
                         .param("username", "user123")
-                        .param("rating", "4")
-                        .contentType("application/json"))
+                        .param("rating", "4"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.getId()))
                 .andExpect(jsonPath("$.username").value(user.getUsername()))
@@ -282,8 +275,7 @@ class RestUserControllerTest {
     void reAddingEvaluationThrowsException() {
         sut.perform(post("/api/users/rating")
                         .param("username", "soccer_fanatic")
-                        .param("rating", "4")
-                        .contentType("application/json"))
+                        .param("rating", "4"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -293,8 +285,7 @@ class RestUserControllerTest {
     void addEvaluationWithIncorrectDataThrowsException() {
         sut.perform(post("/api/users/rating")
                         .param("username", "user123")
-                        .param("rating", "10")
-                        .contentType("application/json"))
+                        .param("rating", "10"))
                 .andExpect(status().isBadRequest());
     }
 }
