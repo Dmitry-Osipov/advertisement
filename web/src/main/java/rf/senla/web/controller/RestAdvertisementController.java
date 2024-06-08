@@ -41,7 +41,6 @@ import rf.senla.web.utils.AdvertisementMapper;
 
 import java.util.List;
 
-// TODO: swagger doc
 /**
  * Контроллер для обработки запросов объявлений через REST API.
  */
@@ -65,14 +64,19 @@ public class RestAdvertisementController {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AdvertisementDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"userName\": \"John Doe\",\"price\": " +
-                                    "2000,\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
-                                    "device that combines the functions of a cell phone and a personal computer\"," +
-                                    "\"status\": \"ACTIVE\"}, {\"id\": 2,\"userName\": \"Alice Smith\"," +
-                                    "\"price\": 1500,\"headline\": \"Laptop\",\"description\": \"A laptop computer " +
-                                    "is a portable, personal computer with a clamshell form factor, suitable for " +
-                                    "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            examples = @ExampleObject(value = "[ {\"id\": 4,\"user\": {\"id\": 4,\"username\": " +
+                                    "\"soccer_fanatic\",\"phoneNumber\": \"+7(234)567-89-01\",\"rating\": " +
+                                    "3.3333333333333335,\"email\": \"alexander.wilson@hotmail.com\",\"boosted\": " +
+                                    "true,\"role\": \"ROLE_USER\"},\"price\": 4000,\"headline\": \"Backpack\"," +
+                                    "\"description\": \"A bag with shoulder straps that allows it to be carried on " +
+                                    "one's back, typically used for carrying personal belongings, books, or " +
+                                    "electronic devices.\",\"status\": \"ACTIVE\"},{\"id\": 1,\"user\": {\"id\": " +
+                                    "1,\"username\": \"user123\",\"phoneNumber\": \"+7(123)456-78-90\",\"rating\":" +
+                                    " 0.0,\"email\": \"storm-yes@yandex.ru\",\"boosted\": true,\"role\": " +
+                                    "\"ROLE_USER\"},\"price\": 1000,\"headline\": \"Smartphone\",\"description\": " +
+                                    "\"A portable device combining the functions of a mobile phone and a computer, " +
+                                    "typically offering internet access, touchscreen interface, and various " +
+                                    "applications.\",\"status\": \"ACTIVE\"} ]")))
     })
     public ResponseEntity<List<AdvertisementDto>> getAll(
             @PageableDefault(sort = {"user.boosted", "user.rating"}, direction = Sort.Direction.DESC)
@@ -94,14 +98,19 @@ public class RestAdvertisementController {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AdvertisementDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"userName\": \"John Doe\",\"price\": " +
-                                    "2000,\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
-                                    "device that combines the functions of a cell phone and a personal computer\"," +
-                                    "\"status\": \"ACTIVE\"}, {\"id\": 2,\"userName\": \"Alice Smith\"," +
-                                    "\"price\": 1500,\"headline\": \"Laptop\",\"description\": \"A laptop computer " +
-                                    "is a portable, personal computer with a clamshell form factor, suitable for " +
-                                    "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            examples = @ExampleObject(value = "[ {\"id\": 7,\"user\": {\"id\": 7,\"username\": " +
+                                    "\"music_lover\",\"phoneNumber\": \"+7(345)678-90-12\",\"rating\": 3.5," +
+                                    "\"email\": \"sarah.wilson@icloud.com\",\"boosted\": false,\"role\": " +
+                                    "\"ROLE_USER\"},\"price\": 7000,\"headline\": \"Sneakers\",\"description\": " +
+                                    "\"Casual athletic shoes with a flexible sole and typically made of canvas or " +
+                                    "leather, suitable for walking, running, or other sports activities.\"," +
+                                    "\"status\": \"ACTIVE\"},{\"id\": 5,\"user\": {\"id\": 5,\"username\": " +
+                                    "\"bookworm\",\"phoneNumber\": \"+7(567)890-12-34\",\"rating\": 0.0,\"email\": " +
+                                    "\"emily.jones@outlook.com\",\"boosted\": false,\"role\": \"ROLE_USER\"}," +
+                                    "\"price\": 5000,\"headline\": \"Sunglasses\",\"description\": \"Eyewear " +
+                                    "designed to protect the eyes from sunlight or glare, typically featuring " +
+                                    "tinted lenses and frames that cover a larger area around the eyes.\"," +
+                                    "\"status\": \"ACTIVE\"} ]")))
     })
     public ResponseEntity<List<AdvertisementDto>> getAllByPriceAndHeadline(
             @Parameter(description = "Минимальная стоимость", example = "500", required = true, in = ParameterIn.QUERY)
@@ -131,17 +140,16 @@ public class RestAdvertisementController {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AdvertisementDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"userName\": \"John Doe\",\"price\": " +
-                                    "2000,\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
-                                    "device that combines the functions of a cell phone and a personal computer\"," +
-                                    "\"status\": \"ACTIVE\"}, {\"id\": 2,\"userName\": \"John Doe\"," +
-                                    "\"price\": 1500,\"headline\": \"Laptop\",\"description\": \"A laptop computer " +
-                                    "is a portable, personal computer with a clamshell form factor, suitable for " +
-                                    "mobile use.\",\"status\": \"INACTIVE\"} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            examples = @ExampleObject(value = "[ {\"id\": 1,\"user\": {\"id\": 1,\"username\": " +
+                                    "\"user123\",\"phoneNumber\": \"+7(123)456-78-90\",\"rating\": 0.0,\"email\": " +
+                                    "\"storm-yes@yandex.ru\",\"boosted\": true,\"role\": \"ROLE_USER\"},\"price\": " +
+                                    "1000,\"headline\": \"Smartphone\",\"description\": \"A portable device " +
+                                    "combining the functions of a mobile phone and a computer, typically offering " +
+                                    "internet access, touchscreen interface, and various applications.\"," +
+                                    "\"status\": \"ACTIVE\"} ]")))
     })
     public ResponseEntity<List<AdvertisementDto>> getAllByUser(
-            @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
+            @Parameter(description = "Имя пользователя", example = "John_Doe", required = true, in = ParameterIn.PATH)
             @PathVariable("username") @NotBlank @Size(min = 5, max = 50) String username,
 
             @Parameter(description = "Флаг только активных объявлений", example = "true", in = ParameterIn.QUERY)
@@ -163,12 +171,7 @@ public class RestAdvertisementController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AdvertisementDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"userName\": \"John Doe\",\"price\": 2000," +
-                                    "\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
-                                    "device that combines the functions of a cell phone and a personal computer\"," +
-                                    "\"status\": \"ACTIVE\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = AdvertisementDto.class)))
     })
     public ResponseEntity<AdvertisementDto> create(
             @Parameter(description = "Данные объявления", required = true,
@@ -189,12 +192,7 @@ public class RestAdvertisementController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AdvertisementDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"userName\": \"John Doe\",\"price\": 2000," +
-                                    "\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
-                                    "device that combines the functions of a cell phone and a personal computer\"," +
-                                    "\"status\": \"REVIEW\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = AdvertisementDto.class)))
     })
     public ResponseEntity<AdvertisementDto> update(
             @Parameter(description = "Данные объявления", required = true,
@@ -213,8 +211,8 @@ public class RestAdvertisementController {
     @DeleteMapping
     @Operation(summary = "Удалить объявление")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "Deleted advertisement with ID: 1")))
     })
     public ResponseEntity<String> delete(
             @Parameter(description = "Данные объявления", required = true,
@@ -231,6 +229,12 @@ public class RestAdvertisementController {
      * @return объект {@link ResponseEntity} с обновленным объявлением и кодом 200 OK в случае успеха
      */
     @PutMapping("/{id}/sold")
+    @Operation(summary = "Продажа объявления")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AdvertisementDto.class)))
+    })
     public ResponseEntity<AdvertisementDto> sell(
             @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
             @PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
@@ -249,12 +253,7 @@ public class RestAdvertisementController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AdvertisementDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"userName\": \"John Doe\",\"price\": 2000," +
-                                    "\"headline\": \"Smartphone\",\"description\": \"A smartphone is a portable " +
-                                    "device that combines the functions of a cell phone and a personal computer\"," +
-                                    "\"status\": \"REVIEW\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = AdvertisementDto.class)))
     })
     public ResponseEntity<AdvertisementDto> updateByAdmin(
             @Parameter(description = "Данные объявления", required = true,
@@ -272,8 +271,8 @@ public class RestAdvertisementController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Удалить объявление админом")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "Deleted advertisement with ID: 1")))
     })
     public ResponseEntity<String> deleteByAdmin(
             @Parameter(description = "Данные объявления", required = true,

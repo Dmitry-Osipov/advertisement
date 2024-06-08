@@ -27,7 +27,7 @@ public class UserDto {
     @Positive(message = "ID пользователя не может быть меньше 1")
     private Long id;
 
-    @Schema(description = "Имя пользователя", example = "John Doe")
+    @Schema(description = "Имя пользователя", example = "John_Doe")
     @Size(min = 5, max = 50, message = "Имя пользователя должно содержать от 5 до 50 символов")
     @NotBlank(message = "Имя пользователя не может быть пустым")
     private String username;

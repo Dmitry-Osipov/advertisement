@@ -22,7 +22,7 @@ public class ErrorDto {
     @Schema(description = "Сообщение об ошибке", example = "Access Denied")
     private String message;
 
-    @Schema(description = "URI ошибки", example = "uri=/api/users/My_Inc0rrect-user")
+    @Schema(description = "URI ошибки", example = "uri=/api/admin")
     private String description;
 
     @Schema(description = "Время отчёта об ошибке", example = "2024-05-21T17:13:28.410277843")

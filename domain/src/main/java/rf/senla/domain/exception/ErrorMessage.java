@@ -24,7 +24,9 @@ public enum ErrorMessage {
     TOKEN_EXPIRED("Token expired"),
     INCORRECT_HTTP_METHOD_SELECTED("Incorrect http method selected"),
     SENDER_ALREADY_VOTED("The sender and receiver pair is already in place"),
-    SENDER_MISMATCH("The sender and current user does not match");
+    SENDER_MISMATCH("The sender and current user does not match"),
+    EMAIL_EXCEPTION("There's been an email error. Please try again later"),
+    INTERNAL_SERVER_ERROR("There's been an unexpected error. Please try again later");
 
     private final String message;
 }

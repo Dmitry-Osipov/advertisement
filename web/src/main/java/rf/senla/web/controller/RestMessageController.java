@@ -37,7 +37,6 @@ import rf.senla.web.utils.MessageMapper;
 
 import java.util.List;
 
-// TODO: swagger doc
 /**
  * Контроллер для обработки запросов сообщений через REST API.
  */
@@ -63,16 +62,34 @@ public class RestMessageController {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = MessageDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisementId\": 1,\"senderName\": " +
-                                    "\"John Doe\",\"recipientName\": \"Laura Davis\",\"text\": \"Hello!\"," +
-                                    "\"sentAt\": \"2024-05-09T14:55:46.765819\",\"read\": true}, {\"id\": 2," +
-                                    "\"advertisementId\": 2,\"senderName\": \"Laura Davis\",\"recipientName\": " +
-                                    "\"John Doe\",\"text\": \"Hi there!\",\"sentAt\": \"2024-05-10T10:20:30.123456\"," +
-                                    "\"read\": false} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisement\": {\"id\": 2,\"user\": " +
+                                    "{\"id\": 2,\"username\": \"cool_guy\",\"phoneNumber\": \"+7(456)789-01-23\"," +
+                                    "\"rating\": 0.0,\"email\": \"john.doe@gmail.com\",\"boosted\": false,\"role\": " +
+                                    "\"ROLE_USER\"},\"price\": 2000,\"headline\": \"Laptop\",\"description\": \"A " +
+                                    "portable computer that is small and light enough to be used on one's lap, " +
+                                    "typically with a clamshell form factor and a built-in keyboard and display.\"," +
+                                    "\"status\": \"ACTIVE\"},\"sender\": {\"id\": 1,\"username\": \"user123\"," +
+                                    "\"phoneNumber\": \"+7(123)456-78-90\",\"rating\": 0.0,\"email\": " +
+                                    "\"storm-yes@yandex.ru\",\"boosted\": true,\"role\": \"ROLE_USER\"}," +
+                                    "\"recipient\": {\"id\": 2,\"username\": \"cool_guy\",\"phoneNumber\": " +
+                                    "\"+7(456)789-01-23\",\"rating\": 0.0,\"email\": \"john.doe@gmail.com\"," +
+                                    "\"boosted\": false,\"role\": \"ROLE_USER\"},\"text\": \"Hi! What can you tell " +
+                                    "me about Laptop?\",\"sentAt\": \"2024-06-08T15:46:29.347781\",\"read\": true}," +
+                                    "{\"id\": 2,\"advertisement\": {\"id\": 2,\"user\": {\"id\": 2,\"username\": " +
+                                    "\"cool_guy\",\"phoneNumber\": \"+7(456)789-01-23\",\"rating\": 0.0,\"email\": " +
+                                    "\"john.doe@gmail.com\",\"boosted\": false,\"role\": \"ROLE_USER\"}," +
+                                    "\"price\": 2000,\"headline\": \"Laptop\",\"description\": \"A portable " +
+                                    "computer that is small and light enough to be used on one's lap, typically " +
+                                    "with a clamshell form factor and a built-in keyboard and display.\",\"status\": " +
+                                    "\"ACTIVE\"},\"sender\": {\"id\": 2,\"username\": \"cool_guy\",\"phoneNumber\": " +
+                                    "\"+7(456)789-01-23\",\"rating\": 0.0,\"email\": \"john.doe@gmail.com\"," +
+                                    "\"boosted\": false,\"role\": \"ROLE_USER\"},\"recipient\": {\"id\": 1," +
+                                    "\"username\": \"user123\",\"phoneNumber\": \"+7(123)456-78-90\",\"rating\": " +
+                                    "0.0,\"email\": \"storm-yes@yandex.ru\",\"role\": \"ROLE_USER\"},\"text\": " +
+                                    "\"Good Laptop, long battery life, nice screen\",\"read\": true} ]")))
     })
     public ResponseEntity<List<MessageDto>> getUserCorrespondence(
-            @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.QUERY)
+            @Parameter(description = "Имя пользователя", example = "John_Doe", required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "username") @NotBlank @Size(min = 5, max = 50) String username,
 
             @PageableDefault(sort = {"sentAt"}, direction = Sort.Direction.DESC) Pageable pageable,
@@ -91,11 +108,7 @@ public class RestMessageController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1,\"senderName\": " +
-                                    "\"John Doe\",\"recipientName\": \"Laura Davis\",\"text\": \"Hello!\"," +
-                                    "\"sentAt\": \"2024-05-09T14:55:46.765819\",\"read\": true}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = MessageDto.class)))
     })
     public ResponseEntity<MessageDto> create(
             @Parameter(description = "Данные сообщения", required = true,
@@ -115,11 +128,7 @@ public class RestMessageController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1,\"senderName\": " +
-                                    "\"John Doe\",\"recipientName\": \"Laura Davis\",\"text\": \"Hello!\"," +
-                                    "\"sentAt\": \"2024-05-09T14:55:46.765819\",\"read\": false}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = MessageDto.class)))
     })
     public ResponseEntity<MessageDto> update(
             @Parameter(description = "Данные сообщения", required = true,
@@ -137,8 +146,8 @@ public class RestMessageController {
     @DeleteMapping
     @Operation(summary = "Удалить сообщение")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "Deleted message with ID: 1")))
     })
     public ResponseEntity<String> delete(
             @Parameter(description = "Данные сообщения", required = true,
@@ -146,6 +155,6 @@ public class RestMessageController {
             @Valid @RequestBody DeleteByIdRequest request,
             @AuthenticationPrincipal UserDetails user) {
         service.delete(mapper.toEntity(request), user);
-        return ResponseEntity.ok("Deleted message with id: " + request.getId());
+        return ResponseEntity.ok("Deleted message with ID: " + request.getId());
     }
 }

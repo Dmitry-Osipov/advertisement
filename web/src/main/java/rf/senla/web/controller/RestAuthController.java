@@ -26,7 +26,6 @@ import rf.senla.web.dto.SignUpRequest;
 import rf.senla.domain.service.IAuthenticationService;
 import rf.senla.web.utils.UserMapper;
 
-// TODO: check swagger doc
 /**
  * Контроллер для обработки запросов аутентификации через REST API.
  */
@@ -49,10 +48,7 @@ public class RestAuthController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = JwtAuthenticationResponse.class),
-                            examples = @ExampleObject(value = "{\"token\": " +
-                                    "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = JwtAuthenticationResponse.class)))
     })
     public ResponseEntity<JwtAuthenticationResponse> signUp(
             @Parameter(description = "Данные регистрации", required = true,
@@ -71,10 +67,7 @@ public class RestAuthController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = JwtAuthenticationResponse.class),
-                            examples = @ExampleObject(value = "{\"token\": " +
-                                    "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = JwtAuthenticationResponse.class)))
     })
     public ResponseEntity<JwtAuthenticationResponse> signIn(
             @Parameter(description = "Данные авторизации", required = true,
@@ -91,8 +84,8 @@ public class RestAuthController {
     @PostMapping("/password/forgot")
     @Operation(summary = "Метод для отправки пользователю ссылку на восстановление пароля")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "Reset password email has been sent")))
     })
     public ResponseEntity<String> forgotPassword(
             @Parameter(description = "Новый пароль", required = true,
@@ -111,8 +104,8 @@ public class RestAuthController {
     @PostMapping("/password/reset")
     @Operation(summary = "Метод обновления пароля пользователю")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "Password has been reset")))
     })
     public ResponseEntity<String> resetPassword(
             @Parameter(description = "Токен восстановления пароля", required = true, in = ParameterIn.QUERY,

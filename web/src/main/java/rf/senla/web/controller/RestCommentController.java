@@ -38,7 +38,6 @@ import rf.senla.web.utils.CommentMapper;
 
 import java.util.List;
 
-// TODO: swagger doc
 /**
  * Контроллер для обработки запросов комментариев через REST API.
  */
@@ -63,11 +62,29 @@ public class RestCommentController {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CommentDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisementId\": 1,\"userName\": " +
-                                    "\"John Doe\",\"text\": \"Hello!\",\"createdAt\": \"2024-05-09T14:55:46.765819\"}, " +
-                                    "{\"id\": 2,\"advertisementId\": 1,\"userName\": \"Jane Smith\",\"text\": " +
-                                    "\"Hi there!\",\"createdAt\": \"2024-05-10T10:30:00.000000\"} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisement\": {\"id\": 1,\"user\": " +
+                                    "{\"id\": 1,\"username\": \"user123\",\"phoneNumber\": \"+7(123)456-78-90\"," +
+                                    "\"rating\": 0.0,\"email\": \"storm-yes@yandex.ru\",\"boosted\": true,\"role\": " +
+                                    "\"ROLE_USER\"},\"price\": 1000,\"headline\": \"Smartphone\",\"description\": " +
+                                    "\"A portable device combining the functions of a mobile phone and a computer, " +
+                                    "typically offering internet access, touchscreen interface, and various " +
+                                    "applications.\",\"status\": \"ACTIVE\"},\"user\": {\"id\": 2,\"username\": " +
+                                    "\"cool_guy\",\"phoneNumber\": \"+7(456)789-01-23\",\"rating\": 0.0,\"email\": " +
+                                    "\"john.doe@gmail.com\",\"boosted\": false,\"role\": \"ROLE_USER\"},\"text\": " +
+                                    "\"This smartphone is amazing! The camera quality is top-notch, and the battery " +
+                                    "life lasts all day.\",\"createdAt\": \"2024-06-08T16:11:35.654512\"},{\"id\": " +
+                                    "2,\"advertisement\": {\"id\": 1,\"user\": {\"id\": 1,\"username\": \"user123\"," +
+                                    "\"phoneNumber\": \"+7(123)456-78-90\",\"rating\": 0.0,\"email\": " +
+                                    "\"storm-yes@yandex.ru\",\"boosted\": true,\"role\": \"ROLE_USER\"},\"price\": " +
+                                    "1000,\"headline\": \"Smartphone\",\"description\": \"A portable device " +
+                                    "combining the functions of a mobile phone and a computer, typically offering " +
+                                    "internet access, touchscreen interface, and various applications.\",\"status\": " +
+                                    "\"ACTIVE\"},\"user\": {\"id\": 3,\"username\": \"adventure_lover\"," +
+                                    "\"phoneNumber\": \"+7(789)012-34-56\",\"rating\": 0.0,\"email\": " +
+                                    "\"jane.smith@yahoo.com\",\"boosted\": false,\"role\": \"ROLE_USER\"},\"text\": " +
+                                    "\"I've been using this smartphone for a month now, and I'm impressed with its " +
+                                    "performance. It's fast, reliable, and the screen is stunning.\",\"createdAt\": " +
+                                    "\"2024-06-08T16:11:35.654512\"} ]")))
     })
     public ResponseEntity<List<CommentDto>> getCommentsByAdvertisementId(
             @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
@@ -91,9 +108,8 @@ public class RestCommentController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CommentDto.class),
                             examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1," +
-                                    "\"userName\": \"John Doe\",\"text\": \"Hello!\",\"createdAt\": " +
-                                    "\"2024-05-09T14:55:46.765819\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                                    "\"userName\": \"John_Doe\",\"text\": \"Hello!\",\"createdAt\": " +
+                                    "\"2024-05-09T14:55:46.765819\"}")))
     })
     public ResponseEntity<CommentDto> create(
             @Parameter(description = "Данные комментария", required = true,
@@ -115,11 +131,7 @@ public class RestCommentController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommentDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"advertisementId\": 1," +
-                                    "\"userName\": \"John Doe\",\"text\": \"Hi!\",\"createdAt\": " +
-                                    "\"2024-05-09T14:55:46.765819\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = CommentDto.class)))
     })
     public ResponseEntity<CommentDto> update(
             @Parameter(description = "Данные комментария", required = true,
@@ -138,8 +150,8 @@ public class RestCommentController {
     @DeleteMapping
     @Operation(summary = "Удалить комментарий")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "Deleted comment with ID: 1")))
     })
     public ResponseEntity<String> delete(
             @Parameter(description = "Данные объявления", required = true,
@@ -147,6 +159,6 @@ public class RestCommentController {
             @Valid @RequestBody DeleteByIdRequest request,
             @AuthenticationPrincipal UserDetails user) {
         service.delete(request.getId(), user);
-        return ResponseEntity.ok("Deleted comment with id: " + request.getId());
+        return ResponseEntity.ok("Deleted comment with ID: " + request.getId());
     }
 }

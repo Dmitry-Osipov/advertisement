@@ -34,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SuppressWarnings({"java:S4144", "java:S1117"})
 class RestAdvertisementControllerTest {
     private User user;
-    private User admin;
     private Advertisement advertisement;
     @Autowired
     private MockMvc sut;
@@ -54,19 +53,6 @@ class RestAdvertisementControllerTest {
                 .email("storm-yes@yandex.ru")
                 .boosted(true)
                 .role(Role.ROLE_USER)
-                .resetPasswordToken(null)
-                .resetPasswordTokenExpiryDate(null)
-                .build();
-
-        admin = User.builder()
-                .id(15L)
-                .username("admin")
-                .password("$2a$10$/v7NnuEmQ8wvQg6oK.RFkeX1fPF25xzQIFYSz2M7BTVLkbi1RExYe")
-                .phoneNumber("+7(902)902-98-11")
-                .rating(0.0)
-                .email("dimaosipov00@gmail.com")
-                .boosted(false)
-                .role(Role.ROLE_ADMIN)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
                 .build();

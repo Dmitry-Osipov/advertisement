@@ -1,5 +1,10 @@
 package rf.senla.web.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +43,16 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class),
+                            examples = @ExampleObject(value = "{\"message\": \" No static resource\"," +
+                                    "\"description\": \"uri=/api/resource\",\"time\": " +
+                                    "\"2024-06-08T15:03:51.978Z\"}")))
+    })
     public ErrorDto noResourceFoundException(Exception ex, WebRequest request) {
         log.error("Ошибка перехода по эндпоинту - {}", ex.getMessage());
         return getErrorDto(ex.getMessage().substring(0, 18), request);
@@ -50,8 +63,16 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "405", description = "Method Not Allowed",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class),
+                            examples = @ExampleObject(value = "{\"message\": \"Incorrect http method selected\"," +
+                                    "\"description\": \"uri=/api/auth/login\",\"time\": " +
+                                    "\"2024-06-08T15:03:51.978Z\"}")))
+    })
     public ErrorDto httpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex,
                                                            WebRequest request) {
         log.error("Ошибка выбора http метода - {}", ex.getMessage());
@@ -64,8 +85,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler({NoEntityException.class, UsernameNotFoundException.class, EntityNotFoundException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({NoEntityException.class, UsernameNotFoundException.class, EntityNotFoundException.class})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto entityNotFoundException(Exception ex, WebRequest request) {
         log.error("Ошибка отсутствия сущности - {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -78,8 +104,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler({EntityContainedException.class, InvalidDataAccessApiUsageException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({EntityContainedException.class, InvalidDataAccessApiUsageException.class})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto entityContainedException(Exception ex, WebRequest request) {
         log.error("Ошибка существования сущности - {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -91,8 +122,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(AccessDeniedException.class)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto accessDeniedException(Exception ex, WebRequest request) {
         log.error("Ошибка прав доступа - {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -104,8 +140,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class, MissingServletRequestParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({MethodArgumentNotValidException.class, MissingServletRequestParameterException.class})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto methodArgumentNotValidException(Exception ex, WebRequest request) {
         log.error("Ошибка валидации аргумента - {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -117,8 +158,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(TechnicalException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(TechnicalException.class)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto technicalException(TechnicalException ex, WebRequest request) {
         log.error("Техническая ошибка - {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -130,8 +176,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(ResetPasswordTokenException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ResetPasswordTokenException.class)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto resetPasswordTokenException(ResetPasswordTokenException ex, WebRequest request) {
         log.error("Ошибка валидации токена восстановления пароля - {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -143,8 +194,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto constraintViolation(Exception ex, WebRequest request) {
         log.error("Ошибка валидации jakarta {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -156,8 +212,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadCredentialsException.class)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto badCredentials(Exception ex, WebRequest request) {
         log.error("Ошибка анкетных данны {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -168,8 +229,13 @@ public class RestExceptionHandler {
      * @param request запрос
      * @return информация об ошибке
      */
-    @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class)))
+    })
     public ErrorDto illegalArgumentException(Exception ex, WebRequest request) {
         log.error("Ошибка поступивших аргументов - {}", ex.getMessage());
         return getErrorDto(ex.getMessage(), request);
@@ -183,11 +249,18 @@ public class RestExceptionHandler {
      */
     @ExceptionHandler(EmailException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class),
+                            examples = @ExampleObject(value = "{\"message\": \"There's been an email error. Please " +
+                                    "try again later\",\"description\": \"uri=/api/auth/password/forgot\",\"time\": " +
+                                    "\"2024-06-08T15:03:51.978Z\"}")))
+    })
     public ErrorDto emailException(Exception ex, WebRequest request) {
         log.error("Ошибка при работе с почтой - {}", ex.getMessage());
-        return getErrorDto(ex.getMessage(), request);
+        return getErrorDto(ErrorMessage.EMAIL_EXCEPTION.getMessage(), request);
     }
-
 
     /**
      * Метод возвращает информацию о любой непредвиденной ошибке
@@ -197,9 +270,17 @@ public class RestExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDto.class),
+                            examples = @ExampleObject(value = "{\"message\": \"There's been an unexpected error. " +
+                                    "Please try again later\",\"description\": \"uri=/api/advertisements\"," +
+                                    "\"time\": \"2024-06-08T15:03:51.978Z\"}")))
+    })
     public ErrorDto allExceptionHandler(Exception ex, WebRequest request) {
         log.error("Непредвиденная ошибка - {}", ex.toString());
-        return getErrorDto(ex.toString(), request);  // TODO: заменить в самом конце на абстрактное сообщение об ошибке
+        return getErrorDto(ErrorMessage.INTERNAL_SERVER_ERROR.getMessage(), request);
     }
 
     /**

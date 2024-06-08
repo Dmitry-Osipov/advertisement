@@ -17,6 +17,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @Schema(description = "Запрос на удаление пользователя")
 public class DeleteByUsernameRequest {
-    @Schema(description = "Имя пользователя", example = "John Doe")
+    @Schema(description = "Имя пользователя", example = "John_Doe")
     private String username;
 }

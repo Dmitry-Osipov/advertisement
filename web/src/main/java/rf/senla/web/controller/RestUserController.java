@@ -41,7 +41,6 @@ import rf.senla.web.utils.UserMapper;
 
 import java.util.List;
 
-// TODO: swagger docs update description for user
 /**
  * Контроллер для обработки запросов пользователей через REST API.
  */
@@ -64,15 +63,10 @@ public class RestUserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"username\": \"John Doe\"," +
-                                    "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
-                                    "\"rating\": 100,\"email\": \"jondoe@gmail.com\",\"boosted\": false," +
-                                    "\"role\": \"ROLE_USER\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = UserDto.class)))
     })
     public ResponseEntity<UserDto> getByUsername(
-            @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
+            @Parameter(description = "Имя пользователя", example = "John_Doe", required = true, in = ParameterIn.PATH)
             @PathVariable @NotBlank @Size(min = 5, max = 50) String username) {
         return ResponseEntity.ok(mapper.toDto(service.getByUsername(username)));
     }
@@ -88,14 +82,13 @@ public class RestUserController {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 1,\"username\": \"John Doe\"," +
-                                    "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
-                                    "\"rating\": 100,\"email\": \"johndoe@gmail.com\",\"boosted\": false," +
-                                    "\"role\": \"ROLE_USER\"}, {\"id\": 2,\"username\": \"Jane Smith\"," +
-                                    "\"password\": \"another_secret_password\",\"phoneNumber\": \"+7(888)888-88-88\"," +
-                                    "\"rating\": 200,\"email\": \"janesmith@gmail.com\",\"boosted\": true," +
-                                    "\"role\": \"ROLE_ADMIN\"} ]"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            examples = @ExampleObject(value = "[ {\"id\": 1,\"username\": \"John_Doe\"," +
+                                    "\"phoneNumber\": \"+7(777)777-77-77\",\"rating\": 4.8,\"email\": " +
+                                    "\"johndoe@gmail.com\",\"boosted\": false,\"role\": \"ROLE_USER\"}, {\"id\": 2," +
+                                    "\"username\": \"Jane_Smith\",\"phoneNumber\": \"+7(888)888-88-88\",\"rating\": " +
+                                    "4.5,\"email\": \"janesmith@gmail.com\",\"boosted\": true,\"role\": " +
+                                    "\"ROLE_ADMIN\"} ]")
+                    ))
     })
     public ResponseEntity<List<UserDto>> getAll(
             @PageableDefault(sort = {"boosted", "rating"}, direction = Sort.Direction.DESC) Pageable pageable) {
@@ -113,12 +106,7 @@ public class RestUserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"username\": \"John Doe\"," +
-                                    "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
-                                    "\"rating\": 300,\"email\": \"jondoe@gmail.com\",\"boosted\": false," +
-                                    "\"role\": \"ROLE_USER\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = UserDto.class)))
     })
     public ResponseEntity<UserDto> update(
             @Parameter(description = "Данные пользователя", required = true,
@@ -136,8 +124,8 @@ public class RestUserController {
     @Operation(summary = "Удалить пользователя")
     @PreAuthorize("#request.username == authentication.principal.username or hasRole('ADMIN')")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "Deleted user with username: John_Doe")))
     })
     public ResponseEntity<String> delete(
             @Parameter(description = "Данные пользователя", required = true,
@@ -156,8 +144,8 @@ public class RestUserController {
     @Operation(summary = "Метод обновления пароля у пользователя")
     @PreAuthorize("#request.username == authentication.principal.username")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "Password updated successfully")))
     })
     public ResponseEntity<String> updatePassword(
             @Parameter(description = "Данные смены пароля", required = true,
@@ -176,11 +164,11 @@ public class RestUserController {
     @PutMapping("${spring.data.rest.admin-path}/role-admin/{username}")
     @Operation(summary = "Метод для установки роли администратора для пользователя")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "The admin role is set to John_Doe")))
     })
     public ResponseEntity<String> setRoleAdmin(
-            @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
+            @Parameter(description = "Имя пользователя", example = "John_Doe", required = true, in = ParameterIn.PATH)
             @PathVariable @NotBlank @Size(min = 5, max = 50) String username) {
         service.setAdminRole(username);
         return ResponseEntity.ok("The admin role is set to " + username);
@@ -193,8 +181,8 @@ public class RestUserController {
     @PutMapping("/boosted")
     @Operation(summary = "Метод для продвижения пользователя")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain")),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
+                    examples = @ExampleObject(value = "User John_Doe has received a boost")))
     })
     public ResponseEntity<String> setBoosted(@AuthenticationPrincipal UserDetails user) {
         return ResponseEntity.ok("User " + service.setBoosted(user).getUsername() + " has received a boost");
@@ -212,18 +200,13 @@ public class RestUserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class),
-                            examples = @ExampleObject(value = "{\"id\": 1,\"username\": \"John Doe\"," +
-                                    "\"password\": \"my_1secret1_password\",\"phoneNumber\": \"+7(777)777-77-77\"," +
-                                    "\"rating\": 300,\"email\": \"jondoe@gmail.com\",\"boosted\": false," +
-                                    "\"role\": \"ROLE_USER\"}"))),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+                            schema = @Schema(implementation = UserDto.class)))
     })
     public ResponseEntity<UserDto> addEvaluation(
-            @Parameter(description = "Имя пользователя", example = "John Doe", required = true, in = ParameterIn.PATH)
+            @Parameter(description = "Имя пользователя", example = "John_Doe", required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "username") @NotBlank @Size(min = 5, max = 50) String username,
 
-            @Parameter(description = "Рейтинг пользователя", example = "5", required = true, in = ParameterIn.PATH)
+            @Parameter(description = "Рейтинг пользователя", example = "5", required = true, in = ParameterIn.QUERY)
             @RequestParam(value = "rating") @Min(1) @Max(5) Integer rating,
 
             @AuthenticationPrincipal UserDetails sender) {
