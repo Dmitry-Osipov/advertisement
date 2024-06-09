@@ -27,7 +27,7 @@ import java.util.List;
 public class MessageService implements IMessageService {
     private final IUserService userService;
     private final MessageRepository repository;
-    private final AdvertisementService advertisementService;
+    private final IAdvertisementService advertisementService;
 
     @Override
     @Transactional

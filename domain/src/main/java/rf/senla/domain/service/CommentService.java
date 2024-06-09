@@ -22,9 +22,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CommentService implements ICommentService {
-    private final UserService userService;
+    private final IUserService userService;
     private final CommentRepository repository;
-    private final AdvertisementService advertisementService;
+    private final IAdvertisementService advertisementService;
 
     @Override
     @Transactional

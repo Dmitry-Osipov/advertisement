@@ -28,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @SuppressWarnings("java:S6809")
 public class AdvertisementService implements IAdvertisementService {
-    private final UserService userService;
+    private final IUserService userService;
     private final AdvertisementRepository repository;
     private final CommentRepository commentRepository;
     private final MessageRepository messageRepository;
