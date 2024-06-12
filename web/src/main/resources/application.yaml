@@ -1,0 +1,37 @@
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  application:
+    name: advertisement
+  datasource:
+    url: jdbc:postgresql://localhost:5432/advertisement
+    username: advertisement_user
+    password: 46Gx3X9nT1tABLf2Mu
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: advertisement
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    rest:
+      base-path: /api
+      admin-path: /admin
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dimaosipov00@gmail.com
+    password: yxpf rwlw bjbl frqj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            required: true
+            enable: true
+
+token:
+  signing:
+    key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855
