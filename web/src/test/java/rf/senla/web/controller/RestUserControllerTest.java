@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.web.dto.ChangePasswordRequest;
-import rf.senla.web.dto.DeleteByUsernameRequest;
 import rf.senla.web.dto.UpdateUserRequest;
 import rf.senla.web.utils.UserMapper;
 
@@ -132,25 +131,16 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void deleteByUserDoesNotThrowException() {
-        String request = objectMapper.writeValueAsString(new DeleteByUsernameRequest(user.getUsername()));
-
-        sut.perform(delete("/api/users")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/users/user123"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted user with username: " +
-                        user.getUsername()));
+                .andExpect(jsonPath("$").value("Deleted user with username: user123"));
     }
 
     @Test
     @SneakyThrows
     @WithMockUser(value = "admin", roles = "ADMIN")
     void deleteByAdminDoesNotThrowException() {
-        String request = objectMapper.writeValueAsString(new DeleteByUsernameRequest(user.getUsername()));
-
-        sut.perform(delete("/api/users")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/users/user123"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value("Deleted user with username: " +
                         user.getUsername()));
@@ -160,11 +150,7 @@ class RestUserControllerTest {
     @SneakyThrows
     @WithMockUser("cool_guy")
     void deleteByUserThrowsException() {
-        String request = objectMapper.writeValueAsString(new DeleteByUsernameRequest(user.getUsername()));
-
-        sut.perform(delete("/api/users")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/users/user123"))
                 .andExpect(status().isBadRequest());
     }
 

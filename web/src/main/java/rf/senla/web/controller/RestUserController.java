@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.web.dto.ChangePasswordRequest;
-import rf.senla.web.dto.DeleteByUsernameRequest;
 import rf.senla.web.dto.UpdateUserRequest;
 import rf.senla.web.dto.UserDto;
 import rf.senla.domain.service.IUserService;
@@ -117,22 +116,21 @@ public class RestUserController {
 
     /**
      * Удалить пользователя.
-     * @param request запрос с именем пользователя
+     * @param username имя пользователя
      * @return ответ об успешном удалении
      */
-    @DeleteMapping
+    @DeleteMapping("/{username}")
     @Operation(summary = "Удалить пользователя")
-    @PreAuthorize("#request.username == authentication.principal.username or hasRole('ADMIN')")
+    @PreAuthorize("#username == authentication.principal.username or hasRole('ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
                     examples = @ExampleObject(value = "Deleted user with username: John_Doe")))
     })
     public ResponseEntity<String> delete(
-            @Parameter(description = "Данные пользователя", required = true,
-                    content = @Content(schema = @Schema(implementation = UserDto.class)))
-            @RequestBody @Valid DeleteByUsernameRequest request) {
-        service.deleteByUsername(request.getUsername());
-        return ResponseEntity.ok("Deleted user with username: " + request.getUsername());
+            @Parameter(description = "Имя пользователя", example = "John_Doe", required = true, in = ParameterIn.PATH)
+            @PathVariable @NotBlank @Size(min = 5, max = 50) String username) {
+        service.deleteByUsername(username);
+        return ResponseEntity.ok("Deleted user with username: " + username);
     }
 
     /**
