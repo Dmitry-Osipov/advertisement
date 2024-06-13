@@ -18,7 +18,6 @@ import rf.senla.domain.entity.AdvertisementStatus;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.web.dto.CreateMessageRequest;
-import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.web.dto.UpdateMessageRequest;
 import rf.senla.web.utils.AdvertisementMapper;
 import rf.senla.web.utils.UserMapper;
@@ -190,26 +189,16 @@ class RestMessageControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void deleteDoesNotThrowException() {
-        DeleteByIdRequest message = new DeleteByIdRequest(1L);
-        String request = objectMapper.writeValueAsString(message);
-
-        sut.perform(delete("/api/messages")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/messages/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted message with ID: " + message.getId()));
+                .andExpect(jsonPath("$").value("Deleted message with ID: 1"));
     }
 
     @Test
     @SneakyThrows
     @WithMockUser("user123")
     void deleteWithIncorrectDataThrowsException() {
-        DeleteByIdRequest message = new DeleteByIdRequest(0L);
-        String request = objectMapper.writeValueAsString(message);
-
-        sut.perform(delete("/api/messages")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/messages/0"))
                 .andExpect(status().isBadRequest());
     }
 }

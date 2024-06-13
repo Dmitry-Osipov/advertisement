@@ -3,7 +3,6 @@ package rf.senla.web.utils;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import rf.senla.web.dto.CreateMessageRequest;
-import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.web.dto.MessageDto;
 import rf.senla.web.dto.UpdateMessageRequest;
 import rf.senla.domain.entity.Message;
@@ -36,13 +35,6 @@ public interface MessageMapper {
      * @return сообщение
      */
     Message toEntity(UpdateMessageRequest request);
-
-    /**
-     * Метод маппит запрос на удаление по ID {@link DeleteByIdRequest} в сообщение {@link Message}
-     * @param request запрос на удаление по ID
-     * @return сообщение
-     */
-    Message toEntity(DeleteByIdRequest request);
 
     /**
      * Метод маппит список сообщений {@link Message} в список DTO {@link MessageDto}

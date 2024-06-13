@@ -64,11 +64,11 @@ public class MessageService implements IMessageService {
 
     @Override
     @Transactional
-    public void delete(Message message, UserDetails sender) {
-        log.info("Удаление сообщения {}", message);
-        Message entity = getById(message.getId());
-        checkSenderAndCurrentUser(sender, entity.getSender());
-        repository.delete(entity);
+    public void delete(Long id, UserDetails sender) {
+        log.info("Удаление сообщения с ID {}", id);
+        Message message = getById(id);
+        checkSenderAndCurrentUser(sender, message.getSender());
+        repository.delete(message);
         log.info("Удалось удалить сообщение {}", message);
     }
 

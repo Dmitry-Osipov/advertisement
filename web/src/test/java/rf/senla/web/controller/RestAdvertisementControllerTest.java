@@ -16,7 +16,6 @@ import rf.senla.domain.entity.AdvertisementStatus;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.web.dto.CreateAdvertisementRequest;
-import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.web.dto.UpdateAdvertisementRequest;
 import rf.senla.web.utils.UserMapper;
 
@@ -227,27 +226,16 @@ class RestAdvertisementControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void deleteDoesNotThrowException() {
-        DeleteByIdRequest advertisement = new DeleteByIdRequest(1L);
-        String request = objectMapper.writeValueAsString(advertisement);
-
-        sut.perform(delete("/api/advertisements")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/advertisements/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted advertisement with ID: "
-                        + advertisement.getId()));
+                .andExpect(jsonPath("$").value("Deleted advertisement with ID: 1"));
     }
 
     @Test
     @SneakyThrows
     @WithMockUser("soccer_fanatic")
     void deleteByAnotherUserThrowsException() {
-        DeleteByIdRequest advertisement = new DeleteByIdRequest(1L);
-        String request = objectMapper.writeValueAsString(advertisement);
-
-        sut.perform(delete("/api/advertisements")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/advertisements/1"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -315,27 +303,16 @@ class RestAdvertisementControllerTest {
     @SneakyThrows
     @WithMockUser(value = "admin", roles = "ADMIN")
     void deleteByAdminDoesNotThrowException() {
-        DeleteByIdRequest advertisement = new DeleteByIdRequest(1L);
-        String request = objectMapper.writeValueAsString(advertisement);
-
-        sut.perform(delete("/api/advertisements/admin")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/advertisements/admin/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted advertisement with ID: "
-                + advertisement.getId()));
+                .andExpect(jsonPath("$").value("Deleted advertisement with ID: 1"));
     }
 
     @Test
     @SneakyThrows
     @WithMockUser("user123")
     void deleteByRoleUserThrowsException() {
-        DeleteByIdRequest advertisement = new DeleteByIdRequest(1L);
-        String request = objectMapper.writeValueAsString(advertisement);
-
-        sut.perform(delete("/api/advertisements/admin")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/advertisements/admin/1"))
                 .andExpect(status().isBadRequest());
     }
 }

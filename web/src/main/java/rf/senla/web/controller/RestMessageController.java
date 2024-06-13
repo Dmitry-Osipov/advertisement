@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rf.senla.web.dto.CreateMessageRequest;
-import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.web.dto.MessageDto;
 import rf.senla.web.dto.UpdateMessageRequest;
 import rf.senla.domain.service.IMessageService;
@@ -140,21 +142,20 @@ public class RestMessageController {
 
     /**
      * Удаляет сообщение.
-     * @param request Сообщение в формате {@link DeleteByIdRequest} для удаления.
+     * @param id ID сообщения
      * @return {@link ResponseEntity} с информацией об удаленном сообщении.
      */
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @Operation(summary = "Удалить сообщение")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
                     examples = @ExampleObject(value = "Deleted message with ID: 1")))
     })
     public ResponseEntity<String> delete(
-            @Parameter(description = "Данные сообщения", required = true,
-                    content = @Content(schema = @Schema(implementation = DeleteByIdRequest.class)))
-            @Valid @RequestBody DeleteByIdRequest request,
+            @Parameter(description = "ID сообщения", example = "1", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
             @AuthenticationPrincipal UserDetails user) {
-        service.delete(mapper.toEntity(request), user);
-        return ResponseEntity.ok("Deleted message with ID: " + request.getId());
+        service.delete(id, user);
+        return ResponseEntity.ok("Deleted message with ID: " + id);
     }
 }
