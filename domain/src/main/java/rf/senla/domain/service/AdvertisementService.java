@@ -100,6 +100,7 @@ public class AdvertisementService implements IAdvertisementService {
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     @Transactional(readOnly = true)
     public List<Advertisement> getAll(Pageable  pageable) {
         log.info("Получение списка объявлений");
@@ -107,23 +108,21 @@ public class AdvertisementService implements IAdvertisementService {
         successfullyListLog(list);
         return list;
     }
-
+    // TODO: верхний и нижний методы объединить в один
     @Override
+    @Deprecated(forRemoval = true)
     @Transactional(readOnly = true)
     public List<Advertisement> getAll(Integer min, Integer max, String headline, Pageable pageable) {
         log.info("Получение списка объявлений по заголовку {}, в промежутке цен {} и {}, с пагинацией {}",
                 headline, min, max, pageable);
 
-        if (min > max) {
-            log.error("Максимальная цена меньше минимальной");
-            throw new TechnicalException(ErrorMessage.MIN_PRICE_IS_HIGHEST.getMessage());
-        }
+        Result prices = getPrices(min, max);
 
         List<Advertisement> list;
         if (headline == null) {
-            list = repository.findByPriceBetweenWithActiveStatus(min, max, pageable);
+            list = repository.findByPriceBetweenWithActiveStatus(prices.min(), prices.max(), pageable);
         } else {
-            list = repository.findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(min, max, headline, pageable);
+            list = repository.findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(prices.min(), prices.max(), headline, pageable);
         }
         successfullyListLog(list);
 
@@ -175,16 +174,29 @@ public class AdvertisementService implements IAdvertisementService {
         return advertisement;
     }
 
+    // TODO: test
+    @Override
+    @Transactional
+    public Advertisement boost(Long id, UserDetails sender) {
+        log.info("Вызван метод продвижение объявления с ID {} пользователем {}", id, sender.getUsername());
+        Advertisement advertisement = getById(id);
+        checkSenderAndCurrentUser(sender, advertisement.getUser());
+        advertisement.setBoosted(true);
+        advertisement = repository.save(advertisement);
+        log.info("Удалось продвинуть объявление {}", advertisement);
+        return advertisement;
+    }
+
     /**
      * Служебный метод проверяет совпадение переданного пользователя и пользователя из объявления
      * @param currentUser переданный пользователь
      * @param sender пользователь объявления
+     * @throws AccessDeniedException если пользователи не совпали
      */
     private static void checkSenderAndCurrentUser(UserDetails currentUser, UserDetails sender) {
-        String expectedUsername = currentUser.getUsername();
-        if (!sender.getUsername().equals(expectedUsername)) {
+        if (!sender.getUsername().equals(currentUser.getUsername())) {
             log.error("Переданный пользователь {} и пользователь объявления {} не совпали",
-                    expectedUsername, sender);
+                    currentUser, sender);
             throw new AccessDeniedException(ErrorMessage.SENDER_MISMATCH.getMessage());
         }
     }
@@ -195,6 +207,37 @@ public class AdvertisementService implements IAdvertisementService {
      */
     private static void successfullyListLog(List<Advertisement> list) {
         log.info("Получен список из {} объявлений: {}", list.size(), list);
+    }
+
+    /**
+     * Служебный метод проверяет переданные цены и формирует объект
+     * @param min минимальная цена
+     * @param max максимальная цена
+     * @return record-объект с ценами
+     */
+    private static Result getPrices(Integer min, Integer max) {
+        if (min == null) {
+            min = 0;
+        }
+
+        if (max == null) {
+            max = Integer.MAX_VALUE;
+        }
+
+        if (min > max) {
+            log.error("Максимальная цена меньше минимальной");
+            throw new TechnicalException(ErrorMessage.MIN_PRICE_IS_HIGHEST.getMessage());
+        }
+
+        return new Result(min, max);
+    }
+
+    /**
+     * Служебный record-класс нужен для оперирования набором из минимальной и максимальной цены
+     * @param min минимальная цена
+     * @param max максимальная цена
+     */
+    private record Result(Integer min, Integer max) {
     }
 
     /**

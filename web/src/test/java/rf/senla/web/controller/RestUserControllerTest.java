@@ -51,7 +51,6 @@ class RestUserControllerTest {
                 .phoneNumber("+7(123)456-78-90")
                 .rating(0.0)
                 .email("storm-yes@yandex.ru")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -106,7 +105,6 @@ class RestUserControllerTest {
                 .andExpect(jsonPath("$.email").value("testEmail@example.com"))
                 .andExpect(jsonPath("$.phoneNumber").value("+7(953)180-00-61"))
                 .andExpect(jsonPath("$.rating").value(user.getRating()))
-                .andExpect(jsonPath("$.boosted").value(user.getBoosted()))
                 .andExpect(jsonPath("$.role").value(String.valueOf(user.getRole())));
     }
 
@@ -230,16 +228,6 @@ class RestUserControllerTest {
 
     @Test
     @SneakyThrows
-    @WithMockUser("user123")
-    void setBoostedDoesNotThrowException() {
-        sut.perform(put("/api/users/boosted"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("User " + user.getUsername() +
-                        " has received a boost"));
-    }
-
-    @Test
-    @SneakyThrows
     @WithMockUser("foodie")
     void addEvaluationReturnsCorrectData() {
         sut.perform(post("/api/users/rating")
@@ -250,7 +238,6 @@ class RestUserControllerTest {
                 .andExpect(jsonPath("$.username").value(user.getUsername()))
                 .andExpect(jsonPath("$.phoneNumber").value(user.getPhoneNumber()))
                 .andExpect(jsonPath("$.email").value(user.getEmail()))
-                .andExpect(jsonPath("$.boosted").value(user.getBoosted()))
                 .andExpect(jsonPath("$.role").value(String.valueOf(user.getRole())))
                 .andExpect(jsonPath("$.rating").value(4.0));
     }

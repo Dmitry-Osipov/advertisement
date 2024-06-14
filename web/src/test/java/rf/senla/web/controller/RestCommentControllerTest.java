@@ -53,7 +53,6 @@ class RestCommentControllerTest {
                 .phoneNumber("+7(123)456-78-90")
                 .rating(0.0)
                 .email("storm-yes@yandex.ru")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -67,6 +66,7 @@ class RestCommentControllerTest {
                 .description("A portable device combining the functions of a mobile phone and a computer, typically " +
                         "offering internet access, touchscreen interface, and various applications.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
     }
 

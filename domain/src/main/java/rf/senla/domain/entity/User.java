@@ -55,9 +55,6 @@ public class User implements UserDetails {
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "boosted", columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean boosted;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;

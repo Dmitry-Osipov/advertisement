@@ -84,4 +84,12 @@ public interface IAdvertisementService {
      * @return обновлённое объявление
      */
     Advertisement sell(Long id, UserDetails sender);
+
+    /**
+     * Продвижение объявления
+     * @param id ID объявления
+     * @param sender пользователь, отправивший запрос
+     * @return Обновлённое объявление
+     */
+    Advertisement boost(Long id, UserDetails sender);
 }

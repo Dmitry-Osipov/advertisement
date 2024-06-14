@@ -58,7 +58,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(123)456-78-90")
                 .rating(0.0)
                 .email("storm-yes@yandex.ru")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -70,7 +69,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(456)789-01-23")
                 .rating(100.0)
                 .email("john.doe@gmail.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -82,7 +80,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(789)012-34-56")
                 .rating(200.0)
                 .email("jane.smith@yahoo.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -94,7 +91,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(234)567-89-01")
                 .rating(200.0)
                 .email("alexander.wilson@hotmail.com")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -106,7 +102,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(567)890-12-34")
                 .rating(300.0)
                 .email("emily.jones@outlook.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -118,7 +113,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(890)123-45-67")
                 .rating(350.0)
                 .email("david.brown@mail.ru")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -130,7 +124,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(345)678-90-12")
                 .rating(400.0)
                 .email("sarah.wilson@icloud.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -142,7 +135,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(678)901-23-45")
                 .rating(500.0)
                 .email("michael.johnson@aol.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -154,7 +146,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(901)234-56-78")
                 .rating(500.0)
                 .email("laura.davis@yandex.ru")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -166,7 +157,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(432)109-87-65")
                 .rating(500.0)
                 .email("james.miller@protonmail.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -178,7 +168,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(210)987-65-43")
                 .rating(0.0)
                 .email("olivia.taylor@live.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -190,7 +179,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(098)765-43-21")
                 .rating(0.0)
                 .email("william.anderson@inbox.lv")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -202,7 +190,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(876)543-21-09")
                 .rating(0.0)
                 .email("sophia.thomas@bk.ru")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -214,7 +201,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(953)180-00-61")
                 .rating(0.0)
                 .email("jacob.moore@rambler.ru")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -226,7 +212,6 @@ class MessageServiceTest {
                 .phoneNumber("+7(902)902-98-11")
                 .rating(0.0)
                 .email("dimaosipov00@gmail.com")
-                .boosted(false)
                 .role(Role.ROLE_ADMIN)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -240,6 +225,7 @@ class MessageServiceTest {
                 .description("A portable device combining the functions of a mobile phone and a computer, typically " +
                         "offering internet access, touchscreen interface, and various applications.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement2 = Advertisement.builder()
                 .id(2L)
@@ -249,6 +235,7 @@ class MessageServiceTest {
                 .description("A portable computer that is small and light enough to be used on one's lap, typically " +
                         "with a clamshell form factor and a built-in keyboard and display.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement3 = Advertisement.builder()
                 .id(3L)
@@ -258,6 +245,7 @@ class MessageServiceTest {
                 .description("A pair of small speakers worn over the ears to listen to audio from a connected device " +
                         "such as a music player, smartphone, or computer.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement4 = Advertisement.builder()
                 .id(4L)
@@ -267,6 +255,7 @@ class MessageServiceTest {
                 .description("A bag with shoulder straps that allows it to be carried on one's back, typically used " +
                         "for carrying personal belongings, books, or electronic devices.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement5 = Advertisement.builder()
                 .id(5L)
@@ -276,6 +265,7 @@ class MessageServiceTest {
                 .description("Eyewear designed to protect the eyes from sunlight or glare, typically featuring " +
                         "tinted lenses and frames that cover a larger area around the eyes.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement6 = Advertisement.builder()
                 .id(6L)
@@ -285,6 +275,7 @@ class MessageServiceTest {
                 .description("A small timepiece worn on the wrist or carried in a pocket, typically designed to show " +
                         "the time and often other information such as date, day of the week, or chronograph functions.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement7 = Advertisement.builder()
                 .id(7L)
@@ -294,6 +285,7 @@ class MessageServiceTest {
                 .description("Casual athletic shoes with a flexible sole and typically made of canvas or leather, " +
                         "suitable for walking, running, or other sports activities.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement8 = Advertisement.builder()
                 .id(8L)
@@ -303,6 +295,7 @@ class MessageServiceTest {
                 .description("A portable device consisting of a collapsible canopy supported by a central rod, used " +
                         "for protection against rain or sunlight.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement9 = Advertisement.builder()
                 .id(9L)
@@ -312,6 +305,7 @@ class MessageServiceTest {
                 .description("A device used to capture and record still images or moving pictures, typically " +
                         "consisting of a lens, image sensor, and electronic components.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
         Advertisement advertisement10 = Advertisement.builder()
                 .id(10L)
@@ -321,6 +315,7 @@ class MessageServiceTest {
                 .description("A fragrant liquid typically made from essential oils and alcohol, applied to the skin " +
                         "or clothing to produce a pleasant scent.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
 
         Message message1 = Message.builder()

@@ -35,7 +35,6 @@ class JwtServiceTest {
                 .phoneNumber("+7(123)456-78-90")
                 .rating(0.0)
                 .email("storm-yes@yandex.ru")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)

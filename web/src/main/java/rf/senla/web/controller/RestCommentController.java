@@ -63,24 +63,24 @@ public class RestCommentController {
                             schema = @Schema(implementation = CommentDto.class),
                             examples = @ExampleObject(value = "[ {\"id\": 1,\"advertisement\": {\"id\": 1,\"user\": " +
                                     "{\"id\": 1,\"username\": \"user123\",\"phoneNumber\": \"+7(123)456-78-90\"," +
-                                    "\"rating\": 0.0,\"email\": \"storm-yes@yandex.ru\",\"boosted\": true,\"role\": " +
+                                    "\"rating\": 0.0,\"email\": \"storm-yes@yandex.ru\",\"role\": " +
                                     "\"ROLE_USER\"},\"price\": 1000,\"headline\": \"Smartphone\",\"description\": " +
                                     "\"A portable device combining the functions of a mobile phone and a computer, " +
                                     "typically offering internet access, touchscreen interface, and various " +
                                     "applications.\",\"status\": \"ACTIVE\"},\"user\": {\"id\": 2,\"username\": " +
                                     "\"cool_guy\",\"phoneNumber\": \"+7(456)789-01-23\",\"rating\": 0.0,\"email\": " +
-                                    "\"john.doe@gmail.com\",\"boosted\": false,\"role\": \"ROLE_USER\"},\"text\": " +
+                                    "\"john.doe@gmail.com\",\"role\": \"ROLE_USER\"},\"text\": " +
                                     "\"This smartphone is amazing! The camera quality is top-notch, and the battery " +
                                     "life lasts all day.\",\"createdAt\": \"2024-06-08T16:11:35.654512\"},{\"id\": " +
                                     "2,\"advertisement\": {\"id\": 1,\"user\": {\"id\": 1,\"username\": \"user123\"," +
                                     "\"phoneNumber\": \"+7(123)456-78-90\",\"rating\": 0.0,\"email\": " +
-                                    "\"storm-yes@yandex.ru\",\"boosted\": true,\"role\": \"ROLE_USER\"},\"price\": " +
+                                    "\"storm-yes@yandex.ru\",\"role\": \"ROLE_USER\"},\"price\": " +
                                     "1000,\"headline\": \"Smartphone\",\"description\": \"A portable device " +
                                     "combining the functions of a mobile phone and a computer, typically offering " +
                                     "internet access, touchscreen interface, and various applications.\",\"status\": " +
                                     "\"ACTIVE\"},\"user\": {\"id\": 3,\"username\": \"adventure_lover\"," +
                                     "\"phoneNumber\": \"+7(789)012-34-56\",\"rating\": 0.0,\"email\": " +
-                                    "\"jane.smith@yahoo.com\",\"boosted\": false,\"role\": \"ROLE_USER\"},\"text\": " +
+                                    "\"jane.smith@yahoo.com\",\"role\": \"ROLE_USER\"},\"text\": " +
                                     "\"I've been using this smartphone for a month now, and I'm impressed with its " +
                                     "performance. It's fast, reliable, and the screen is stunning.\",\"createdAt\": " +
                                     "\"2024-06-08T16:11:35.654512\"} ]")))

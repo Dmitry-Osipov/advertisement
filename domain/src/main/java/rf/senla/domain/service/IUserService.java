@@ -63,13 +63,6 @@ public interface IUserService {
     UserDetailsService userDetailsService();
 
     /**
-     * Продвижение пользователя
-     * @param userDetails пользователь, которого требуется бустануть
-     * @return Обновлённый пользователь
-     */
-    User setBoosted(UserDetails userDetails);
-
-    /**
      * Получить список пользователей с пагинацией.
      * @param pageable пагинация
      * @return Список пользователей.

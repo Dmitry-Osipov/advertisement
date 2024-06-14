@@ -45,9 +45,6 @@ public class UserDto {
     @Email(message = "Email адрес должен быть в формате user@example.com")
     private String email;
 
-    @Schema(description = "Помощь в продвижении", example = "false")
-    private Boolean boosted;
-
     @Schema(description = "Роль", example = "ROLE_USER")
     private Role role;
 }

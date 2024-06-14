@@ -14,5 +14,7 @@
     <include file="/db/changelog/009_create_ratings_table.sql"/>
     <include file="/db/changelog/010_alter_rating_column_type_to_double.sql"/>
     <include file="/db/changelog/011_update_test_data_with_rating.sql"/>
+    <include file="/db/changelog/012_drop_boosted_from_users.sql"/>
+    <include file="/db/changelog/013_add_boosted_to_advertisements.sql"/>
 
 </databaseChangeLog>

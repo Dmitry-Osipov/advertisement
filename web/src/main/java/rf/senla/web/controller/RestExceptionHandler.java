@@ -230,7 +230,7 @@ public class RestExceptionHandler {
      * @return информация об ошибке
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler({IllegalArgumentException.class, NullPointerException.class})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "Bad Request",
                     content = @Content(mediaType = "application/json",
@@ -280,7 +280,9 @@ public class RestExceptionHandler {
     })
     public ErrorDto allExceptionHandler(Exception ex, WebRequest request) {
         log.error("Непредвиденная ошибка - {}", ex.toString());
-        return getErrorDto(ErrorMessage.INTERNAL_SERVER_ERROR.getMessage(), request);
+        ex.printStackTrace();  // TODO: удалить в конце
+        return getErrorDto(ex.toString(), request);
+//        return getErrorDto(ErrorMessage.INTERNAL_SERVER_ERROR.getMessage(), request);
     }
 
     /**

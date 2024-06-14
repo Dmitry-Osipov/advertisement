@@ -20,6 +20,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
      * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
      * @return Список объявлений, отсортированный по рейтингу пользователя.
      */
+    @Deprecated(forRemoval = true)
     @Query("SELECT a FROM Advertisement a WHERE a.status = 'ACTIVE'")
     List<Advertisement> findAllWithActiveStatus(Pageable pageable);
 
@@ -30,12 +31,15 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
      * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
      * @return Страница объявлений с ценой в указанном диапазоне, отсортированных по цене.
      */
+    @Deprecated(forRemoval = true)
     @Query("SELECT a FROM Advertisement a " +
             "WHERE a.price BETWEEN :min AND :max " +
             "AND a.status = 'ACTIVE'")
     List<Advertisement> findByPriceBetweenWithActiveStatus(@Param("min") Integer min, @Param("max") Integer max,
                                                            Pageable pageable);
-
+    // TODO: объединить 2 метода в один: игнорировать null-значения
+    // TODO: искать объявления в заголовке не по точному совпадению, а по LIKE
+    // TODO: искать объявления по LIKE не только в заголовке, но и в описании
     /**
      * Получает объявления с ценой в указанном диапазоне и с указанным заголовком,
      * отсортированные по цене.
@@ -45,6 +49,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, Lo
      * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
      * @return Страница объявлений с ценой в указанном диапазоне и указанным заголовком, отсортированных по цене.
      */
+    @Deprecated(forRemoval = true)
     @Query("SELECT a FROM Advertisement a " +
             "WHERE a.price BETWEEN :min AND :max AND LOWER(a.headline) = LOWER(:headline) " +
             "AND a.status = 'ACTIVE'")
