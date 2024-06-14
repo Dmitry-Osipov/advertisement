@@ -54,48 +54,16 @@ public class RestAdvertisementController {
     private final AdvertisementMapper mapper;
 
     /**
-     * Получить список объявлений с пагинацией
-     * @param pageable пагинация
-     * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
-     */
-    @GetMapping
-    @Deprecated(forRemoval = true)
-    @Operation(summary = "Получить список объявлений с пагинацией")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AdvertisementDto.class),
-                            examples = @ExampleObject(value = "[ {\"id\": 4,\"user\": {\"id\": 4,\"username\": " +
-                                    "\"soccer_fanatic\",\"phoneNumber\": \"+7(234)567-89-01\",\"rating\": " +
-                                    "3.3333333333333335,\"email\": \"alexander.wilson@hotmail.com\",\"role\": " +
-                                    "\"ROLE_USER\"},\"price\": 4000,\"headline\": \"Backpack\"," +
-                                    "\"description\": \"A bag with shoulder straps that allows it to be carried on " +
-                                    "one's back, typically used for carrying personal belongings, books, or " +
-                                    "electronic devices.\",\"status\": \"ACTIVE\"},{\"id\": 1,\"user\": {\"id\": " +
-                                    "1,\"username\": \"user123\",\"phoneNumber\": \"+7(123)456-78-90\",\"rating\":" +
-                                    " 0.0,\"email\": \"storm-yes@yandex.ru\",\"role\": " +
-                                    "\"ROLE_USER\"},\"price\": 1000,\"headline\": \"Smartphone\",\"description\": " +
-                                    "\"A portable device combining the functions of a mobile phone and a computer, " +
-                                    "typically offering internet access, touchscreen interface, and various " +
-                                    "applications.\",\"status\": \"ACTIVE\"} ]")))
-    })
-    public ResponseEntity<List<AdvertisementDto>> getAll(
-            @PageableDefault(sort = {"boosted", "user.rating"}, direction = Sort.Direction.DESC)
-            Pageable pageable) {
-        return ResponseEntity.ok(mapper.toDtos(service.getAll(pageable)));
-    }
-    // TODO: слить нижний метод в верхний
-    /**
      * Получить список объявлений по заголовку в промежутке цен с условием сортировки и пагинацией.
      * @param minPrice минимальная цена
      * @param maxPrice максимальная цена
      * @param headline заголовок
+     * @param description описание
      * @param pageable пагинация
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
-    @GetMapping("/filter")
-    @Deprecated(forRemoval = true)
-    @Operation(summary = "Получить список объявлений по заголовку в промежутке цен с пагинацией")
+    @GetMapping
+    @Operation(summary = "Получить список объявлений с пагинацией")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
@@ -114,7 +82,7 @@ public class RestAdvertisementController {
                                     "tinted lenses and frames that cover a larger area around the eyes.\"," +
                                     "\"status\": \"ACTIVE\"} ]")))
     })
-    public ResponseEntity<List<AdvertisementDto>> getAllByPriceAndHeadline(
+    public ResponseEntity<List<AdvertisementDto>> getAllActive(
             @Parameter(description = "Минимальная стоимость", example = "500", in = ParameterIn.QUERY)
             @RequestParam(value = "min", required = false) @Min(0) @Max(Integer.MAX_VALUE) Integer minPrice,
 
@@ -124,9 +92,12 @@ public class RestAdvertisementController {
             @Parameter(description = "Заголовок", example = "smartphone", in = ParameterIn.QUERY)
             @RequestParam(value = "headline", required = false) String headline,
 
+            @Parameter(description = "Описание", example = "clamshell", in = ParameterIn.QUERY)
+            @RequestParam(value = "description", required = false) String description,
+
             @PageableDefault(sort = {"boosted", "user.rating"}, direction = Sort.Direction.DESC)
             Pageable pageable) {
-        return ResponseEntity.ok(mapper.toDtos(service.getAll(minPrice, maxPrice, headline, pageable)));
+        return ResponseEntity.ok(mapper.toDtos(service.getAll(minPrice, maxPrice, headline, description, pageable)));
     }
 
     /**
@@ -282,20 +253,19 @@ public class RestAdvertisementController {
         return ResponseEntity.ok("Deleted advertisement with ID: " + id);
     }
 
-    // TODO: test
     /**
      * Метод для продвижения объявления.
      * @param id ID объявления
      * @param user текущий пользователь
      * @return строка с сообщением об успешном продвижении
      */
-    @PutMapping("/{id}/boosted")
+    @PutMapping("/{id}/promotion")
     @Operation(summary = "Метод для продвижения пользователя")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
                     examples = @ExampleObject(value = "Advertisement with ID 1 has received a boost")))
     })
-    public ResponseEntity<String> setBoosted(
+    public ResponseEntity<String> boost(
             @PathVariable("id") @Positive Long id,
             @AuthenticationPrincipal UserDetails user) {
         return ResponseEntity.ok("Advertisement with ID " + service.boost(id, user).getId() +

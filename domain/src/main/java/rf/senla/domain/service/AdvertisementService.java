@@ -100,30 +100,13 @@ public class AdvertisementService implements IAdvertisementService {
     }
 
     @Override
-    @Deprecated(forRemoval = true)
-    @Transactional(readOnly = true)
-    public List<Advertisement> getAll(Pageable  pageable) {
-        log.info("Получение списка объявлений");
-        List<Advertisement> list = repository.findAllWithActiveStatus(pageable);
-        successfullyListLog(list);
-        return list;
-    }
-    // TODO: верхний и нижний методы объединить в один
-    @Override
-    @Deprecated(forRemoval = true)
-    @Transactional(readOnly = true)
-    public List<Advertisement> getAll(Integer min, Integer max, String headline, Pageable pageable) {
-        log.info("Получение списка объявлений по заголовку {}, в промежутке цен {} и {}, с пагинацией {}",
-                headline, min, max, pageable);
+    public List<Advertisement> getAll(Integer min, Integer max, String headline, String description, Pageable pageable) {
+        log.info("Получение списка объявлений по заголовку {}, по объявлению {} в промежутке цен {} и {}, " +
+                        "с пагинацией {}", headline, description, min, max, pageable);
 
         Result prices = getPrices(min, max);
-
-        List<Advertisement> list;
-        if (headline == null) {
-            list = repository.findByPriceBetweenWithActiveStatus(prices.min(), prices.max(), pageable);
-        } else {
-            list = repository.findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(prices.min(), prices.max(), headline, pageable);
-        }
+        List<Advertisement> list =
+                repository.findAllWithActiveStatus(prices.min(), prices.max(), headline, description, pageable);
         successfullyListLog(list);
 
         return list;
@@ -174,7 +157,6 @@ public class AdvertisementService implements IAdvertisementService {
         return advertisement;
     }
 
-    // TODO: test
     @Override
     @Transactional
     public Advertisement boost(Long id, UserDetails sender) {

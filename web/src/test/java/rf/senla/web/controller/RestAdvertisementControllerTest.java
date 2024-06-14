@@ -3,7 +3,6 @@ package rf.senla.web.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -69,46 +68,23 @@ class RestAdvertisementControllerTest {
     }
 
     @Test
-    @Disabled
     @SneakyThrows
     @WithMockUser("user123")
-    void getAllReturnsCorrectData() {
-        sut.perform(get("/api/advertisements"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(10));
-    }
-
-    @Test
-    @Disabled
-    @SneakyThrows
-    @WithMockUser("user123")
-    void getAllByPriceAndHeadlineReturnsCorrectData() {
-        sut.perform(get("/api/advertisements/filter")
+    void getAllActiveReturnsCorrectData() {
+        sut.perform(get("/api/advertisements")
                         .param("min", "500")
                         .param("max", "5000")
-                        .param("headline", "smartphone"))
+                        .param("headline", "one")
+                        .param("description", "or"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
-    @Disabled
     @SneakyThrows
     @WithMockUser("user123")
-    void getAllByPriceAndHeadlineWithoutHeadlineReturnsCorrectData() {
-        sut.perform(get("/api/advertisements/filter")
-                        .param("min", "5000")
-                        .param("max", "7000"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(3));
-    }
-
-    @Test
-    @Disabled
-    @SneakyThrows
-    @WithMockUser("user123")
-    void getAllByPriceAndHeadlineWithIncorrectDataThrowsException() {
-        sut.perform(get("/api/advertisements/filter")
+    void getAllActiveWithIncorrectDataThrowsException() {
+        sut.perform(get("/api/advertisements")
                         .param("min", "5000")
                         .param("max", "1000"))
                 .andExpect(status().isBadRequest());
@@ -309,6 +285,23 @@ class RestAdvertisementControllerTest {
     @WithMockUser("user123")
     void deleteByRoleUserThrowsException() {
         sut.perform(delete("/api/advertisements/admin/1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    @WithMockUser("user123")
+    void boostReturnsCorrectData() {
+        sut.perform(put("/api/advertisements/1/promotion"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value("Advertisement with ID 1 has received a boost"));
+    }
+
+    @Test
+    @SneakyThrows
+    @WithMockUser("soccer_fanatic")
+    void boostThrowsException() {
+        sut.perform(put("/api/advertisements/1/promotion"))
                 .andExpect(status().isBadRequest());
     }
 }

@@ -2,7 +2,6 @@ package rf.senla.web.services;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -15,7 +14,6 @@ import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.NoEntityException;
-import rf.senla.domain.exception.TechnicalException;
 import rf.senla.domain.repository.AdvertisementRepository;
 import rf.senla.domain.repository.CommentRepository;
 import rf.senla.domain.repository.MessageRepository;
@@ -29,7 +27,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -334,58 +331,11 @@ class AdvertisementServiceTest {
     }
 
     @Test
-    @Disabled
-    void getAllDoesNotThrowException() {
-        when(advertisementRepository.findAllWithActiveStatus(any())).thenReturn(advertisements);
-
-        assertDoesNotThrow(() -> sut.getAll(Pageable.ofSize(20)));
-
-        verify(advertisementRepository, times(1)).findAllWithActiveStatus(any());
-    }
-
-    @Test
-    @Disabled
-    void getAllByPriceWithoutHeadlineDoesNotThrowException() {
-        when(advertisementRepository.findByPriceBetweenWithActiveStatus(anyInt(), anyInt(), any()))
-                .thenReturn(advertisements);
-
-        assertDoesNotThrow(() -> sut.getAll(0, 10_000, null, Pageable.ofSize(20)));
-
-        verify(advertisementRepository, times(1))
-                .findByPriceBetweenWithActiveStatus(anyInt(), anyInt(), any());
-    }
-
-    @Test
-    @Disabled
-    void getAllByPriceWithHeadlineDoesNotThrowException() {
-        when(advertisementRepository.findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(anyInt(), anyInt(),
-                anyString(), any())).thenReturn(advertisements);
-
-        assertDoesNotThrow(() -> sut.getAll(0, 10_000, "Smartphone", Pageable.ofSize(20)));
-
-        verify(advertisementRepository, times(1))
-                .findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(anyInt(), anyInt(), anyString(), any());
-    }
-
-    @Test
-    @Disabled
-    void getAllByPriceWithIncorrectPriceThrowsTechnicalException() {
-        when(advertisementRepository.findByPriceBetweenWithActiveStatus(anyInt(), anyInt(), any()))
-                .thenReturn(advertisements);
-
-        assertThrows(TechnicalException.class,
-                () -> sut.getAll(1, 0, null, Pageable.ofSize(20)));
-
-        verify(advertisementRepository, times(0))
-                .findByPriceBetweenWithActiveStatus(anyInt(), anyInt(), any());
-    }
-
-    @Test
     void getAllByUserWithActiveStatusDoesNotThrowException() {
         when(userService.getByUsername(anyString())).thenReturn(users.getFirst());
         when(advertisementRepository.findByUserWithActiveStatus(any(), any())).thenReturn(advertisements);
 
-        assertDoesNotThrow(() -> sut.getAll("user123", true, Pageable.ofSize(20)));
+        assertDoesNotThrow(() -> sut.getAll(anyString(), true, Pageable.ofSize(20)));
 
         verify(userService, times(1)).getByUsername(anyString());
         verify(advertisementRepository, times(1)).findByUserWithActiveStatus(any(), any());
@@ -396,7 +346,7 @@ class AdvertisementServiceTest {
         when(userService.getByUsername(anyString())).thenReturn(users.getFirst());
         when(advertisementRepository.findByUser(any(), any())).thenReturn(advertisements);
 
-        assertDoesNotThrow(() -> sut.getAll("user123", false, Pageable.ofSize(20)));
+        assertDoesNotThrow(() -> sut.getAll(anyString(), false, Pageable.ofSize(20)));
 
         verify(userService, times(1)).getByUsername(anyString());
         verify(advertisementRepository, times(1)).findByUser(any(), any());
@@ -495,11 +445,10 @@ class AdvertisementServiceTest {
 
     @Test
     void deleteByUserDoesNotThrowException() {
-        Advertisement expected = advertisements.getFirst();
         User user = users.getFirst();
-        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(advertisements.getFirst()));
 
-        assertDoesNotThrow(() -> sut.delete(expected.getId(), user));
+        assertDoesNotThrow(() -> sut.delete(anyLong(), user));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(1)).deleteById(anyLong());
@@ -509,11 +458,10 @@ class AdvertisementServiceTest {
 
     @Test
     void deleteByUserThrowsNoEntityException() {
-        Advertisement expected = advertisements.getFirst();
         User user = users.getFirst();
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NoEntityException.class, () -> sut.delete(expected.getId(), user));
+        assertThrows(NoEntityException.class, () -> sut.delete(anyLong(), user));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).deleteById(anyLong());
@@ -523,11 +471,10 @@ class AdvertisementServiceTest {
 
     @Test
     void deleteByUserThrowsAccessDeniedException() {
-        Advertisement expected = advertisements.getFirst();
         User user = users.getLast();
-        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(advertisements.getFirst()));
 
-        assertThrows(AccessDeniedException.class, () -> sut.delete(expected.getId(), user));
+        assertThrows(AccessDeniedException.class, () -> sut.delete(anyLong(), user));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).deleteById(anyLong());
@@ -537,10 +484,9 @@ class AdvertisementServiceTest {
 
     @Test
     void deleteByAdminDoesNotThrowException() {
-        Advertisement expected = advertisements.getFirst();
-        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(advertisements.getFirst()));
 
-        assertDoesNotThrow(() -> sut.delete(expected.getId()));
+        assertDoesNotThrow(() -> sut.delete(anyLong()));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(1)).deleteById(anyLong());
@@ -550,10 +496,9 @@ class AdvertisementServiceTest {
 
     @Test
     void deleteByAdminThrowsNoEntityException() {
-        Advertisement expected = advertisements.getFirst();
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NoEntityException.class, () -> sut.delete(expected.getId()));
+        assertThrows(NoEntityException.class, () -> sut.delete(anyLong()));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).deleteById(anyLong());
@@ -566,7 +511,7 @@ class AdvertisementServiceTest {
         Advertisement expected = advertisements.getFirst();
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
 
-        assertDoesNotThrow(() -> sut.getById(1L));
+        assertDoesNotThrow(() -> sut.getById(anyLong()));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
     }
@@ -575,7 +520,7 @@ class AdvertisementServiceTest {
     void getByIdThrowsNoEntityException() {
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NoEntityException.class, () -> sut.getById(1L));
+        assertThrows(NoEntityException.class, () -> sut.getById(anyLong()));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
     }
@@ -587,7 +532,7 @@ class AdvertisementServiceTest {
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
         when(advertisementRepository.save(any())).thenReturn(expected);
 
-        assertDoesNotThrow(() -> sut.sell(1L, user));
+        assertDoesNotThrow(() -> sut.sell(anyLong(), user));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(1)).save(any());
@@ -598,7 +543,7 @@ class AdvertisementServiceTest {
         User user = users.getFirst();
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NoEntityException.class, () -> sut.sell(1L, user));
+        assertThrows(NoEntityException.class, () -> sut.sell(anyLong(), user));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).save(any());
@@ -606,11 +551,35 @@ class AdvertisementServiceTest {
 
     @Test
     void sellThrowsAccessDeniedException() {
-        Advertisement expected = advertisements.getFirst();
+        Advertisement advertisement = advertisements.getFirst();
         User user = users.getLast();
-        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(advertisement));
 
-        assertThrows(AccessDeniedException.class, () -> sut.sell(1L, user));
+        assertThrows(AccessDeniedException.class, () -> sut.sell(anyLong(), user));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(0)).save(any());
+    }
+
+    @Test
+    void boostDoesNotThrowException() {
+        Advertisement advertisement = advertisements.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(advertisement));
+        when(advertisementRepository.save(any())).thenReturn(advertisement);
+
+        assertDoesNotThrow(() -> sut.boost(anyLong(), users.getFirst()));
+
+        verify(advertisementRepository, times(1)).findById(anyLong());
+        verify(advertisementRepository, times(1)).save(any());
+    }
+
+    @Test
+    void boostWithIncorrectUserThrowsException() {
+        Advertisement advertisement = advertisements.getFirst();
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(advertisement));
+        when(advertisementRepository.save(any())).thenReturn(advertisement);
+
+        assertThrows(AccessDeniedException.class, () -> sut.boost(anyLong(), users.getLast()));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).save(any());

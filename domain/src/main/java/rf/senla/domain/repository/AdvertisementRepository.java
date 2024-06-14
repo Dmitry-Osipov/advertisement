@@ -16,47 +16,25 @@ import java.util.List;
 @Repository
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {
     /**
-     * Получает все объявления, отсортированные по рейтингу пользователя.
-     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
-     * @return Список объявлений, отсортированный по рейтингу пользователя.
+     * Получить список объявлений
+     * @param min минимальная цена
+     * @param max максимальная цена
+     * @param headline заголовок
+     * @param description описание
+     * @param pageable пагинация
+     * @return список объявлений
      */
-    @Deprecated(forRemoval = true)
-    @Query("SELECT a FROM Advertisement a WHERE a.status = 'ACTIVE'")
-    List<Advertisement> findAllWithActiveStatus(Pageable pageable);
-
-    /**
-     * Получает объявления с ценой в указанном диапазоне, отсортированные по цене.
-     * @param min Минимальная цена.
-     * @param max Максимальная цена.
-     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
-     * @return Страница объявлений с ценой в указанном диапазоне, отсортированных по цене.
-     */
-    @Deprecated(forRemoval = true)
     @Query("SELECT a FROM Advertisement a " +
             "WHERE a.price BETWEEN :min AND :max " +
+            "AND ( (:headline) is null OR LOWER(a.headline) LIKE ('%' || LOWER(CAST(:headline AS text)) || '%') ) " +
+            "AND ( (:description) is null OR LOWER(a.description) LIKE " +
+            "('%' || LOWER(CAST(:description AS text)) || '%') ) " +
             "AND a.status = 'ACTIVE'")
-    List<Advertisement> findByPriceBetweenWithActiveStatus(@Param("min") Integer min, @Param("max") Integer max,
-                                                           Pageable pageable);
-    // TODO: объединить 2 метода в один: игнорировать null-значения
-    // TODO: искать объявления в заголовке не по точному совпадению, а по LIKE
-    // TODO: искать объявления по LIKE не только в заголовке, но и в описании
-    /**
-     * Получает объявления с ценой в указанном диапазоне и с указанным заголовком,
-     * отсортированные по цене.
-     * @param min Минимальная цена.
-     * @param max Максимальная цена.
-     * @param headline Заголовок объявления.
-     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
-     * @return Страница объявлений с ценой в указанном диапазоне и указанным заголовком, отсортированных по цене.
-     */
-    @Deprecated(forRemoval = true)
-    @Query("SELECT a FROM Advertisement a " +
-            "WHERE a.price BETWEEN :min AND :max AND LOWER(a.headline) = LOWER(:headline) " +
-            "AND a.status = 'ACTIVE'")
-    List<Advertisement> findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(@Param("min") Integer min,
-                                                                                @Param("max") Integer max,
-                                                                                @Param("headline") String headline,
-                                                                                Pageable pageable);
+    List<Advertisement> findAllWithActiveStatus(@Param("min") Integer min,
+                                                @Param("max") Integer max,
+                                                @Param("headline") String headline,
+                                                @Param("description") String description,
+                                                Pageable pageable);
 
     /**
      * Получает объявления для указанного пользователя, отсортированные с учетом любого статуса.
