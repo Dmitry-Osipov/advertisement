@@ -282,9 +282,7 @@ public class RestExceptionHandler {
     })
     public ErrorDto allExceptionHandler(Exception ex, WebRequest request) {
         log.error("Непредвиденная ошибка - {}", ex.toString());
-        ex.printStackTrace();  // TODO: удалить в конце
-        return getErrorDto(ex.toString(), request);
-//        return getErrorDto(ErrorMessage.INTERNAL_SERVER_ERROR.getMessage(), request);
+        return getErrorDto(ErrorMessage.INTERNAL_SERVER_ERROR.getMessage(), request);
     }
 
     /**
