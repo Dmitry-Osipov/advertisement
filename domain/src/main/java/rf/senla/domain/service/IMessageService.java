@@ -26,10 +26,10 @@ public interface IMessageService {
     Message update(Message message, UserDetails sender);
 
     /** Удаление сообщения
-     * @param message сообщение
+     * @param id ID сообщения
      * @param sender данные пользователя
      */
-    void delete(Message message, UserDetails sender);
+    void delete(Long id, UserDetails sender);
 
     /**
      * Получить все сообщения от или к конкретному пользователю с пагинацией.

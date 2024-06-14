@@ -4,7 +4,6 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import rf.senla.web.dto.AdvertisementDto;
 import rf.senla.web.dto.CreateAdvertisementRequest;
-import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.domain.entity.Advertisement;
 import rf.senla.web.dto.UpdateAdvertisementRequest;
 
@@ -35,13 +34,6 @@ public interface AdvertisementMapper {
      * @return объявление
      */
     Advertisement toEntity(UpdateAdvertisementRequest request);
-
-    /**
-     * Метод маппит запрос на удаление по ID {@link DeleteByIdRequest} в сущность {@link Advertisement}
-     * @param request запрос на удаление по ID
-     * @return объявление
-     */
-    Advertisement toEntity(DeleteByIdRequest request);
 
     /**
      * Метод маппит DTO {@link AdvertisementDto} в сущность {@link Advertisement}

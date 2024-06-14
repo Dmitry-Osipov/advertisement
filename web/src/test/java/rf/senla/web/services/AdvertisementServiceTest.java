@@ -499,7 +499,7 @@ class AdvertisementServiceTest {
         User user = users.getFirst();
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
 
-        assertDoesNotThrow(() -> sut.delete(expected, user));
+        assertDoesNotThrow(() -> sut.delete(expected.getId(), user));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(1)).deleteById(anyLong());
@@ -513,7 +513,7 @@ class AdvertisementServiceTest {
         User user = users.getFirst();
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NoEntityException.class, () -> sut.delete(expected, user));
+        assertThrows(NoEntityException.class, () -> sut.delete(expected.getId(), user));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).deleteById(anyLong());
@@ -527,7 +527,7 @@ class AdvertisementServiceTest {
         User user = users.getLast();
         when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
 
-        assertThrows(AccessDeniedException.class, () -> sut.delete(expected, user));
+        assertThrows(AccessDeniedException.class, () -> sut.delete(expected.getId(), user));
 
         verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).deleteById(anyLong());
@@ -538,11 +538,11 @@ class AdvertisementServiceTest {
     @Test
     void deleteByAdminDoesNotThrowException() {
         Advertisement expected = advertisements.getFirst();
-        when(advertisementRepository.existsById(anyLong())).thenReturn(true);
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.of(expected));
 
-        assertDoesNotThrow(() -> sut.delete(expected));
+        assertDoesNotThrow(() -> sut.delete(expected.getId()));
 
-        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(1)).deleteById(anyLong());
         verify(commentRepository, times(1)).deleteByAdvertisement_Id(anyLong());
         verify(messageRepository, times(1)).deleteByAdvertisement_Id(anyLong());
@@ -551,11 +551,11 @@ class AdvertisementServiceTest {
     @Test
     void deleteByAdminThrowsNoEntityException() {
         Advertisement expected = advertisements.getFirst();
-        when(advertisementRepository.existsById(anyLong())).thenReturn(false);
+        when(advertisementRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NoEntityException.class, () -> sut.delete(expected));
+        assertThrows(NoEntityException.class, () -> sut.delete(expected.getId()));
 
-        verify(advertisementRepository, times(1)).existsById(anyLong());
+        verify(advertisementRepository, times(1)).findById(anyLong());
         verify(advertisementRepository, times(0)).deleteById(anyLong());
         verify(commentRepository, times(0)).deleteByAdvertisement_Id(anyLong());
         verify(messageRepository, times(0)).deleteByAdvertisement_Id(anyLong());

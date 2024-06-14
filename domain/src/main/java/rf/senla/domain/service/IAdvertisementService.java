@@ -33,15 +33,15 @@ public interface IAdvertisementService {
     Advertisement update(Advertisement advertisement);
 
     /** Удаление объявления с переданным пользователем
-     * @param advertisement объявление
+     * @param id ID объявления
      * @param sender данные пользователя
      */
-    void delete(Advertisement advertisement, UserDetails sender);
+    void delete(Long id, UserDetails sender);
 
     /** Удаление объявления
-     * @param advertisement объявление
+     * @param id ID объявления
      */
-    void delete(Advertisement advertisement);
+    void delete(Long id);
 
     /**
      * Получение списка объявлений с пагинацией

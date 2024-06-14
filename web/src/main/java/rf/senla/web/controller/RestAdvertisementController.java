@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 import rf.senla.web.dto.AdvertisementDto;
 import rf.senla.web.dto.CreateAdvertisementRequest;
 import rf.senla.domain.service.IAdvertisementService;
-import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.web.dto.UpdateAdvertisementRequest;
 import rf.senla.web.utils.AdvertisementMapper;
 
@@ -204,23 +203,22 @@ public class RestAdvertisementController {
 
     /**
      * Удалить объявление.
-     * @param request объект {@link DeleteByIdRequest} с данными объявления для удаления
+     * @param id ID объявления
      * @param user текущий пользователь
      * @return объект {@link ResponseEntity} с сообщением об успешном удалении и кодом 200 OK в случае успеха
      */
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @Operation(summary = "Удалить объявление")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
                     examples = @ExampleObject(value = "Deleted advertisement with ID: 1")))
     })
     public ResponseEntity<String> delete(
-            @Parameter(description = "Данные объявления", required = true,
-                    content = @Content(schema = @Schema(implementation = DeleteByIdRequest.class)))
-            @RequestBody @Valid DeleteByIdRequest request,
+            @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
             @AuthenticationPrincipal UserDetails user) {
-        service.delete(mapper.toEntity(request), user);
-        return ResponseEntity.ok("Deleted advertisement with ID: " + request.getId());
+        service.delete(id, user);
+        return ResponseEntity.ok("Deleted advertisement with ID: " + id);
     }
 
     /**
@@ -264,10 +262,10 @@ public class RestAdvertisementController {
 
     /**
      * Удалить объявление.
-     * @param request объект {@link AdvertisementDto} с данными объявления для удаления
+     * @param id ID объявления
      * @return объект {@link ResponseEntity} с сообщением об успешном удалении и кодом 200 OK в случае успеха
      */
-    @DeleteMapping("${spring.data.rest.admin-path}")
+    @DeleteMapping("${spring.data.rest.admin-path}/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Удалить объявление админом")
     @ApiResponses(value = {
@@ -275,10 +273,9 @@ public class RestAdvertisementController {
                     examples = @ExampleObject(value = "Deleted advertisement with ID: 1")))
     })
     public ResponseEntity<String> deleteByAdmin(
-            @Parameter(description = "Данные объявления", required = true,
-                    content = @Content(schema = @Schema(implementation = AdvertisementDto.class)))
-            @RequestBody @Valid DeleteByIdRequest request) {
-        service.delete(mapper.toEntity(request));
-        return ResponseEntity.ok("Deleted advertisement with ID: " + request.getId());
+            @Parameter(description = "ID объявления", example = "1", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
+        service.delete(id);
+        return ResponseEntity.ok("Deleted advertisement with ID: " + id);
     }
 }

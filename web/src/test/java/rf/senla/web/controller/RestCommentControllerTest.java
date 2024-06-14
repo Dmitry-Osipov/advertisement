@@ -16,7 +16,6 @@ import rf.senla.domain.entity.AdvertisementStatus;
 import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.web.dto.CreateCommentRequest;
-import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.web.dto.UpdateCommentRequest;
 import rf.senla.web.utils.AdvertisementMapper;
 import rf.senla.web.utils.UserMapper;
@@ -153,40 +152,25 @@ class RestCommentControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void deleteByUserDoesNotThrowException() {
-        DeleteByIdRequest comment = new DeleteByIdRequest(3L);
-        String request = objectMapper.writeValueAsString(comment);
-
-        sut.perform(delete("/api/comments")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/comments/3"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted comment with ID: " + comment.getId()));
+                .andExpect(jsonPath("$").value("Deleted comment with ID: 3"));
     }
 
     @Test
     @SneakyThrows
     @WithMockUser(value = "admin", roles = "ADMIN")
     void deleteByAdminDoesNotThrowException() {
-        DeleteByIdRequest comment = new DeleteByIdRequest(3L);
-        String request = objectMapper.writeValueAsString(comment);
-
-        sut.perform(delete("/api/comments")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/comments/3"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("Deleted comment with ID: " + comment.getId()));
+                .andExpect(jsonPath("$").value("Deleted comment with ID: 3"));
     }
 
     @Test
     @SneakyThrows
     @WithMockUser("soccer_fanatic")
     void deleteByAnotherUserThrowsException() {
-        DeleteByIdRequest comment = new DeleteByIdRequest(3L);
-        String request = objectMapper.writeValueAsString(comment);
-
-        sut.perform(delete("/api/comments")
-                        .contentType("application/json")
-                        .content(request))
+        sut.perform(delete("/api/comments/3"))
                 .andExpect(status().isBadRequest());
     }
 }

@@ -517,7 +517,7 @@ class MessageServiceTest {
         User user = users.getFirst();
         when(messageRepository.findById(anyLong())).thenReturn(Optional.of(message));
 
-        assertDoesNotThrow(() -> sut.delete(message, user));
+        assertDoesNotThrow(() -> sut.delete(message.getId(), user));
 
         verify(messageRepository, times(1)).delete(any());
         verify(messageRepository, times(1)).findById(anyLong());
@@ -529,7 +529,7 @@ class MessageServiceTest {
         User user = users.getFirst();
         when(messageRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NoEntityException.class, () -> sut.delete(message, user));
+        assertThrows(NoEntityException.class, () -> sut.delete(message.getId(), user));
 
         verify(messageRepository, times(1)).findById(anyLong());
         verify(messageRepository, times(0)).delete(any());
@@ -541,7 +541,7 @@ class MessageServiceTest {
         User user = users.getLast();
         when(messageRepository.findById(anyLong())).thenReturn(Optional.of(message));
 
-        assertThrows(AccessDeniedException.class, () -> sut.delete(message, user));
+        assertThrows(AccessDeniedException.class, () -> sut.delete(message.getId(), user));
 
         verify(messageRepository, times(1)).findById(anyLong());
         verify(messageRepository, times(0)).delete(any());

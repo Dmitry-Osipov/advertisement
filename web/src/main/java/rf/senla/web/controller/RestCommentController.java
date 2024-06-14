@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 import rf.senla.web.dto.CommentDto;
 import rf.senla.domain.service.ICommentService;
 import rf.senla.web.dto.CreateCommentRequest;
-import rf.senla.web.dto.DeleteByIdRequest;
 import rf.senla.web.dto.UpdateCommentRequest;
 import rf.senla.web.utils.CommentMapper;
 
@@ -143,22 +142,21 @@ public class RestCommentController {
 
     /**
      * Удалить комментарий.
-     * @param request данные удаляемого комментария в формате JSON
+     * @param id ID комментария
      * @param user текущий пользователь
      * @return ответ с кодом 200 (OK) и сообщением об успешном удалении
      */
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @Operation(summary = "Удалить комментарий")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
                     examples = @ExampleObject(value = "Deleted comment with ID: 1")))
     })
     public ResponseEntity<String> delete(
-            @Parameter(description = "Данные объявления", required = true,
-                    content = @Content(schema = @Schema(implementation = DeleteByIdRequest.class)))
-            @Valid @RequestBody DeleteByIdRequest request,
+            @Parameter(description = "ID комментария", example = "1", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
             @AuthenticationPrincipal UserDetails user) {
-        service.delete(request.getId(), user);
-        return ResponseEntity.ok("Deleted comment with ID: " + request.getId());
+        service.delete(id, user);
+        return ResponseEntity.ok("Deleted comment with ID: " + id);
     }
 }
