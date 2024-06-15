@@ -14,6 +14,7 @@ import rf.senla.domain.entity.Role;
 import rf.senla.domain.entity.User;
 import rf.senla.domain.exception.EntityContainedException;
 import rf.senla.domain.exception.NoEntityException;
+import rf.senla.domain.exception.TechnicalException;
 import rf.senla.domain.repository.AdvertisementRepository;
 import rf.senla.domain.repository.CommentRepository;
 import rf.senla.domain.repository.MessageRepository;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -331,25 +333,48 @@ class AdvertisementServiceTest {
     }
 
     @Test
+    void getAllWithCorrectDataDoesNotThrowException() {
+        when(advertisementRepository.findAllWithActiveStatus(anyInt(), anyInt(), anyString(), any()))
+                .thenReturn(advertisements);
+
+        assertDoesNotThrow(() -> sut.getAll(0, 5000, "one", Pageable.ofSize(20)));
+
+        verify(advertisementRepository, times(1))
+                .findAllWithActiveStatus(anyInt(), anyInt(), anyString(), any());
+    }
+
+    @Test
+    void getAllWithIncorrectDataThrowsException() {
+        when(advertisementRepository.findAllWithActiveStatus(anyInt(), anyInt(), anyString(), any()))
+                .thenReturn(advertisements);
+
+        assertThrows(TechnicalException.class,
+                () -> sut.getAll(50000, 0, null, Pageable.ofSize(20)));
+
+        verify(advertisementRepository, times(0))
+                .findAllWithActiveStatus(anyInt(), anyInt(), anyString(), any());
+    }
+
+    @Test
     void getAllByUserWithActiveStatusDoesNotThrowException() {
         when(userService.getByUsername(anyString())).thenReturn(users.getFirst());
-        when(advertisementRepository.findByUserWithActiveStatus(any(), any())).thenReturn(advertisements);
+        when(advertisementRepository.findByUser(any(), any(), any())).thenReturn(advertisements);
 
         assertDoesNotThrow(() -> sut.getAll(anyString(), true, Pageable.ofSize(20)));
 
         verify(userService, times(1)).getByUsername(anyString());
-        verify(advertisementRepository, times(1)).findByUserWithActiveStatus(any(), any());
+        verify(advertisementRepository, times(1)).findByUser(any(), any(), any());
     }
 
     @Test
     void getAllByUserWithAnyStatusDoesNotThrowException() {
         when(userService.getByUsername(anyString())).thenReturn(users.getFirst());
-        when(advertisementRepository.findByUser(any(), any())).thenReturn(advertisements);
+        when(advertisementRepository.findByUser(any(), any(), any())).thenReturn(advertisements);
 
         assertDoesNotThrow(() -> sut.getAll(anyString(), false, Pageable.ofSize(20)));
 
         verify(userService, times(1)).getByUsername(anyString());
-        verify(advertisementRepository, times(1)).findByUser(any(), any());
+        verify(advertisementRepository, times(1)).findByUser(any(), any(), any());
     }
 
     @Test

@@ -100,15 +100,13 @@ public class AdvertisementService implements IAdvertisementService {
     }
 
     @Override
-    public List<Advertisement> getAll(Integer min, Integer max, String headline, String description, Pageable pageable) {
-        log.info("Получение списка объявлений по заголовку {}, по объявлению {} в промежутке цен {} и {}, " +
-                        "с пагинацией {}", headline, description, min, max, pageable);
-
-        Result prices = getPrices(min, max);
-        List<Advertisement> list =
-                repository.findAllWithActiveStatus(prices.min(), prices.max(), headline, description, pageable);
+    @Transactional
+    public List<Advertisement> getAll(Integer min, Integer max, String keyword, Pageable pageable) {
+        log.info("Получение списка объявлений по ключевому слову {} в промежутке цен {} и {}, с пагинацией {}",
+                keyword, min, max, pageable);
+        Prices prices = getPrices(min, max);
+        List<Advertisement> list = repository.findAllWithActiveStatus(prices.min, prices.max, keyword, pageable);
         successfullyListLog(list);
-
         return list;
     }
 
@@ -118,20 +116,13 @@ public class AdvertisementService implements IAdvertisementService {
         log.info("Получение списка объявлений пользователя - {}, флаг только активных объявлений - {}, " +
                 "с пагинацией - {}", username, active, pageable);
         User user = userService.getByUsername(username);
-
-        List<Advertisement> list;
-        if (Boolean.FALSE.equals(active) || active == null) {
-            list = repository.findByUser(user, pageable);
-        } else {
-            list = repository.findByUserWithActiveStatus(user, pageable);
-        }
+        List<Advertisement> list = repository.findByUser(user, active, pageable);
         successfullyListLog(list);
-
         return list;
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Advertisement getById(Long id) {
         try {
             log.info("Получение объявления с ID {}", id);
@@ -197,7 +188,7 @@ public class AdvertisementService implements IAdvertisementService {
      * @param max максимальная цена
      * @return record-объект с ценами
      */
-    private static Result getPrices(Integer min, Integer max) {
+    private static Prices getPrices(Integer min, Integer max) {
         if (min == null) {
             min = 0;
         }
@@ -211,7 +202,7 @@ public class AdvertisementService implements IAdvertisementService {
             throw new TechnicalException(ErrorMessage.MIN_PRICE_IS_HIGHEST.getMessage());
         }
 
-        return new Result(min, max);
+        return new Prices(min, max);
     }
 
     /**
@@ -219,7 +210,7 @@ public class AdvertisementService implements IAdvertisementService {
      * @param min минимальная цена
      * @param max максимальная цена
      */
-    private record Result(Integer min, Integer max) {
+    private record Prices(Integer min, Integer max) {
     }
 
     /**

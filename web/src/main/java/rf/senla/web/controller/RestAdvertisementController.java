@@ -57,8 +57,7 @@ public class RestAdvertisementController {
      * Получить список объявлений по заголовку в промежутке цен с условием сортировки и пагинацией.
      * @param minPrice минимальная цена
      * @param maxPrice максимальная цена
-     * @param headline заголовок
-     * @param description описание
+     * @param keyword ключевое слово поиска в заголовке или описании
      * @param pageable пагинация
      * @return объект {@link ResponseEntity} со списком объявлений и кодом 200 OK в случае успеха
      */
@@ -90,14 +89,11 @@ public class RestAdvertisementController {
             @RequestParam(value = "max", required = false) @Min(0) @Max(Integer.MAX_VALUE) Integer maxPrice,
 
             @Parameter(description = "Заголовок", example = "smartphone", in = ParameterIn.QUERY)
-            @RequestParam(value = "headline", required = false) String headline,
-
-            @Parameter(description = "Описание", example = "clamshell", in = ParameterIn.QUERY)
-            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "keyword", required = false) String keyword,
 
             @PageableDefault(sort = {"boosted", "user.rating"}, direction = Sort.Direction.DESC)
             Pageable pageable) {
-        return ResponseEntity.ok(mapper.toDtos(service.getAll(minPrice, maxPrice, headline, description, pageable)));
+        return ResponseEntity.ok(mapper.toDtos(service.getAll(minPrice, maxPrice, keyword, pageable)));
     }
 
     /**

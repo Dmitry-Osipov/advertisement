@@ -74,10 +74,9 @@ class RestAdvertisementControllerTest {
         sut.perform(get("/api/advertisements")
                         .param("min", "500")
                         .param("max", "5000")
-                        .param("headline", "one")
-                        .param("description", "or"))
+                        .param("keyword", "one"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.length()").value(5));
     }
 
     @Test

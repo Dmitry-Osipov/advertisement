@@ -44,10 +44,10 @@ class AdvertisementRepositoryTest {
     @Test
     void findAllWithActiveStatusAndAllParamsReturnsCorrectData() {
         Pageable pageable = Pageable.ofSize(20);
-        int size = 2;
+        int size = 5;
 
         List<Advertisement> actual = assertDoesNotThrow(() ->
-                sut.findAllWithActiveStatus(0, 10000, "one", "or", pageable));
+                sut.findAllWithActiveStatus(0, 10000, "one", pageable));
 
         assertEquals(size, actual.size());
     }
@@ -58,7 +58,7 @@ class AdvertisementRepositoryTest {
         int size = 10;
 
         List<Advertisement> actual = assertDoesNotThrow(() ->
-                sut.findAllWithActiveStatus(0, Integer.MAX_VALUE, null, null, pageable));
+                sut.findAllWithActiveStatus(0, Integer.MAX_VALUE, null, pageable));
 
         assertEquals(size, actual.size());
     }
@@ -78,30 +78,9 @@ class AdvertisementRepositoryTest {
         sut.save(advertisement);
         int size = 2;
 
-        List<Advertisement> actual = assertDoesNotThrow(() -> sut.findByUser(user, pageable));
+        List<Advertisement> actual = assertDoesNotThrow(() -> sut.findByUser(user, null, pageable));
 
         assertEquals(size, actual.size());
-    }
-
-    @Test
-    void findByUserWithActiveStatusReturnsCorrectData() {
-        Pageable pageable = Pageable.ofSize(20);
-        User user = userRepository.findByUsername("user123").orElseThrow();
-        Advertisement advertisement = Advertisement.builder()
-                .user(user)
-                .headline("Test headline")
-                .description("Test description")
-                .price(0)
-                .status(AdvertisementStatus.REVIEW)
-                .boosted(false)
-                .build();
-        sut.save(advertisement);
-        int size = 1;
-
-        List<Advertisement> actual = assertDoesNotThrow(() -> sut.findByUserWithActiveStatus(user, pageable));
-
-        assertEquals(size, actual.size());
-        assert actual.stream().allMatch(ad -> ad.getStatus().equals(AdvertisementStatus.ACTIVE));
     }
 
     @Test

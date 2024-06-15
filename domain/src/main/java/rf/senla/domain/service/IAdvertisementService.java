@@ -47,12 +47,11 @@ public interface IAdvertisementService {
      * Получить список объявлений
      * @param min минимальная цена
      * @param max максимальная цена
-     * @param headline заголовок
-     * @param description описание
+     * @param keyword ключевое слово в заголовке или описании
      * @param pageable пагинация
      * @return список объявлений
      */
-    List<Advertisement> getAll(Integer min, Integer max, String headline, String description, Pageable pageable);
+    List<Advertisement> getAll(Integer min, Integer max, String keyword, Pageable pageable);
 
     /**
      * Получить объявления по пользователю
