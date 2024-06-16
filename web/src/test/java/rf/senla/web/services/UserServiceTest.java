@@ -31,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -66,7 +65,6 @@ class UserServiceTest {
                 .phoneNumber("+7(123)456-78-90")
                 .rating(0.0)
                 .email("storm-yes@yandex.ru")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -78,7 +76,6 @@ class UserServiceTest {
                 .phoneNumber("+7(456)789-01-23")
                 .rating(100.0)
                 .email("john.doe@gmail.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -90,7 +87,6 @@ class UserServiceTest {
                 .phoneNumber("+7(789)012-34-56")
                 .rating(200.0)
                 .email("jane.smith@yahoo.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -102,7 +98,6 @@ class UserServiceTest {
                 .phoneNumber("+7(234)567-89-01")
                 .rating(200.0)
                 .email("alexander.wilson@hotmail.com")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -114,7 +109,6 @@ class UserServiceTest {
                 .phoneNumber("+7(567)890-12-34")
                 .rating(300.0)
                 .email("emily.jones@outlook.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -126,7 +120,6 @@ class UserServiceTest {
                 .phoneNumber("+7(890)123-45-67")
                 .rating(350.0)
                 .email("david.brown@mail.ru")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -138,7 +131,6 @@ class UserServiceTest {
                 .phoneNumber("+7(345)678-90-12")
                 .rating(400.0)
                 .email("sarah.wilson@icloud.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -150,7 +142,6 @@ class UserServiceTest {
                 .phoneNumber("+7(678)901-23-45")
                 .rating(500.0)
                 .email("michael.johnson@aol.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -162,7 +153,6 @@ class UserServiceTest {
                 .phoneNumber("+7(901)234-56-78")
                 .rating(500.0)
                 .email("laura.davis@yandex.ru")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -174,7 +164,6 @@ class UserServiceTest {
                 .phoneNumber("+7(432)109-87-65")
                 .rating(500.0)
                 .email("james.miller@protonmail.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -186,7 +175,6 @@ class UserServiceTest {
                 .phoneNumber("+7(210)987-65-43")
                 .rating(0.0)
                 .email("olivia.taylor@live.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -198,7 +186,6 @@ class UserServiceTest {
                 .phoneNumber("+7(098)765-43-21")
                 .rating(0.0)
                 .email("william.anderson@inbox.lv")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -210,7 +197,6 @@ class UserServiceTest {
                 .phoneNumber("+7(876)543-21-09")
                 .rating(0.0)
                 .email("sophia.thomas@bk.ru")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -222,7 +208,6 @@ class UserServiceTest {
                 .phoneNumber("+7(953)180-00-61")
                 .rating(0.0)
                 .email("jacob.moore@rambler.ru")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -234,7 +219,6 @@ class UserServiceTest {
                 .phoneNumber("+7(902)902-98-11")
                 .rating(0.0)
                 .email("dimaosipov00@gmail.com")
-                .boosted(false)
                 .role(Role.ROLE_ADMIN)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -335,30 +319,6 @@ class UserServiceTest {
 
         verify(userRepository, times(1)).findByUsername(anyString());
         verify(userRepository, times(0)).save(any());
-    }
-
-    @Test
-    void setBoostedDoesNotThrowException() {
-        User expected = users.getFirst();
-        when(userRepository.save(any())).thenReturn(expected);
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(expected));
-
-        User actual = assertDoesNotThrow(() -> sut.setBoosted(expected));
-
-        assertTrue(actual.getBoosted());
-        verify(userRepository, times(1)).save(any());
-        verify(userRepository, times(1)).findByUsername(anyString());
-    }
-
-    @Test
-    void setBoostedThrowsUsernameNotFoundException() {
-        User expected = users.getFirst();
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class, () -> sut.setBoosted(expected));
-
-        verify(userRepository, times(0)).save(any());
-        verify(userRepository, times(1)).findByUsername(anyString());
     }
 
     @Test

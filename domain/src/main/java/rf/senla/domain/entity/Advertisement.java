@@ -49,4 +49,7 @@ public class Advertisement {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private AdvertisementStatus status;
+
+    @Column(name = "boosted", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean boosted;
 }

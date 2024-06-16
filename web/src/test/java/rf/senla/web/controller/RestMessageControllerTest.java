@@ -57,7 +57,6 @@ class RestMessageControllerTest {
                 .phoneNumber("+7(123)456-78-90")
                 .rating(0.0)
                 .email("storm-yes@yandex.ru")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -70,7 +69,6 @@ class RestMessageControllerTest {
                 .phoneNumber("+7(456)789-01-23")
                 .rating(0.0)
                 .email("john.doe@gmail.com")
-                .boosted(false)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -84,6 +82,7 @@ class RestMessageControllerTest {
                 .description("A portable computer that is small and light enough to be used on one's lap, typically " +
                         "with a clamshell form factor and a built-in keyboard and display.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
     }
 

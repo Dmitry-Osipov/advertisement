@@ -47,4 +47,7 @@ public class AdvertisementDto {
     @Size(min = 4, max = 50, message = "Длина статуса должна быть от 4 до 50 символов")
     @NotBlank(message = "Статус не может быть пустым")
     private String status;
+
+    @Schema(description = "Помощь в продвижении", example = "false")
+    private Boolean boosted;
 }

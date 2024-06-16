@@ -83,14 +83,14 @@ public class RestUserController {
                             schema = @Schema(implementation = UserDto.class),
                             examples = @ExampleObject(value = "[ {\"id\": 1,\"username\": \"John_Doe\"," +
                                     "\"phoneNumber\": \"+7(777)777-77-77\",\"rating\": 4.8,\"email\": " +
-                                    "\"johndoe@gmail.com\",\"boosted\": false,\"role\": \"ROLE_USER\"}, {\"id\": 2," +
+                                    "\"johndoe@gmail.com\",\"role\": \"ROLE_USER\"}, {\"id\": 2," +
                                     "\"username\": \"Jane_Smith\",\"phoneNumber\": \"+7(888)888-88-88\",\"rating\": " +
-                                    "4.5,\"email\": \"janesmith@gmail.com\",\"boosted\": true,\"role\": " +
+                                    "4.5,\"email\": \"janesmith@gmail.com\",\"role\": " +
                                     "\"ROLE_ADMIN\"} ]")
                     ))
     })
     public ResponseEntity<List<UserDto>> getAll(
-            @PageableDefault(sort = {"boosted", "rating"}, direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(sort = "rating", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(mapper.toDtos(service.getAll(pageable)));
     }
 
@@ -170,20 +170,6 @@ public class RestUserController {
             @PathVariable @NotBlank @Size(min = 5, max = 50) String username) {
         service.setAdminRole(username);
         return ResponseEntity.ok("The admin role is set to " + username);
-    }
-
-    /**
-     * Метод для продвижения пользователя.
-     * @return строка с сообщением об успешном продвижении
-     */
-    @PutMapping("/boosted")
-    @Operation(summary = "Метод для продвижения пользователя")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "text/plain",
-                    examples = @ExampleObject(value = "User John_Doe has received a boost")))
-    })
-    public ResponseEntity<String> setBoosted(@AuthenticationPrincipal UserDetails user) {
-        return ResponseEntity.ok("User " + service.setBoosted(user).getUsername() + " has received a boost");
     }
 
     /**

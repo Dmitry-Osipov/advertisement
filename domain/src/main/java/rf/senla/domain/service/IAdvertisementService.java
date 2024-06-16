@@ -44,30 +44,23 @@ public interface IAdvertisementService {
     void delete(Long id);
 
     /**
-     * Получение списка объявлений с пагинацией
+     * Получить список объявлений
+     * @param min минимальная цена
+     * @param max максимальная цена
+     * @param keyword ключевое слово в заголовке или описании
      * @param pageable пагинация
      * @return список объявлений
      */
-    List<Advertisement> getAll(Pageable pageable);
+    List<Advertisement> getAll(Integer min, Integer max, String keyword, Pageable pageable);
 
     /**
-     * Получить объявления по пользователю с пагинацией.
+     * Получить объявления по пользователю
      * @param username логин пользователя
-     * @param active выводить только активные заказы
+     * @param active флаг только активных заказов
      * @param pageable пагинация
      * @return список объявлений
      */
     List<Advertisement> getAll(String username, Boolean active, Pageable pageable);
-
-    /**
-     * Получить объявления по заголовку в промежутке цен с пагинацией.
-     * @param min минимальная цена
-     * @param max максимальная цена
-     * @param headline заголовок
-     * @param pageable пагинация
-     * @return список объявлений
-     */
-    List<Advertisement> getAll(Integer min, Integer max, String headline, Pageable pageable);
 
     /**
      * Получить объявление по его id.
@@ -84,4 +77,12 @@ public interface IAdvertisementService {
      * @return обновлённое объявление
      */
     Advertisement sell(Long id, UserDetails sender);
+
+    /**
+     * Продвижение объявления
+     * @param id ID объявления
+     * @param sender пользователь, отправивший запрос
+     * @return Обновлённое объявление
+     */
+    Advertisement boost(Long id, UserDetails sender);
 }

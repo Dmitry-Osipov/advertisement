@@ -152,17 +152,6 @@ public class UserService implements IUserService {
     }
 
     @Override
-    @Transactional
-    public User setBoosted(UserDetails userDetails) {
-        User user = getByUsername(userDetails.getUsername());
-        log.info("Установка продвижения для пользователя {}", user);
-        user.setBoosted(true);
-        user = save(user);
-        log.info("Удалось установить продвижение для пользователя {}", user);
-        return user;
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public User getByResetPasswordToken(String token) {
         try {

@@ -50,7 +50,6 @@ class RestAdvertisementControllerTest {
                 .phoneNumber("+7(123)456-78-90")
                 .rating(0.0)
                 .email("storm-yes@yandex.ru")
-                .boosted(true)
                 .role(Role.ROLE_USER)
                 .resetPasswordToken(null)
                 .resetPasswordTokenExpiryDate(null)
@@ -64,57 +63,29 @@ class RestAdvertisementControllerTest {
                 .description("A portable device combining the functions of a mobile phone and a computer, typically " +
                         "offering internet access, touchscreen interface, and various applications.")
                 .status(AdvertisementStatus.ACTIVE)
+                .boosted(false)
                 .build();
     }
 
     @Test
     @SneakyThrows
     @WithMockUser("user123")
-    void getAllReturnsCorrectData() {
-        sut.perform(get("/api/advertisements"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(10));
-    }
-
-    @Test
-    @SneakyThrows
-    @WithMockUser("user123")
-    void getAllByPriceAndHeadlineReturnsCorrectData() {
-        sut.perform(get("/api/advertisements/filter")
+    void getAllActiveReturnsCorrectData() {
+        sut.perform(get("/api/advertisements")
                         .param("min", "500")
                         .param("max", "5000")
-                        .param("headline", "smartphone"))
+                        .param("keyword", "one"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.length()").value(5));
     }
 
     @Test
     @SneakyThrows
     @WithMockUser("user123")
-    void getAllByPriceAndHeadlineWithoutHeadlineReturnsCorrectData() {
-        sut.perform(get("/api/advertisements/filter")
-                        .param("min", "5000")
-                        .param("max", "7000"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(3));
-    }
-
-    @Test
-    @SneakyThrows
-    @WithMockUser("user123")
-    void getAllByPriceAndHeadlineWithIncorrectDataThrowsException() {
-        sut.perform(get("/api/advertisements/filter")
+    void getAllActiveWithIncorrectDataThrowsException() {
+        sut.perform(get("/api/advertisements")
                         .param("min", "5000")
                         .param("max", "1000"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @SneakyThrows
-    @WithMockUser("user123")
-    void getAllByPriceAndHeadlineWithoutThrowsException() {
-        sut.perform(get("/api/advertisements/filter")
-                        .param("headline", "smartphone"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -243,7 +214,7 @@ class RestAdvertisementControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void sellReturnsCorrectData() {
-        sut.perform(put("/api/advertisements/1/sold"))
+        sut.perform(put("/api/advertisements/1/selling"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user").value(userMapper.toDto(user)))
                 .andExpect(jsonPath("$.price").value(advertisement.getPrice()))
@@ -256,7 +227,7 @@ class RestAdvertisementControllerTest {
     @SneakyThrows
     @WithMockUser("soccer_fanatic")
     void sellByAnotherUserThrowsException() {
-        sut.perform(put("/api/advertisements/1/sold"))
+        sut.perform(put("/api/advertisements/1/selling"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -264,7 +235,7 @@ class RestAdvertisementControllerTest {
     @SneakyThrows
     @WithMockUser("user123")
     void sellWithIncorrectDataThrowsException() {
-        sut.perform(put("/api/advertisements/0/sold"))
+        sut.perform(put("/api/advertisements/0/selling"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -313,6 +284,23 @@ class RestAdvertisementControllerTest {
     @WithMockUser("user123")
     void deleteByRoleUserThrowsException() {
         sut.perform(delete("/api/advertisements/admin/1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    @WithMockUser("user123")
+    void boostReturnsCorrectData() {
+        sut.perform(put("/api/advertisements/1/promotion"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value("Advertisement with ID 1 has received a boost"));
+    }
+
+    @Test
+    @SneakyThrows
+    @WithMockUser("soccer_fanatic")
+    void boostThrowsException() {
+        sut.perform(put("/api/advertisements/1/promotion"))
                 .andExpect(status().isBadRequest());
     }
 }

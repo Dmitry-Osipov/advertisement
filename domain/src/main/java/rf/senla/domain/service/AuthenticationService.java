@@ -35,7 +35,6 @@ public class AuthenticationService implements IAuthenticationService {
     public String signUp(User user) {
         log.info("Регистрация пользователя {}", user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setBoosted(Boolean.FALSE);
         user.setRole(Role.ROLE_USER);
         user.setRating(0.0);
         userService.create(user);

@@ -33,6 +33,7 @@ class AdvertisementRepositoryTest {
                 .description("Test description")
                 .price(0)
                 .status(AdvertisementStatus.REVIEW)
+                .boosted(false)
                 .build();
 
         Advertisement actual = assertDoesNotThrow(() -> sut.save(expected));
@@ -41,59 +42,25 @@ class AdvertisementRepositoryTest {
     }
 
     @Test
-    void findAllWithActiveStatusReturnsCorrectData() {
-        Advertisement advertisement = Advertisement.builder()
-                .user(userRepository.findByUsername("user123").orElseThrow())
-                .headline("Test Headline")
-                .description("Test description")
-                .price(0)
-                .status(AdvertisementStatus.REVIEW)
-                .build();
-        sut.save(advertisement);
+    void findAllWithActiveStatusAndAllParamsReturnsCorrectData() {
+        Pageable pageable = Pageable.ofSize(20);
+        int size = 5;
+
+        List<Advertisement> actual = assertDoesNotThrow(() ->
+                sut.findAllWithActiveStatus(0, 10000, "one", pageable));
+
+        assertEquals(size, actual.size());
+    }
+
+    @Test
+    void findAllWithActiveStatusAndWithoutParamsReturnsCorrectData() {
         Pageable pageable = Pageable.ofSize(20);
         int size = 10;
 
-        List<Advertisement> actual = assertDoesNotThrow(() -> sut.findAllWithActiveStatus(pageable));
-
-        assertEquals(size, actual.size());
-        assert actual.stream().allMatch(ad -> ad.getStatus().equals(AdvertisementStatus.ACTIVE));
-    }
-
-    @Test
-    void findByPriceBetweenWithActiveStatusReturnsCorrectData() {
-        Pageable pageable = Pageable.ofSize(20);
-        int minPrice = 5000;
-        int masPrice = 7000;
-        int size = 3;
-
         List<Advertisement> actual = assertDoesNotThrow(() ->
-                sut.findByPriceBetweenWithActiveStatus(minPrice, masPrice, pageable));
+                sut.findAllWithActiveStatus(0, Integer.MAX_VALUE, null, pageable));
 
         assertEquals(size, actual.size());
-        assert actual.stream().allMatch(ad -> ad.getStatus().equals(AdvertisementStatus.ACTIVE));
-    }
-
-    @Test
-    void findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatusReturnsCorrectData() {
-        Pageable pageable = Pageable.ofSize(20);
-        String headline = "Smartphone";
-        int minPrice = 0;
-        int maxPrice = 10_000;
-        Advertisement advertisement = Advertisement.builder()
-                .user(userRepository.findByUsername("user123").orElseThrow())
-                .headline(headline)
-                .description("Test description")
-                .price(0)
-                .status(AdvertisementStatus.REVIEW)
-                .build();
-        sut.save(advertisement);
-        int size = 1;
-
-        List<Advertisement> actual = assertDoesNotThrow(() ->
-                sut.findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(minPrice, maxPrice, headline, pageable));
-
-        assertEquals(size, actual.size());
-        assert actual.stream().allMatch(ad -> ad.getStatus().equals(AdvertisementStatus.ACTIVE));
     }
 
     @Test
@@ -106,33 +73,14 @@ class AdvertisementRepositoryTest {
                 .description("Test description")
                 .price(0)
                 .status(AdvertisementStatus.REVIEW)
+                .boosted(false)
                 .build();
         sut.save(advertisement);
         int size = 2;
 
-        List<Advertisement> actual = assertDoesNotThrow(() -> sut.findByUser(user, pageable));
+        List<Advertisement> actual = assertDoesNotThrow(() -> sut.findByUser(user, null, pageable));
 
         assertEquals(size, actual.size());
-    }
-
-    @Test
-    void findByUserWithActiveStatusReturnsCorrectData() {
-        Pageable pageable = Pageable.ofSize(20);
-        User user = userRepository.findByUsername("user123").orElseThrow();
-        Advertisement advertisement = Advertisement.builder()
-                .user(user)
-                .headline("Test headline")
-                .description("Test description")
-                .price(0)
-                .status(AdvertisementStatus.REVIEW)
-                .build();
-        sut.save(advertisement);
-        int size = 1;
-
-        List<Advertisement> actual = assertDoesNotThrow(() -> sut.findByUserWithActiveStatus(user, pageable));
-
-        assertEquals(size, actual.size());
-        assert actual.stream().allMatch(ad -> ad.getStatus().equals(AdvertisementStatus.ACTIVE));
     }
 
     @Test

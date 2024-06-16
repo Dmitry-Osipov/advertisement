@@ -16,59 +16,35 @@ import java.util.List;
 @Repository
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {
     /**
-     * Получает все объявления, отсортированные по рейтингу пользователя.
-     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
-     * @return Список объявлений, отсортированный по рейтингу пользователя.
-     */
-    @Query("SELECT a FROM Advertisement a WHERE a.status = 'ACTIVE'")
-    List<Advertisement> findAllWithActiveStatus(Pageable pageable);
-
-    /**
-     * Получает объявления с ценой в указанном диапазоне, отсортированные по цене.
-     * @param min Минимальная цена.
-     * @param max Максимальная цена.
-     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
-     * @return Страница объявлений с ценой в указанном диапазоне, отсортированных по цене.
+     * Получить список объявлений
+     * @param min минимальная цена
+     * @param max максимальная цена
+     * @param keyword ключевое слово в заголовке или описании
+     * @param pageable пагинация
+     * @return список объявлений
      */
     @Query("SELECT a FROM Advertisement a " +
             "WHERE a.price BETWEEN :min AND :max " +
+            "AND ( (:keyword) IS NULL OR LOWER(a.headline) LIKE ('%' || LOWER(CAST(:keyword AS text)) || '%') ) " +
+            "OR ( (:keyword) IS NULL OR LOWER(a.description) LIKE ('%' || LOWER(CAST(:keyword AS text)) || '%') ) " +
             "AND a.status = 'ACTIVE'")
-    List<Advertisement> findByPriceBetweenWithActiveStatus(@Param("min") Integer min, @Param("max") Integer max,
-                                                           Pageable pageable);
+    List<Advertisement> findAllWithActiveStatus(@Param("min") Integer min,
+                                                @Param("max") Integer max,
+                                                @Param("keyword") String keyword,
+                                                Pageable pageable);
 
     /**
-     * Получает объявления с ценой в указанном диапазоне и с указанным заголовком,
-     * отсортированные по цене.
-     * @param min Минимальная цена.
-     * @param max Максимальная цена.
-     * @param headline Заголовок объявления.
-     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
-     * @return Страница объявлений с ценой в указанном диапазоне и указанным заголовком, отсортированных по цене.
+     * Получить список объявлений по пользователю
+     * @param user пользователь
+     * @param active флаг только активных заказов
+     * @param pageable пагинация
+     * @return список объявлений пользователя
      */
     @Query("SELECT a FROM Advertisement a " +
-            "WHERE a.price BETWEEN :min AND :max AND LOWER(a.headline) = LOWER(:headline) " +
-            "AND a.status = 'ACTIVE'")
-    List<Advertisement> findByPriceBetweenAndHeadlineIgnoreCaseWithActiveStatus(@Param("min") Integer min,
-                                                                                @Param("max") Integer max,
-                                                                                @Param("headline") String headline,
-                                                                                Pageable pageable);
-
-    /**
-     * Получает объявления для указанного пользователя, отсортированные с учетом любого статуса.
-     * @param user Пользователь, для которого нужно получить объявления.
-     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
-     * @return Страница объявлений для указанного пользователя, отсортированных с учетом любого статуса.
-     */
-    List<Advertisement> findByUser(User user, Pageable pageable);
-
-    /**
-     * Получает активные объявления для указанного пользователя, отсортированные по рейтингу пользователя.
-     * @param user Пользователь, для которого нужно получить активные объявления.
-     * @param pageable Объект {@link Pageable} для управления пагинацией и сортировкой.
-     * @return Страница активных объявлений для указанного пользователя, отсортированных по рейтингу пользователя.
-     */
-    @Query("SELECT a FROM Advertisement a WHERE a.user = :user AND a.status = 'ACTIVE'")
-    List<Advertisement> findByUserWithActiveStatus(@Param("user") User user, Pageable pageable);
+            "WHERE a.user = :user " +
+            "AND ( (:active) IS NULL OR " +
+            "(CASE WHEN :active = TRUE THEN a.status = 'ACTIVE' ELSE 1=1 END) )")
+    List<Advertisement> findByUser(@Param("user") User user, @Param("active") Boolean active, Pageable pageable);
 
     /**
      * Удаление объявления по владельцу
